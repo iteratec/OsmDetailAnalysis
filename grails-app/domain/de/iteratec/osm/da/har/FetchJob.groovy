@@ -1,5 +1,8 @@
 package de.iteratec.osm.da.har
 
+/**
+ * Stores all informations to fetch a HAR from a WPT-Instance and to convert it into the given Assets
+ */
 class FetchJob {
     
     Date created = new Date()
