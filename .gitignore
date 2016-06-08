@@ -31,3 +31,9 @@
 
 # "temporary" build files
 /target
+
+# build files
+/build/
+
+# idea specific files
+/.idea/
