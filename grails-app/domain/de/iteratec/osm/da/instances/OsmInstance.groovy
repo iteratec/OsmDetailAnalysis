@@ -2,6 +2,22 @@ package de.iteratec.osm.da.instances
 
 /**
  * Representation of an OpenSpeedMonitor-Instance which uses this Service.
+ *
+ * Example:
+ *
+ * {
+ *     name:OsmDemo
+ *     url:demo.openspeedmonitor.org
+ *     osmMappings:{
+ *         "Job":{
+ *             domain:"Job",
+ *             mappings:{
+ *                 1: "TestJob"
+ *             }
+ *         }
+ *     }
+ * }
+ *
  */
 class OsmInstance {
 

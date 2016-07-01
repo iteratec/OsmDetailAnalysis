@@ -67,72 +67,72 @@ class DetailAnalysisDashboardController {
      */
     private Map<String, Object> constructStaticViewData() {
         Map<String, Object> result = [:]
-
-        // JobGroups
-        List<JobGroup> jobGroups = eventResultDashboardService.getAllJobGroups()
-        result.put('folders', jobGroups)
-
-        // Pages
-        List<Page> pages = eventResultDashboardService.getAllPages()
-        result.put('pages', pages)
-
-        // MeasuredEvents
-        List<MeasuredEvent> measuredEvents = eventResultDashboardService.getAllMeasuredEvents()
-        result.put('measuredEvents', measuredEvents)
-
-        // Browsers
-        List<Browser> browsers = eventResultDashboardService.getAllBrowser()
-        result.put('browsers', browsers)
-
-        // Locations
-        List<Location> locations = eventResultDashboardService.getAllLocations()
-        result.put('locations', locations)
-
-        // ConnectivityProfiles
-        result['connectivityProfiles'] = eventResultDashboardService.getAllConnectivityProfiles()
-
-        // JavaScript-Utility-Stuff:
-        result.put("dateFormat", DATE_TIME_FORMAT_STRING)
-        result.put("weekStart", MONDAY_WEEKSTART)
-
-        // --- Map<PageID, Set<MeasuredEventID>> for fast view filtering:
-        Map<Long, Set<Long>> eventsOfPages = new HashMap<Long, Set<Long>>()
-        for (Page eachPage : pages) {
-            Set<Long> eventIds = new HashSet<Long>();
-
-            Collection<Long> ids = measuredEvents.findResults {
-                it.testedPage.getId() == eachPage.getId() ? it.getId() : null
-            }
-            if (!ids.isEmpty()) {
-                eventIds.addAll(ids);
-            }
-
-            eventsOfPages.put(eachPage.getId(), eventIds);
-        }
-        result.put('eventsOfPages', eventsOfPages);
-
-        // --- Map<BrowserID, Set<LocationID>> for fast view filtering:
-        Map<Long, Set<Long>> locationsOfBrowsers = new HashMap<Long, Set<Long>>()
-        for (Browser eachBrowser : browsers) {
-            Set<Long> locationIds = new HashSet<Long>();
-
-            Collection<Long> ids = locations.findResults {
-                it.browser.getId() == eachBrowser.getId() ? it.getId() : null
-            }
-            if (!ids.isEmpty()) {
-                locationIds.addAll(ids);
-            }
-
-            locationsOfBrowsers.put(eachBrowser.getId(), locationIds);
-        }
-        result.put('locationsOfBrowsers', locationsOfBrowsers);
-
-        result.put("selectedChartType", 0);
-        result.put("warnAboutExceededPointsPerGraphLimit", false);
-
-        result.put("tagToJobGroupNameMap", jobGroupDaoService.getTagToJobGroupNameMap())
-
-        // Done! :)
+//
+//        // JobGroups
+//        List<JobGroup> jobGroups = eventResultDashboardService.getAllJobGroups()
+//        result.put('folders', jobGroups)
+//
+//        // Pages
+//        List<Page> pages = eventResultDashboardService.getAllPages()
+//        result.put('pages', pages)
+//
+//        // MeasuredEvents
+//        List<MeasuredEvent> measuredEvents = eventResultDashboardService.getAllMeasuredEvents()
+//        result.put('measuredEvents', measuredEvents)
+//
+//        // Browsers
+//        List<Browser> browsers = eventResultDashboardService.getAllBrowser()
+//        result.put('browsers', browsers)
+//
+//        // Locations
+//        List<Location> locations = eventResultDashboardService.getAllLocations()
+//        result.put('locations', locations)
+//
+//        // ConnectivityProfiles
+//        result['connectivityProfiles'] = eventResultDashboardService.getAllConnectivityProfiles()
+//
+//        // JavaScript-Utility-Stuff:
+//        result.put("dateFormat", DATE_TIME_FORMAT_STRING)
+//        result.put("weekStart", MONDAY_WEEKSTART)
+//
+//        // --- Map<PageID, Set<MeasuredEventID>> for fast view filtering:
+//        Map<Long, Set<Long>> eventsOfPages = new HashMap<Long, Set<Long>>()
+//        for (Page eachPage : pages) {
+//            Set<Long> eventIds = new HashSet<Long>();
+//
+//            Collection<Long> ids = measuredEvents.findResults {
+//                it.testedPage.getId() == eachPage.getId() ? it.getId() : null
+//            }
+//            if (!ids.isEmpty()) {
+//                eventIds.addAll(ids);
+//            }
+//
+//            eventsOfPages.put(eachPage.getId(), eventIds);
+//        }
+//        result.put('eventsOfPages', eventsOfPages);
+//
+//        // --- Map<BrowserID, Set<LocationID>> for fast view filtering:
+//        Map<Long, Set<Long>> locationsOfBrowsers = new HashMap<Long, Set<Long>>()
+//        for (Browser eachBrowser : browsers) {
+//            Set<Long> locationIds = new HashSet<Long>();
+//
+//            Collection<Long> ids = locations.findResults {
+//                it.browser.getId() == eachBrowser.getId() ? it.getId() : null
+//            }
+//            if (!ids.isEmpty()) {
+//                locationIds.addAll(ids);
+//            }
+//
+//            locationsOfBrowsers.put(eachBrowser.getId(), locationIds);
+//        }
+//        result.put('locationsOfBrowsers', locationsOfBrowsers);
+//
+//        result.put("selectedChartType", 0);
+//        result.put("warnAboutExceededPointsPerGraphLimit", false);
+//
+//        result.put("tagToJobGroupNameMap", jobGroupDaoService.getTagToJobGroupNameMap())
+//
+//        // Done! :)
         return result;
     }
 
@@ -140,33 +140,33 @@ class DetailAnalysisDashboardController {
         // TODO select data from cmd
 //        def from = cmd.from
 //        def to = cmd.to
-        def from = new Date(0)
-        def to = new Date()
-        def jobGroupIds = cmd.selectedFolder as List
-        def pageIds = cmd.selectedPages as List
-        def browserIds = (cmd.selectedAllBrowsers ? Browser.list()*.id : cmd.selectedBrowsers) as List
-        def locationIds = (cmd.selectedAllLocations ? Location.list()*.id : cmd.selectedLocations) as List
-        def connectivityList = (cmd.selectedAllConnectivityProfiles ? ConnectivityProfile.list()*.name : cmd.selectedConnectivityProfiles) as List
-
-        def graphData = harPersistenceService.getAssets(from, to, [], [], [], [], [])
-//        def graphData = harPersistenceService.getAssets(from, to, jobGroupIds, pageIds, browserIds, locationIds, connectivityList)
-        def graphDataJson = graphData
-        modelToRender.put('graphData', graphDataJson)
-
-        fillWithLabelAliases(modelToRender)
+//        def from = new Date(0)
+//        def to = new Date()
+//        def jobGroupIds = cmd.selectedFolder as List
+//        def pageIds = cmd.selectedPages as List
+//        def browserIds = (cmd.selectedAllBrowsers ? Browser.list()*.id : cmd.selectedBrowsers) as List
+//        def locationIds = (cmd.selectedAllLocations ? Location.list()*.id : cmd.selectedLocations) as List
+//        def connectivityList = (cmd.selectedAllConnectivityProfiles ? ConnectivityProfile.list()*.name : cmd.selectedConnectivityProfiles) as List
+//
+//        def graphData = harPersistenceService.getAssets(from, to, [], [], [], [], [])
+////        def graphData = harPersistenceService.getAssets(from, to, jobGroupIds, pageIds, browserIds, locationIds, connectivityList)
+//        def graphDataJson = graphData
+//        modelToRender.put('graphData', graphDataJson)
+//
+//        fillWithLabelAliases(modelToRender)
     }
 
     private void fillWithLabelAliases(Map<String, Object> modelToRender) {
-        def labelAliases = [:]
-
-        labelAliases['browser'] = [:]
-
-        Browser.list().each {
-            labelAliases['browser'].put(it.id.toString(), it.name)
-        }
-
-        labelAliases = labelAliases as JSON
-
-        modelToRender.put('labelAliases', labelAliases)
+//        def labelAliases = [:]
+//
+//        labelAliases['browser'] = [:]
+//
+//        Browser.list().each {
+//            labelAliases['browser'].put(it.id.toString(), it.name)
+//        }
+//
+//        labelAliases = labelAliases as JSON
+//
+//        modelToRender.put('labelAliases', labelAliases)
     }
 }
