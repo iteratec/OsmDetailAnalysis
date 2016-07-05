@@ -1,0 +1,15 @@
+{
+  "engines": {
+    "node": "6.2.2"
+  },
+  "name": "osm-detail-analysis",
+  "private": false,
+  "version": "0.1.0",
+  "description": "A service for persistence and visualization of detailed web performance data.",
+  "repository": "https://github.com/iteratec/OsmDetailAnalysis",
+  "license": "Apache-2.0",
+  "main": "",
+  "dependencies": {
+    "bower": "^1.6.5"
+  }
+}

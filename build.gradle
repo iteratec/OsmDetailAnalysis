@@ -5,11 +5,13 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
         classpath "org.grails.plugins:hibernate4:5.0.5"
+        classpath 'com.moowork.gradle:gradle-node-plugin:0.13'
     }
 }
 
@@ -22,6 +24,7 @@ apply plugin:"war"
 apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
+apply plugin: 'com.moowork.node'
 
 ext {
     grailsVersion = project.grailsVersion
@@ -71,3 +74,59 @@ assets {
     minifyJs = true
     minifyCss = true
 }
+
+node {
+    //node version to use
+    version = '6.2.2'
+    //npm version to use
+    npmVersion = '3.10.3'
+    // If true, it will download node using above parameters.
+    // If false, it will try to use globally installed node.
+    download = true
+    // Set the work directory for unpacking node
+    workDir = file("${project.buildDir}/nodejs")
+    // Set the work directory where node_modules should be located
+    nodeModulesDir = file("${project.projectDir}/node_modules")
+}
+
+npmInstall{
+    outputs.files file('node_modules')
+}
+
+task bowerInstall(type: NodeTask) {
+    script = file('node_modules/bower/bin/bower')
+    args = ["--config.storage.cache=${gradle.getGradleUserHomeDir()}/caches/bower/cache",
+            "--config.storage.packages=${gradle.getGradleUserHomeDir()}/caches/bower/packages",
+            "--config.storage.registry=${gradle.getGradleUserHomeDir()}/caches/bower/registry",
+            'install']
+    inputs.files file('bower.json')
+    outputs.files file('bower_components')
+    dependsOn npmInstall
+}
+
+task bowerSyncJavascript(type: Sync) {
+    from 'bower_components'
+    into "grails-app/assets/javascripts/bower_components"
+    include 'crossfilter/crossfilter.js'
+    include 'dcjs/dc.js'
+    dependsOn bowerInstall
+}
+
+task bowerSyncStylesheets(type: Sync) {
+    from 'bower_components'
+    into "grails-app/assets/stylesheets/bower_components"
+    include 'dcjs/dc.css'
+    dependsOn bowerInstall
+}
+
+task bowerPackages() {
+    dependsOn bowerSyncJavascript, bowerSyncStylesheets
+}
+
+processResources.dependsOn bowerPackages
+assetCompile.dependsOn bowerPackages
+
+clean.delete << file('grails-app/assets/javascripts/bower_components')
+clean.delete << file('grails-app/assets/stylesheets/bower_components')
+clean.delete << file('node_modules')
+clean.delete << file('bower_components')

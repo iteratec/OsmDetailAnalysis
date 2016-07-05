@@ -31,9 +31,14 @@
 
 # "temporary" build files
 /target
+.gradle/
 
 # build files
 /build/
+
+# node/bower build files
+/node_modules
+bower_components
 
 # idea specific files
 /.idea/
