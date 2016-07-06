@@ -1,26 +1,24 @@
 package de.iteratec.osm.da.persistence
 
+import de.iteratec.oms.da.wpt.data.WPTDetailResult
 import de.iteratec.osm.da.asset.AssetGroup
 import de.iteratec.osm.da.har.FetchJob
-import de.iteratec.osm.da.har.HarConvertService
+import de.iteratec.osm.da.har.WPTDetailResultConvertService
 import grails.transaction.Transactional
 
 @Transactional
 class AssetPersistenceService {
 
-    HarConvertService harConvertService
+    WPTDetailResultConvertService wptDetailResultConvertService
     /**
-     * Parses a HAR and saves all Assets
+     * Parses a WPTDetailResult and saves all Assets
      * @param result JobResult which belongs to this HAR
      * @param har The HAR which belongs to this JobResult
-     * @return HARStatus PERSISTED or NOT_AVAILABLE
      */
-    public void saveHARDataForJobResult(Map har, FetchJob fetchJob) {
-        if(har){
-            List<AssetGroup> assetGroups = harConvertService.convertHarToAssetGroups(har, fetchJob)
-            assetGroups.each {
-                it.save(failOnError: true)
-            }
+    public void saveHARDataForJobResult(WPTDetailResult result, FetchJob fetchJob) {
+        List<AssetGroup> assetGroups = wptDetailResultConvertService.convertWPTDetailResultToAssetGroups(result, fetchJob)
+        assetGroups.each {
+            it.save(failOnError: true)
         }
     }
 

@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.api
 
+import de.iteratec.oms.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.har.WptDownloadService
 import de.iteratec.osm.da.mapping.MappingService
 
@@ -26,8 +27,11 @@ class RestApiController {
         if(!osmInstanceId){
             sendSimpleResponseAsStream(400, "Osm with URL ${command.osmUrl} isn't registered")
         }
+        if(!WPTVersion.validWPTVersion(command.wptVersion)){
+            sendSimpleResponseAsStream(400,"WPT Version ${command.wptVersion} is not valid")
+        }
         wptDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId,command.bandwidthUp,
-        command.bandwidthDown, command.latency, command.packetLoss)
+        command.bandwidthDown, command.latency, command.packetLoss, command.wptVersion)
         render "Added to Queue"
     }
 }
@@ -35,6 +39,7 @@ class RestApiController {
 public class PersistenceCommand{
 
     String osmUrl
+    String wptVersion
     String wptTestId
     String wptServerBaseUrl
     Long jobGroupId
@@ -52,6 +57,7 @@ public class PersistenceCommand{
         bandwidthDown(nullable:false)
         latency(nullable:false)
         packetLoss(nullable:false)
+        wptVersion(nullable:false)
     }
 
 

@@ -3,7 +3,7 @@ package de.iteratec.osm.da.har
 import de.iteratec.osm.da.asset.Connectivity
 
 /**
- * Stores all informations to fetch a HAR from a WPT-Instance and to convert it into the given Assets
+ * Stores all informations to fetch data from a WPT-Instance and to convert it into the given Assets
  */
 class FetchJob {
     
@@ -13,6 +13,7 @@ class FetchJob {
     long jobGroupId
     String wptBaseURL
     String wptTestId
+    String wptVersion
     Connectivity connectivity = new Connectivity()
 
     static embedded = ['connectivity']

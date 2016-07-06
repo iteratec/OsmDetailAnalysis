@@ -22,9 +22,8 @@ class Asset {
     /**
      * Grouping values
      */
-    String contentType
-    String fullURL
     String host
+    String url
     String mediaType
     String subtype
     String urlWithoutParams
@@ -39,8 +38,7 @@ class Asset {
         loadTimeMs defaultVaule:-1
         sslNegotiationTimeMs defaultVaule:-1
         timeToFirstByteMs defaultVaule:-1
-        contentType defaultVaule: "undefined"
-        fullURL defaultVaule: "undefined"
+        url defaultVaule: "undefined"
         host defaultVaule: "undefined"
         mediaType defaultVaule: "undefined"
         subtype defaultVaule: "undefined"
@@ -49,7 +47,7 @@ class Asset {
 
     static constraints = {
         contentType nullable: true
-        fullURL nullable: true
+        url nullable: true
         host nullable: true
         urlWithoutParams nullable: true
         mediaType nullable: true

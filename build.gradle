@@ -55,6 +55,8 @@ dependencies {
     compile "org.grails.plugins:scaffolding"
     compile 'org.grails.plugins:mongodb:5.0.7'
     compile 'org.grails.plugins:joda-time:2.0.0'
+    compile 'org.grails.plugins:http-builder-helper:1.0.2'
+    compile 'xml-apis:xml-apis:1.4.01'
     runtime 'org.grails.plugins:grails-console:2.0.5'
     console "org.grails:grails-console"
     profile "org.grails.profiles:web:3.1.6"
