@@ -19,8 +19,7 @@ package de.iteratec.osm.da.dashboard
 
 import de.iteratec.oms.da.dashboard.DetailAnalysisDashboardCommand
 import de.iteratec.oms.da.util.ControllerUtils
-import de.iteratec.osm.da.persistence.AssetPersistenceService
-import grails.converters.JSON
+import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 
 /**
  * DetailAnalysisDashboardController
@@ -31,7 +30,7 @@ class DetailAnalysisDashboardController {
     String DATE_TIME_FORMAT_STRING = 'dd.MM.yyyy'
     public final static int MONDAY_WEEKSTART = 1
 
-    AssetPersistenceService harPersistenceService
+    AssetRequestPersistenceService harPersistenceService
 
     Map<String, Object> show(DetailAnalysisDashboardCommand cmd) {
         Map<String, Object> modelToRender = constructStaticViewData()

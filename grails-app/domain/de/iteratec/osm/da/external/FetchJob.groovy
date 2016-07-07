@@ -2,7 +2,7 @@ package de.iteratec.osm.da.external
 
 
 /**
- * Stores all informations to fetch data from a WPT-Instance and to convert it into the given Assets
+ * Stores all informations to fetch data from a WPT-Instance and to convert it into the given AssetsRequests
  */
 class FetchJob {
     

@@ -52,6 +52,7 @@ class WPTDetailResult {
                 ", wptBaseUrl='" + wptBaseUrl + '\'' +
                 ", wptTestID='" + wptTestID + '\'' +
                 ", osmInstance=" + osmInstance +
+                ", epochTimeCompleted=" + epochTimeCompleted +
                 ", steps=" + steps +
                 '}';
     }

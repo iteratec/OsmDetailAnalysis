@@ -1,6 +1,6 @@
 package de.iteratec.osm.da.persistence
 
-import de.iteratec.osm.da.asset.AssetGroup
+import de.iteratec.osm.da.asset.AssetRequestGroup
 import grails.gorm.DetachedCriteria
 
 class DbCleanupService {
@@ -9,7 +9,7 @@ class DbCleanupService {
         log.info "begin with deleteResultsDataBefore"
 
         // use gorm-batching
-        def dc = new DetachedCriteria(AssetGroup).build {
+        def dc = new DetachedCriteria(AssetRequestGroup).build {
             lt 'date', toDeleteBefore.getTime()
         }
         int count = dc.count()
@@ -17,8 +17,8 @@ class DbCleanupService {
         //batch size -> hibernate doc recommends 10..50
         int batchSize = 50
         0.step(count, batchSize) { int offset ->
-            AssetGroup.withNewTransaction {
-                dc.list(max: batchSize).each { AssetGroup assetGroup ->
+            AssetRequestGroup.withNewTransaction {
+                dc.list(max: batchSize).each { AssetRequestGroup assetGroup ->
                     try {
                         assetGroup.delete()
                     } catch (Exception e) {
@@ -27,7 +27,7 @@ class DbCleanupService {
                 }
             }
             //clear hibernate session first-level cache
-            AssetGroup.withSession { session -> session.clear() }
+            AssetRequestGroup.withSession { session -> session.clear() }
         }
     }
 }

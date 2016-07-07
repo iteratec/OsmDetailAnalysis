@@ -1,10 +1,10 @@
 package de.iteratec.osm.da.asset
 
 /**
- * Asset
- * Representation of one single request.
+ * AssetRequest
+ * Representation of one single request to load a resource.
  */
-class Asset {
+class AssetRequest {
 
     /**
      * Compare values
@@ -48,7 +48,6 @@ class Asset {
     }
 
     static constraints = {
-        contentType nullable: true
         url nullable: true
         host nullable: true
         urlWithoutParams nullable: true

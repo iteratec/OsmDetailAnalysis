@@ -1,9 +1,9 @@
 package de.iteratec.osm.da.asset
 /**
- * AssetGroup
+ * AssetRequestGroup
  * A group of assets which shares the same media type and belongs to the same event.
  */
-class AssetGroup {
+class AssetRequestGroup {
 
     long osmInstance
     String eventName
@@ -21,7 +21,7 @@ class AssetGroup {
     String wptBaseUrl
     String wptTestId
 
-    List<Asset> assets
+    List<AssetRequest> assets
     static embedded = ['assets', 'connectivity']
     static constraints = {
     }

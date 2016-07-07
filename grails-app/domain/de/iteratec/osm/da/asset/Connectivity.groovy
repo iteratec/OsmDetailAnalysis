@@ -2,14 +2,14 @@ package de.iteratec.osm.da.asset
 
 class Connectivity {
 
-    int bandwidhtDown
-    int bandwithUp
+    int bandwidthDown
+    int bandwidthUp
     int latency
     int packetLoss
 
     static constraints = {
-        bandwidhtDown(min:0)
-        bandwithUp(min:0)
+        bandwidthDown(min:0)
+        bandwidthUp(min:0)
         latency(min:0)
         packetLoss(min:0)
     }

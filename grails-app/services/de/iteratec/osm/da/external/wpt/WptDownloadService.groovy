@@ -5,14 +5,14 @@ import de.iteratec.oms.da.external.wpt.data.WPTVersion
 import de.iteratec.oms.da.external.wpt.resolve.WPTDetailDataStrategyBuilder
 import de.iteratec.oms.da.external.wpt.resolve.WPTDetailDataStrategyI
 import de.iteratec.osm.da.external.FetchJob
-import de.iteratec.osm.da.persistence.AssetPersistenceService
+import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.transaction.Transactional
 
 @Transactional
 class WptDownloadService {
 
 
-    AssetPersistenceService assetPersistenceService
+    AssetRequestPersistenceService assetPersistenceService
     int queueMaximumInMemory = 100
     Queue<FetchJob> queue = [] as Queue
 
