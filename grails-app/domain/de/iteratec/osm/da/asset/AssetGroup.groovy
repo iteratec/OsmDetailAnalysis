@@ -6,25 +6,25 @@ package de.iteratec.osm.da.asset
 class AssetGroup {
 
     long osmInstance
-    String url
-    boolean cached
     String eventName
-    String title
     long measuredEvent
     long page
     long jobGroup
-    Connectivity connectivity
+    @Delegate Connectivity connectivity = new Connectivity()
     long location
     long browser
-    //The Mongoplugin maps dates to a epoch time, but as String. So we manually persist it as long
-    long date
+    long epochTimeCompleted
+    String mediaType
     long _id
 
+    //To identify if the result is already present
+    String wptBaseUrl
+    String wptTestId
+
     List<Asset> assets
-    static embedded = ['assets', 'connecitivty']
+    static embedded = ['assets', 'connectivity']
     static constraints = {
-        url nullable: true
-        title nullable: true
-        eventName nullable: true
     }
+
+
 }

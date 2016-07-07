@@ -1,6 +1,5 @@
 package de.iteratec.osm.da.external
 
-import de.iteratec.osm.da.asset.Connectivity
 
 /**
  * Stores all informations to fetch data from a WPT-Instance and to convert it into the given Assets
@@ -12,30 +11,27 @@ class FetchJob {
     long osmInstance
     long jobGroupId
     String wptBaseURL
-    String wptTestId
+    //List of all tests which should be persisted
+    List<String> wptTestId
     String wptVersion
-    Connectivity connectivity = new Connectivity()
+    //Next id to fetch
+    String currentId
 
-    static embedded = ['connectivity']
-
-
-    void setBandWidthUp(int up){
-        connectivity.bandwithUp = up
-    }
-
-    void setBandWithDown(int down){
-        connectivity.bandwidhtDown = down
-    }
-
-    void setLatency(int latency){
-        connectivity.latency = latency
-    }
-
-    void setPacketLoss(int loss){
-        connectivity.packetLoss = loss
-    }
-
+    static embedded = ['wptTestId']
+    static transients = ['currentId']
 
     static constraints = {
+    }
+
+    /**
+     * Sets the next id from the list to currentId
+     * @return true if there was an id, false if the list is empty
+     */
+    public boolean next(){
+        if(wptTestId && wptTestId.size()>0){
+            currentId = wptTestId.remove(0)
+            return true
+        }
+        return false
     }
 }

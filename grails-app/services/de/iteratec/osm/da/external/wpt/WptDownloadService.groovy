@@ -22,14 +22,11 @@ class WptDownloadService {
      * @param jobGroupId
      * @param wptBaseUrl
      * @param wptTestId
-     * @param up BandwitdhUp
-     * @param down BandwitdhDown
-     * @param latency
-     * @param loss PacketLoss
+     * @param wptVersion
      */
-    public void addToQeue(long osmInstance, long jobGroupId, String wptBaseUrl, String wptTestId, int up, int down, int latency, int loss, String wptVersion){
+    public void addToQeue(long osmInstance, long jobGroupId, String wptBaseUrl, List<String> wptTestId, String wptVersion){
         FetchJob fetchJob =  new FetchJob(osmInstance: osmInstance,jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                wptTestId: wptTestId, bandWithDown: down, bandWidthUp: up, latency: latency,packetLoss: loss, wptVersion: wptVersion).save(flush:true, failOnError:true)
+                wptTestId: wptTestId, wptVersion: wptVersion).save(flush:true, failOnError:true)
         if(queue.size()< queueMaximumInMemory){
             queue << fetchJob
         }
@@ -40,8 +37,10 @@ class WptDownloadService {
         fillQueueFromDatabase()
         if(!queue.isEmpty()){
             FetchJob currentJob = queue.poll()
-            WPTDetailResult result = downloadHarFromWPTInstance(currentJob)
-            assetPersistenceService.saveHARDataForJobResult(result,currentJob)
+            while(currentJob.next()){
+                WPTDetailResult result = downloadHarFromWPTInstance(currentJob)
+                assetPersistenceService.saveHARDataForJobResult(result,currentJob)
+            }
             currentJob.delete(flush:true)
         }
     }

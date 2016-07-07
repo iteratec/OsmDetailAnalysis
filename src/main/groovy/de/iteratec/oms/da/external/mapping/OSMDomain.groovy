@@ -2,7 +2,7 @@ package de.iteratec.oms.da.external.mapping
 
 enum OSMDomain {
 
-    Job("Job"), Browser("Browser"), JobGroup("JobGroup"), Location("Location")
+    Browser("Browser"), JobGroup("JobGroup"), Location("Location"), MeasuredEvent("MeasuredEvent")
 
     private String value
 

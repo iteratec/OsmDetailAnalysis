@@ -19,13 +19,14 @@ class WPTDetailDataDefaultStrategy implements WPTDetailDataStrategyI{
 
     @Override
     WPTDetailResult getResult(FetchJob fetchJob) {
-        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [requests: 1])
+        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.currentId,requests: 1])
         return createResult(fetchJob, jsonResponse)
     }
 
     static private WPTDetailResult createResult(FetchJob fetchJob, def jsonResponse){
         WPTDetailResult result = new WPTDetailResult(fetchJob)
         result.location = jsonResponse.data.location
+        result.epochTimeCompleted = jsonResponse.data.completed as long
         def locationSplit = jsonResponse.data.location.split(":")
         if(locationSplit.size() > 1) result.browser = locationSplit[1]
         setConnectivity(result,jsonResponse)

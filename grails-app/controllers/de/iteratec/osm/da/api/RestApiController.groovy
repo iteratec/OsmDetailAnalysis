@@ -30,9 +30,8 @@ class RestApiController {
         if(!WPTVersion.validWPTVersion(command.wptVersion)){
             sendSimpleResponseAsStream(400,"WPT Version ${command.wptVersion} is not valid")
         }
-        wptDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId,command.bandwidthUp,
-        command.bandwidthDown, command.latency, command.packetLoss, command.wptVersion)
-        render "Added to Queue"
+        wptDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
+        sendSimpleResponseAsStream(200,"Added to queue")
     }
 }
 
@@ -40,23 +39,15 @@ public class PersistenceCommand{
 
     String osmUrl
     String wptVersion
-    String wptTestId
+    List<String> wptTestId
     String wptServerBaseUrl
     Long jobGroupId
-    Integer bandwidthUp
-    Integer bandwidthDown
-    Integer latency
-    Integer packetLoss
 
     static constraints = {
         osmUrl(nullable:false)
         wptTestId(nullable:false)
         wptServerBaseUrl(nullable:false)
         jobGroupId(nullable:false)
-        bandwidthUp(nullable:false)
-        bandwidthDown(nullable:false)
-        latency(nullable:false)
-        packetLoss(nullable:false)
         wptVersion(nullable:false)
     }
 
@@ -68,10 +59,6 @@ public class PersistenceCommand{
                 ", wptTestId='" + wptTestId + '\'' +
                 ", wptServerBaseUrl='" + wptServerBaseUrl + '\'' +
                 ", jobGroupId=" + jobGroupId +
-                ", bandwidthUp=" + bandwidthUp +
-                ", bandwidthDown=" + bandwidthDown +
-                ", latency=" + latency +
-                ", packetLoss=" + packetLoss +
                 '}';
     }
 }

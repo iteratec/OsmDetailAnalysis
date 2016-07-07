@@ -5,10 +5,13 @@ import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
 import de.iteratec.osm.da.asset.Asset
 import de.iteratec.osm.da.asset.AssetGroup
 import de.iteratec.osm.da.external.FetchJob
+import de.iteratec.osm.da.external.mapping.MappingService
 import grails.transaction.Transactional
 
 @Transactional
 class WPTDetailResultConvertService {
+
+    MappingService mappingService
 
     static String undefinedMediaType = "undefined"
     static String undefinedSubtype = "undefined"
@@ -16,23 +19,40 @@ class WPTDetailResultConvertService {
     public List<AssetGroup> convertWPTDetailResultToAssetGroups(WPTDetailResult result, FetchJob fetchJob){
         List<AssetGroup> assetGroups = []
         result.steps.each {step ->
-            Map<String, List<Request>> by = step.requests.groupBy { getMediaType(it.contentType) }
-            by.each {key, value ->
-                AssetGroup assetGroup = new AssetGroup()
+            Map<String, List<Request>> mediaTypeMap = step.requests.groupBy { getMediaType(it.contentType) }
+            mediaTypeMap.each {key, value ->
+                AssetGroup assetGroup = createAssetGroup(result, fetchJob, key)
                 List<Asset> assets = []
                 value.each {req ->
-                    String[] mimeType = convertMimeTypesInAssetMap(req.contentType)
-                    assets << new Asset(bytesIn: req.bytesIn, bytesOut: req.bytesOut, connectTimeMs: req.connectTimeMs,
-                            downloadTimeMs: req.downloadMs,loadTimeMs: req.loadMs, timeToFirstByteMs: req.ttfbMs,
-                            sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
-                            mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
-                            urlWithoutParams: req.host+createURLWithoutParams(req.url))
+                    assets << createAsset(req)
                 }
                 assetGroup.assets = assets
                 assetGroups << assetGroup
             }
         }
         return assetGroups
+    }
+
+    private AssetGroup createAssetGroup(WPTDetailResult result, FetchJob fetchJob, String mediaType){
+        long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, result.eventName)
+        long page = -1 //TODO get page
+        long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)
+        long browser = mappingService.getIdForBrowserName(fetchJob.osmInstance,result.browser)
+
+        return new AssetGroup(osmInstance: fetchJob.osmInstance,eventName: result.eventName, jobGroup: result.jobGroupID,
+                bandwithUp: result.bandwidthUp, bandwidhtDown: result.bandwidthDown, latency: result.latency,
+                packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
+                browser: browser, epochTimeCompleted: result.epochTimeCompleted, mediaType: mediaType,
+                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID)
+    }
+
+    private static Asset createAsset(Request req){
+        String[] mimeType = convertMimeTypesInAssetMap(req.contentType)
+        return new Asset(bytesIn: req.bytesIn, bytesOut: req.bytesOut, connectTimeMs: req.connectTimeMs,
+                downloadTimeMs: req.downloadMs,loadTimeMs: req.loadMs, timeToFirstByteMs: req.ttfbMs,
+                sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
+                mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
+                urlWithoutParams: req.host+createURLWithoutParams(req.url))
     }
 
     private static String getMediaType(String mimeType){

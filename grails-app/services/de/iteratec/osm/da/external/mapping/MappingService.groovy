@@ -3,6 +3,7 @@ package de.iteratec.osm.da.external.mapping
 import de.iteratec.oms.da.external.mapping.OSMDomain
 
 import de.iteratec.osm.da.external.instances.OsmInstance
+import de.iteratec.osm.da.external.instances.OsmMapping
 import grails.transaction.Transactional
 
 @Transactional
@@ -61,22 +62,51 @@ class MappingService {
         return OsmInstance.findByUrl(url)?.id
     }
 
-    String getMappingEntryFromOsm(String osmName, OSMDomain domain, long id){
-        OsmInstance osm = OsmInstance.findByName(osmName)
+    String getMappingEntryFromOsm(Long osmId, OSMDomain domain, long id){
+        OsmInstance osm = OsmInstance.findById(osmId)
         return osm.osmMappings."$domain"."$id"
     }
 
-    String getNameForJobId(String osmName, long id){
-        return getMappingEntryFromOsm(osmName, OSMDomain.Job,id)
+    String getNameForBrowserId(long osmId, long id){
+        return getMappingEntryFromOsm(osmId,OSMDomain.Browser,id)
     }
-    String getNameForBrowserId(String osmName, long id){
-        return getMappingEntryFromOsm(osmName,OSMDomain.Browser,id)
+    String getNameForLocationId(long osmId, long id){
+        return getMappingEntryFromOsm(osmId, OSMDomain.Location,id)
     }
-    String getNameForLocationId(String osmName, long id){
-        return getMappingEntryFromOsm(osmName, OSMDomain.Location,id)
+    String getNameForJobGroupId(long osmId, long id){
+        return getMappingEntryFromOsm(osmId, OSMDomain.JobGroup,id)
     }
-    String getNameForJobGroupId(String osmName, long id){
-        return getMappingEntryFromOsm(osmName, OSMDomain.JobGroup,id)
+    String getNameForMeasuredEventId(long osmId, long id){
+        return getMappingEntryFromOsm(osmId, OSMDomain.MeasuredEvent,id)
     }
+
+
+    int getMappingEntryFromOsm(Long osmId, OSMDomain domain, String name){
+        OsmInstance osm = OsmInstance.findById(osmId)
+        OsmMapping mapping = osm.osmMappings."$domain"
+        int id = -1
+        mapping.mapping.find {k,v->
+            if(v == name){
+                id = k
+                return true
+            }
+            return false
+        }
+        return id
+    }
+
+    int getIdForJobGroupName(long osmId, String name){
+        return getMappingEntryFromOsm(osmId, OSMDomain.JobGroup,name)
+    }
+    int getIdForBrowserName(long osmId, String name){
+        return getMappingEntryFromOsm(osmId,OSMDomain.Browser,name)
+    }
+    int getIdForLocationName(long osmId, String name){
+        return getMappingEntryFromOsm(osmId, OSMDomain.Location,name)
+    }
+    int getIdForMeasuredEventName(long osmId, String name){
+        return getMappingEntryFromOsm(osmId, OSMDomain.MeasuredEvent,name)
+    }
+
 
 }
