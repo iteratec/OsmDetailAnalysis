@@ -1,9 +1,10 @@
-package de.iteratec.osm.da.har
+package de.iteratec.osm.da.external.wpt
 
-import de.iteratec.oms.da.wpt.data.Request
-import de.iteratec.oms.da.wpt.data.WPTDetailResult
+import de.iteratec.oms.da.external.wpt.data.Request
+import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
 import de.iteratec.osm.da.asset.Asset
 import de.iteratec.osm.da.asset.AssetGroup
+import de.iteratec.osm.da.external.FetchJob
 import grails.transaction.Transactional
 
 @Transactional

@@ -1,9 +1,10 @@
-package de.iteratec.osm.da.har
+package de.iteratec.osm.da.external.wpt
 
-import de.iteratec.oms.da.wpt.data.WPTDetailResult
-import de.iteratec.oms.da.wpt.data.WPTVersion
-import de.iteratec.oms.da.wpt.resolve.WPTDetailDataStrategyBuilder
-import de.iteratec.oms.da.wpt.resolve.WPTDetailDataStrategyI
+import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
+import de.iteratec.oms.da.external.wpt.data.WPTVersion
+import de.iteratec.oms.da.external.wpt.resolve.WPTDetailDataStrategyBuilder
+import de.iteratec.oms.da.external.wpt.resolve.WPTDetailDataStrategyI
+import de.iteratec.osm.da.external.FetchJob
 import de.iteratec.osm.da.persistence.AssetPersistenceService
 import grails.transaction.Transactional
 

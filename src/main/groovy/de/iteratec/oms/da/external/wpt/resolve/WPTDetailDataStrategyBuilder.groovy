@@ -1,6 +1,6 @@
-package de.iteratec.oms.da.wpt.resolve
+package de.iteratec.oms.da.external.wpt.resolve
 
-import de.iteratec.oms.da.wpt.data.WPTVersion
+import de.iteratec.oms.da.external.wpt.data.WPTVersion
 
 
 class WPTDetailDataStrategyBuilder {

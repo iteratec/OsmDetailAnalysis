@@ -1,4 +1,4 @@
-package de.iteratec.oms.da.mapping
+package de.iteratec.oms.da.external.mapping
 
 enum OSMDomain {
 

@@ -1,8 +1,8 @@
-package de.iteratec.osm.da.mapping
+package de.iteratec.osm.da.external.mapping
 
-import de.iteratec.oms.da.mapping.OSMDomain
+import de.iteratec.oms.da.external.mapping.OSMDomain
 
-import de.iteratec.osm.da.instances.OsmInstance
+import de.iteratec.osm.da.external.instances.OsmInstance
 import grails.transaction.Transactional
 
 @Transactional

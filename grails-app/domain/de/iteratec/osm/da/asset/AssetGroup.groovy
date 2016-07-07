@@ -1,7 +1,4 @@
 package de.iteratec.osm.da.asset
-
-import de.iteratec.osm.da.instances.OsmInstance
-
 /**
  * AssetGroup
  * A group of assets which shares the same media type and belongs to the same event.

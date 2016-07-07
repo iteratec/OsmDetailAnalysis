@@ -16,7 +16,6 @@ class DbCleanupService {
 
         //batch size -> hibernate doc recommends 10..50
         int batchSize = 50
-        //TODO all three delete methods have many things in common,
         0.step(count, batchSize) { int offset ->
             AssetGroup.withNewTransaction {
                 dc.list(max: batchSize).each { AssetGroup assetGroup ->

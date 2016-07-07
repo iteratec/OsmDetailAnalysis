@@ -1,4 +1,4 @@
-package de.iteratec.oms.da.wpt.data
+package de.iteratec.oms.da.external.wpt.data
 
 /**
  * Representation of one requests during a step in wpt

@@ -1,6 +1,6 @@
-package de.iteratec.oms.da.wpt.data
+package de.iteratec.oms.da.external.wpt.data
 
-import de.iteratec.osm.da.har.FetchJob
+import de.iteratec.osm.da.external.FetchJob
 
 /**
  * This represents the whole necessary data which to save the detail data.

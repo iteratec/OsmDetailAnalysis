@@ -1,4 +1,4 @@
-package de.iteratec.osm.da.instances
+package de.iteratec.osm.da.external.instances
 
 /**
  * Representation of an OpenSpeedMonitor-Instance which uses this Service.

@@ -1,4 +1,4 @@
-package de.iteratec.osm.da.har
+package de.iteratec.osm.da.external
 
 import de.iteratec.osm.da.asset.Connectivity
 
