@@ -5,11 +5,9 @@ import de.iteratec.oms.da.external.wpt.data.WPTVersion
 
 class WPTDetailDataStrategyBuilder {
 
-    static WPTDetailDataDefaultStrategy defaultStrategy
+    static List<WPTDetailDataStrategyI> strategies = [new WPTDetailDataDefaultStrategy(), new WPTDetailDataOldStrategy()]
 
     static WPTDetailDataStrategyI getStrategyForVersion(WPTVersion version){
-        //TODO decide which version to use
-        if(!defaultStrategy) defaultStrategy = new WPTDetailDataDefaultStrategy()
-        return defaultStrategy
+        return strategies.find{it.compatibleWithVersion(version)}
     }
 }
