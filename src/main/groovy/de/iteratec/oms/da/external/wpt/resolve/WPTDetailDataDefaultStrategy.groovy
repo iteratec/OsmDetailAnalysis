@@ -15,7 +15,7 @@ class WPTDetailDataDefaultStrategy implements WPTDetailDataStrategyI{
 
     @Autowired
     HTTPRequestService httpRequestService
-    static WPTVersion minimumVersion = new WPTVersion("2.19")
+    static WPTVersion minimumVersion = WPTVersion.get("2.19")
 
     @Override
     WPTDetailResult getResult(FetchJob fetchJob) {
@@ -48,13 +48,11 @@ class WPTDetailDataDefaultStrategy implements WPTDetailDataStrategyI{
             run.value?.firstView?.steps?.each{
                 Step step = createStep(it)
                 step.isFirstView = true
-                step.isSecondView = false
                 steps << step
             }
             run.value?.secondView?.steps?.each{
                 Step step = createStep(it)
                 step.isFirstView = false
-                step.isSecondView = true
                 steps << step
             }
         }

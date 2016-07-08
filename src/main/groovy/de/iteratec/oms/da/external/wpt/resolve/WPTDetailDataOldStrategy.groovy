@@ -9,7 +9,7 @@ import de.iteratec.osm.da.external.FetchJob
  */
 class WPTDetailDataOldStrategy implements WPTDetailDataStrategyI{
 
-    static WPTVersion maximumVersion = new WPTVersion("2.18")
+    static WPTVersion maximumVersion = WPTVersion.get("2.18")
 
     @Override
     WPTDetailResult getResult(FetchJob fetchJob) {

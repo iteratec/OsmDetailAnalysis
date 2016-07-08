@@ -1,7 +1,6 @@
 package de.iteratec.oms.da.external.wpt.resolve
 
 import de.iteratec.oms.da.external.wpt.data.WPTVersion
-import grails.test.mixin.TestFor
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -17,11 +16,11 @@ class WPTDetailDataStrategyBuilderTest extends Specification {
 
         where:
         getVersion              | actualTestVersion      || truth
-        new WPTVersion("2.19")  | new WPTVersion("2.19") || true
-        new WPTVersion("2.19")  | new WPTVersion("2.20") || true
-        new WPTVersion("2.19")  | new WPTVersion("2.18") || false
-        new WPTVersion("2.18")  | new WPTVersion("2.18") || true
-        new WPTVersion("2.18")  | new WPTVersion("2.19") || false
-
+        WPTVersion.get("2.19")  | WPTVersion.get("2.19") || true
+        WPTVersion.get("2.19")  | WPTVersion.get("2.20") || true
+        WPTVersion.get("2.19")  | WPTVersion.get("2.18") || false
+        WPTVersion.get("2.18")  | WPTVersion.get("2.18") || true
+        WPTVersion.get("2.18")  | WPTVersion.get("2.19") || false
     }
+
 }

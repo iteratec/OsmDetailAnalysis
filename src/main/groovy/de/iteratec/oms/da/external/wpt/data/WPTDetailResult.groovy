@@ -8,7 +8,6 @@ import de.iteratec.osm.da.external.FetchJob
 class WPTDetailResult {
 
 
-    String eventName
     int bandwidthDown
     int bandwidthUp
     int latency
@@ -41,7 +40,6 @@ class WPTDetailResult {
     @Override
     public String toString() {
         return "WPTDetailResult{" +
-                "eventName='" + eventName + '\'' +
                 ", bandwidthDown=" + bandwidthDown +
                 ", bandwidthUp=" + bandwidthUp +
                 ", latency=" + latency +

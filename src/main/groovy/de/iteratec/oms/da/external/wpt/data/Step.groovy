@@ -13,7 +13,6 @@ class Step {
     String eventName
     boolean isMedian
     boolean isFirstView
-    boolean isSecondView
 
 
     @Override
@@ -27,7 +26,6 @@ class Step {
                 ", eventName='" + eventName + '\'' +
                 ", isMedian=" + isMedian +
                 ", isFirstView=" + isFirstView +
-                ", isSecondView=" + isSecondView +
                 '}';
     }
 }

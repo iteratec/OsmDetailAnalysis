@@ -19,9 +19,11 @@ class WPTDetailResultConvertService {
     public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WPTDetailResult result, FetchJob fetchJob){
         List<AssetRequestGroup> assetGroups = []
         result.steps.each {step ->
-            Map<String, List<Request>> mediaTypeMap = step.requests.groupBy { getMediaType(it.contentType) }
+            Map<String, List<Request>> mediaTypeMap = step.requests.groupBy {
+                getMediaType(it.contentType)
+            }
             mediaTypeMap.each {key, value ->
-                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key)
+                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, step.eventName)
                 List<AssetRequest> assets = []
                 value.each {req ->
                     assets << createAsset(req)
@@ -33,17 +35,17 @@ class WPTDetailResultConvertService {
         return assetGroups
     }
 
-    private AssetRequestGroup createAssetGroup(WPTDetailResult result, FetchJob fetchJob, String mediaType){
-        long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, result.eventName)
+    private AssetRequestGroup createAssetGroup(WPTDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName){
+        long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)
         long page = -1 //TODO get page
         long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)
         long browser = mappingService.getIdForBrowserName(fetchJob.osmInstance,result.browser)
 
-        return new AssetRequestGroup(osmInstance: fetchJob.osmInstance,eventName: result.eventName, jobGroup: result.jobGroupID,
+        return new AssetRequestGroup(osmInstance: fetchJob.osmInstance,eventName: eventName, jobGroup: result.jobGroupID,
                 bandwithUp: result.bandwidthUp, bandwidhtDown: result.bandwidthDown, latency: result.latency,
                 packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
                 browser: browser, epochTimeCompleted: result.epochTimeCompleted, mediaType: mediaType,
-                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID)
+                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView)
     }
 
     private static AssetRequest createAsset(Request req){
@@ -57,7 +59,7 @@ class WPTDetailResultConvertService {
 
     private static String getMediaType(String mimeType){
         if(!mimeType || mimeType.indexOf("/")<0) return undefinedMediaType
-        return mimeType?.split("/")
+        return mimeType?.split("/")[0]
     }
 
     /**

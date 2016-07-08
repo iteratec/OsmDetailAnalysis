@@ -18,8 +18,6 @@ class AssetRequest {
     //Resource order for one page call
     int indexWithinHar
     int sslNegotiationTimeMs
-    //Mark if this asset was loaded during a step with a cached browser. This does not means, that this asset itself was cached!
-    boolean cached
 
     /**
      * Grouping values

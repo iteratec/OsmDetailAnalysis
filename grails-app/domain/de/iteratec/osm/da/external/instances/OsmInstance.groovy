@@ -30,7 +30,7 @@ class OsmInstance {
     /**
      *
      */
-    Map<String, OsmMapping> osmMappings
+    Map<String, OsmMapping> osmMappings = [:]
     static embedded = ['osmMappings']
 
     static constraints = {
