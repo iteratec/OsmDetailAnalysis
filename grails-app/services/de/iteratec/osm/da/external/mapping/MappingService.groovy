@@ -17,43 +17,27 @@ class MappingService {
      * @param toUpdate Mappings which should be updated
      */
     void updateMapping(OsmInstance instance, OSMDomain domain, Map<Long, String> toUpdate){
-        Map domainMap = instance.osmMappings."$domain"
-        if(domain == null){
-            domainMap = [:]
-            instance.osmMappings."$domain" = domainMap
-        }
-
         toUpdate.each {key,value ->
-            domain."$key" = value
+            instance.getMapping(domain).mapping."$key" = value
         }
-        instance.save()
+        instance.save(flush:true, failOnError:true)
     }
 
-    /**
-     * Overrides all mappings of a given domain in an OsmInstance
-     * @param instance
-     * @param domain
-     * @param toUpdate
-     */
-    void setMapping(OsmInstance instance, String domain, Map<Long, String> toUpdate){
-        instance.osmMappings."$domain" = toUpdate
-        instance.save()
-    }
 
     /**
      * Checks if every domain has the needed id mapping. If a mapping is missing, we will contact the OsmInstance to give us the needed value
      * @return True if this map contains all values. If there is still a missing value, even after the upate try, this method will return false
      */
     boolean updateIfMappingsDoesntExist(OsmInstance instance, Map<OSMDomain, List<Long>> domains){
-        Map<String, List<Long>> domainsToUpdate = [:].withDefault {[]}
+        Map<String, List<Long>> domainsToUpdate = [:]
         domains.each { OSMDomain domain, List<Long> idsNeeded->
-            List<Long> missingIds = idsNeeded - instance.osmMappings."$domain".mapping.keySet()
-            if(missingIds.size()>0) domainsToUpdate."$domain" =missingIds
+            List<Long> missingIds = idsNeeded - instance.getMapping(domain).mapping.keySet()
+            if(missingIds.size()>0) domainsToUpdate."$domain" = missingIds
         }
         //TODO a request service should now get the missing ids map and request the osm instance to get the missing values
         def updates = [:]
-        updates."resolved".each{key, value->
-            updateMapping(instance, key, value)
+        updates."resolved".each{String domain, Map<Long,String> value->
+            updateMapping(instance, OSMDomain.valueOf(domain), value)
         }
         return !(updates."missing"?.size>0)
     }
@@ -64,7 +48,7 @@ class MappingService {
 
     String getMappingEntryFromOsm(Long osmId, OSMDomain domain, long id){
         OsmInstance osm = OsmInstance.findById(osmId)
-        return osm.osmMappings."$domain"."$id"
+        return osm.getMapping(domain)."$id"
     }
 
     String getNameForBrowserId(long osmId, long id){
@@ -83,7 +67,7 @@ class MappingService {
 
     int getMappingEntryFromOsm(Long osmId, OSMDomain domain, String name){
         OsmInstance osm = OsmInstance.findById(osmId)
-        OsmMapping mapping = osm.osmMappings."$domain"
+        OsmMapping mapping = osm.getMapping(domain)
         int id = -1
         mapping.mapping.find {k,v->
             if(v == name){
