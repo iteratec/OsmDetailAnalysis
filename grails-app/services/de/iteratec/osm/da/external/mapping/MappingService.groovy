@@ -1,13 +1,15 @@
 package de.iteratec.osm.da.external.mapping
 
 import de.iteratec.oms.da.external.mapping.OSMDomain
-
+import de.iteratec.osm.da.external.HTTPRequestService
 import de.iteratec.osm.da.external.instances.OsmInstance
 import de.iteratec.osm.da.external.instances.OsmMapping
 import grails.transaction.Transactional
 
 @Transactional
 class MappingService {
+
+    HTTPRequestService httpRequestService
 
     /**
      * Updates the mappings of a given domain from an OsmInstance. This doesn't affect
@@ -31,15 +33,22 @@ class MappingService {
     boolean updateIfMappingsDoesntExist(OsmInstance instance, Map<OSMDomain, List<Long>> domains){
         Map<String, List<Long>> domainsToUpdate = [:]
         domains.each { OSMDomain domain, List<Long> idsNeeded->
-            List<Long> missingIds = idsNeeded - instance.getMapping(domain).mapping.keySet()
+            List<Long> missingIds = idsNeeded - instance.getMapping(domain).mapping.keySet()*.toLong()
             if(missingIds.size()>0) domainsToUpdate."$domain" = missingIds
         }
-        //TODO a request service should now get the missing ids map and request the osm instance to get the missing values
-        def updates = [:]
-        updates."resolved".each{String domain, Map<Long,String> value->
-            updateMapping(instance, OSMDomain.valueOf(domain), value)
+        if(domainsToUpdate.size() > 0 ){
+            def updates = getUpdate(domainsToUpdate, instance)
+            updates."resolved".each{String domain, Map<Long,String> value->
+                updateMapping(instance, OSMDomain.valueOf(domain), value)
+            }
+            return !(updates."missing"?.size>0)
         }
-        return !(updates."missing"?.size>0)
+        return true
+    }
+
+    private Map getUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
+        //TODO Check again, when OSM is able to handle such request, IT-1115
+        return httpRequestService.getJsonResponse(instance.url,"api", idsToUpdate) as Map
     }
 
     Long getOSMInstanceId(String url){
@@ -48,7 +57,7 @@ class MappingService {
 
     String getMappingEntryFromOsm(Long osmId, OSMDomain domain, long id){
         OsmInstance osm = OsmInstance.findById(osmId)
-        return osm.getMapping(domain)."$id"
+        return osm.getMapping(domain).mapping."$id"
     }
 
     String getNameForBrowserId(long osmId, long id){
@@ -65,13 +74,13 @@ class MappingService {
     }
 
 
-    int getMappingEntryFromOsm(Long osmId, OSMDomain domain, String name){
+    long getMappingEntryFromOsm(Long osmId, OSMDomain domain, String name){
         OsmInstance osm = OsmInstance.findById(osmId)
         OsmMapping mapping = osm.getMapping(domain)
         int id = -1
         mapping.mapping.find {k,v->
             if(v == name){
-                id = k
+                id = k.toLong()
                 return true
             }
             return false
@@ -79,16 +88,16 @@ class MappingService {
         return id
     }
 
-    int getIdForJobGroupName(long osmId, String name){
+    long getIdForJobGroupName(long osmId, String name){
         return getMappingEntryFromOsm(osmId, OSMDomain.JobGroup,name)
     }
-    int getIdForBrowserName(long osmId, String name){
+    long getIdForBrowserName(long osmId, String name){
         return getMappingEntryFromOsm(osmId,OSMDomain.Browser,name)
     }
-    int getIdForLocationName(long osmId, String name){
+    long getIdForLocationName(long osmId, String name){
         return getMappingEntryFromOsm(osmId, OSMDomain.Location,name)
     }
-    int getIdForMeasuredEventName(long osmId, String name){
+    long getIdForMeasuredEventName(long osmId, String name){
         return getMappingEntryFromOsm(osmId, OSMDomain.MeasuredEvent,name)
     }
 
