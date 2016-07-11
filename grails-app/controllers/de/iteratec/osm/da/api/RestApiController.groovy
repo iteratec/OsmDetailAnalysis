@@ -1,8 +1,11 @@
 package de.iteratec.osm.da.api
 
+import de.iteratec.oms.da.external.mapping.OSMDomain
 import de.iteratec.oms.da.external.wpt.data.WPTVersion
+import de.iteratec.osm.da.external.instances.OsmInstance
 import de.iteratec.osm.da.external.wpt.WptDownloadService
 import de.iteratec.osm.da.external.mapping.MappingService
+
 
 class RestApiController {
 
@@ -33,6 +36,29 @@ class RestApiController {
         wptDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
         sendSimpleResponseAsStream(200,"Added to queue")
     }
+
+    /**
+     *
+     * Example: curl http://localhost:8080/restApi/updateMapping --data "osmUrl=http://openspeedmonitor.org&JobGroup.1=AJob&JobGroup.2=AnotherJob&Location.2=ALocation"
+     * @param command
+     * @return
+     */
+    def updateMapping(MappingCommand command){
+
+        OsmInstance url = OsmInstance.findByUrl(command.osmUrl)
+        if(command.Browser) mappingService.updateMapping(url,OSMDomain.Browser, command.Browser)
+        if(command.JobGroup) mappingService.updateMapping(url,OSMDomain.JobGroup, command.JobGroup)
+        if(command.Location) mappingService.updateMapping(url,OSMDomain.Location, command.Location)
+        if(command.MeasuredEvent) mappingService.updateMapping(url,OSMDomain.MeasuredEvent, command.MeasuredEvent)
+        sendSimpleResponseAsStream(200,"Aye")
+
+    }
+
+    def updateOsmUrl(UrlUpdateCommand command){
+
+    }
+
+
 }
 
 public class PersistenceCommand{
@@ -60,5 +86,21 @@ public class PersistenceCommand{
                 ", wptServerBaseUrl='" + wptServerBaseUrl + '\'' +
                 ", jobGroupId=" + jobGroupId +
                 '}';
+    }
+}
+
+public class UrlUpdateCommand{
+
+}
+
+public class MappingCommand{
+    String osmUrl
+    Map<Long, String> JobGroup
+    Map<Long, String> Location
+    Map<Long, String> Browser
+    Map<Long, String> MeasuredEvent
+
+    static constraints = {
+        osmUrl(nullable:false)
     }
 }
