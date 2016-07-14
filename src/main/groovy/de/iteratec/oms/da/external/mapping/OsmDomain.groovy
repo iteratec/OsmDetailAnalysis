@@ -1,12 +1,12 @@
 package de.iteratec.oms.da.external.mapping
 
-enum OSMDomain {
+enum OsmDomain {
 
     Browser("Browser"), JobGroup("JobGroup"), Location("Location"), MeasuredEvent("MeasuredEvent"), Page("Page")
 
     private String value
 
-    private OSMDomain(String value) {
+    private OsmDomain(String value) {
         this.value = value
     }
 

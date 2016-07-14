@@ -1,6 +1,6 @@
 package de.iteratec.osm.da.api
 
-import de.iteratec.oms.da.external.mapping.OSMDomain
+import de.iteratec.oms.da.external.mapping.OsmDomain
 import de.iteratec.osm.da.external.wpt.data.WPTVersion
 import de.iteratec.osm.da.external.instances.OsmInstance
 import de.iteratec.osm.da.external.wpt.WptDetailResultDownloadService
@@ -46,10 +46,10 @@ class RestApiController {
     def updateMapping(MappingCommand command){
 
         OsmInstance url = OsmInstance.findByUrl(command.osmUrl)
-        if(command.Browser) mappingService.updateMapping(url,OSMDomain.Browser, command.Browser)
-        if(command.JobGroup) mappingService.updateMapping(url,OSMDomain.JobGroup, command.JobGroup)
-        if(command.Location) mappingService.updateMapping(url,OSMDomain.Location, command.Location)
-        if(command.MeasuredEvent) mappingService.updateMapping(url,OSMDomain.MeasuredEvent, command.MeasuredEvent)
+        if(command.Browser) mappingService.updateMapping(url,OsmDomain.Browser, command.Browser)
+        if(command.JobGroup) mappingService.updateMapping(url,OsmDomain.JobGroup, command.JobGroup)
+        if(command.Location) mappingService.updateMapping(url,OsmDomain.Location, command.Location)
+        if(command.MeasuredEvent) mappingService.updateMapping(url,OsmDomain.MeasuredEvent, command.MeasuredEvent)
         sendSimpleResponseAsStream(200,"Aye")
 
     }

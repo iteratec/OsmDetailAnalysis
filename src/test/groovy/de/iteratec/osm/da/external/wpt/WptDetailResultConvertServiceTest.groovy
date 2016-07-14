@@ -3,6 +3,7 @@ package de.iteratec.osm.da.external.wpt
 import de.iteratec.osm.da.TestDataUtil
 import de.iteratec.osm.da.external.FetchJob
 import de.iteratec.osm.da.external.instances.OsmInstance
+import de.iteratec.osm.da.external.instances.OsmMapping
 import de.iteratec.osm.da.external.mapping.MappingService
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
@@ -10,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @TestFor(WptDetailResultConvertService)
-@Mock([OsmInstance])
+@Mock([OsmInstance, FetchJob, OsmMapping])
 class WptDetailResultConvertServiceTest extends Specification {
 
     def setup(){
@@ -19,8 +20,8 @@ class WptDetailResultConvertServiceTest extends Specification {
 
     def "test amount of asset groups resulting from a WPTDetailResult"(){
         given:
-        TestDataUtil.createOsmInstance().save()
-        FetchJob fetchJob = new FetchJob(osmInstance: 0,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
+        OsmInstance instance = new TestDataUtil().createOsmInstance().save()
+        FetchJob fetchJob = new FetchJob(osmInstance: instance.id,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
         def result = TestDataUtil.createResult(fetchJob)
         when:
         def list = service.convertWPTDetailResultToAssetGroups(result,fetchJob)
@@ -30,8 +31,8 @@ class WptDetailResultConvertServiceTest extends Specification {
 
     def "test that all resources are present after converting"(){
         given:
-        TestDataUtil.createOsmInstance().save()
-        FetchJob fetchJob = new FetchJob(osmInstance: 0,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
+        OsmInstance instance = new TestDataUtil().createOsmInstance().save()
+        FetchJob fetchJob = new FetchJob(osmInstance: instance.id,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
         def result = TestDataUtil.createResult(fetchJob)
         def assetCount = TestDataUtil.countAssetsInWPTDetailResult(result)
 

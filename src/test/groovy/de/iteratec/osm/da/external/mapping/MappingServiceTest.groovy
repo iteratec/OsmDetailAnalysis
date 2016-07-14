@@ -1,9 +1,8 @@
 package de.iteratec.osm.da.external.mapping
 
-import de.iteratec.oms.da.external.mapping.OSMDomain
+import de.iteratec.oms.da.external.mapping.OsmDomain
 import de.iteratec.osm.da.external.HTTPRequestService
 import de.iteratec.osm.da.external.instances.OsmInstance
-import de.iteratec.osm.da.external.instances.OsmMapping
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import groovy.mock.interceptor.StubFor
@@ -19,28 +18,28 @@ class MappingServiceTest extends Specification {
         OsmInstance instance = createInstance()
 
         when:
-        service.updateMapping(instance,OSMDomain.Browser,[1L:browser])
+        service.updateMapping(instance,OsmDomain.Browser,[1L:browser])
 
         then:
-        instance.getMapping(OSMDomain.Browser).mapping."1" == browser
+        instance.getMapping(OsmDomain.Browser).mapping."1" == browser
     }
 
     def "Test update mapping with empty update map shouldn't change the domain"(){
         given:
         OsmInstance instance = createInstance()
-        def browserClone = instance.getMapping(OSMDomain.Browser).mapping.clone()
-        def locationClone = instance.getMapping(OSMDomain.Location).mapping.clone()
-        def measuredEventClone = instance.getMapping(OSMDomain.MeasuredEvent).mapping.clone()
-        def jobGroupClone = instance.getMapping(OSMDomain.JobGroup).mapping.clone()
+        def browserClone = instance.getMapping(OsmDomain.Browser).mapping.clone()
+        def locationClone = instance.getMapping(OsmDomain.Location).mapping.clone()
+        def measuredEventClone = instance.getMapping(OsmDomain.MeasuredEvent).mapping.clone()
+        def jobGroupClone = instance.getMapping(OsmDomain.JobGroup).mapping.clone()
 
         when:
-        service.updateMapping(instance,OSMDomain.Browser,[:])
+        service.updateMapping(instance,OsmDomain.Browser,[:])
 
         then:
-        instance.getMapping(OSMDomain.Browser).mapping == browserClone
-        instance.getMapping(OSMDomain.Location).mapping == locationClone
-        instance.getMapping(OSMDomain.MeasuredEvent).mapping == measuredEventClone
-        instance.getMapping(OSMDomain.JobGroup).mapping == jobGroupClone
+        instance.getMapping(OsmDomain.Browser).mapping == browserClone
+        instance.getMapping(OsmDomain.Location).mapping == locationClone
+        instance.getMapping(OsmDomain.MeasuredEvent).mapping == measuredEventClone
+        instance.getMapping(OsmDomain.JobGroup).mapping == jobGroupClone
     }
 
     def "Don't fetch, if all mappings exists within instance"() {
@@ -52,11 +51,11 @@ class MappingServiceTest extends Specification {
         }
         service.httpRequestService = stub.proxyInstance()
         OsmInstance instance = createInstance()
-        Map<OSMDomain, List<Long>> neededIds = [:]
-        neededIds[OSMDomain.Browser] = [1L]
-        neededIds[OSMDomain.JobGroup] = [1L]
-        neededIds[OSMDomain.Location] = [1L]
-        neededIds[OSMDomain.MeasuredEvent] = [1L]
+        Map<OsmDomain, List<Long>> neededIds = [:]
+        neededIds[OsmDomain.Browser] = [1L]
+        neededIds[OsmDomain.JobGroup] = [1L]
+        neededIds[OsmDomain.Location] = [1L]
+        neededIds[OsmDomain.MeasuredEvent] = [1L]
         when:
         service.updateIfMappingsDoesntExist(instance,neededIds)
         then:

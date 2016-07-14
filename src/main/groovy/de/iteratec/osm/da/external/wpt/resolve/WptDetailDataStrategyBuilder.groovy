@@ -10,7 +10,7 @@ class WptDetailDataStrategyBuilder {
     /**
      * Maps WptVersions to the correct Strategy. If a Version wasn't found in the map, we will look in our strategy List for the correct strategy.
      */
-    static HashMap<WPTVersion, WptDetailDataStrategyI> cache = [:].withDefault {findStrategy(it)}
+    static Map<WPTVersion, WptDetailDataStrategyI> cache = [:].withDefault {findStrategy(it)}
     static List<WptDetailDataStrategyI> strategies = [new WptDetailDataDefaultStrategy(), new WptDetailDataOldStrategy()]
 
     static WptDetailDataStrategyI getStrategyForVersion(WPTVersion version){
@@ -18,6 +18,6 @@ class WptDetailDataStrategyBuilder {
     }
 
     private static WptDetailDataStrategyI findStrategy(WPTVersion version){
-        strategies.find{it.compatibleWithVersion(version)}
+        return strategies.find{it.compatibleWithVersion(version)}
     }
 }

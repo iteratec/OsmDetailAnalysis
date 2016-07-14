@@ -2,7 +2,7 @@ package de.iteratec.osm.da.external.wpt.data
 
 import groovy.transform.EqualsAndHashCode
 
-@EqualsAndHashCode
+@EqualsAndHashCode(includes = ["major","minor"])
 class WPTVersion implements Comparable{
     //This map will cache all WPT Versions. If a version isn't valid,
     //the invalid version string will also be cached, so it will return a null on the next call

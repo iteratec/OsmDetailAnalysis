@@ -1,6 +1,6 @@
 package de.iteratec.osm.da
 
-import de.iteratec.oms.da.external.mapping.OSMDomain
+import de.iteratec.oms.da.external.mapping.OsmDomain
 import de.iteratec.osm.da.external.wpt.data.Request
 import de.iteratec.osm.da.external.wpt.data.Step
 import de.iteratec.osm.da.external.wpt.data.WptDetailResult
@@ -11,10 +11,9 @@ import de.iteratec.osm.da.external.instances.OsmMapping
 
 
 class TestDataUtil {
-    static OsmInstance createOsmInstance(){
+    OsmInstance createOsmInstance(){
 
         def instance = new OsmInstance(name: "TestInstance",url:"http://demo.openspeedmonitor.de")
-        instance.osmMappings."$OSMDomain.MeasuredEvent" = new OsmMapping(mapping: [1l:"ME:1"])
         return instance
     }
 
