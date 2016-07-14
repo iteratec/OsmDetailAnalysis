@@ -1,9 +1,9 @@
-package de.iteratec.oms.da
+package de.iteratec.osm.da
 
 import de.iteratec.oms.da.external.mapping.OSMDomain
-import de.iteratec.oms.da.external.wpt.data.Request
-import de.iteratec.oms.da.external.wpt.data.Step
-import de.iteratec.oms.da.external.wpt.data.WptDetailResult
+import de.iteratec.osm.da.external.wpt.data.Request
+import de.iteratec.osm.da.external.wpt.data.Step
+import de.iteratec.osm.da.external.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.external.FetchJob
 import de.iteratec.osm.da.external.instances.OsmInstance

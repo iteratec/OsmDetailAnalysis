@@ -1,9 +1,9 @@
 package de.iteratec.osm.da.external.wpt
 
-import de.iteratec.oms.da.external.wpt.data.WPTVersion
-import de.iteratec.oms.da.external.wpt.data.WptDetailResult
-import de.iteratec.oms.da.external.wpt.resolve.WptDetailDataStrategyBuilder
-import de.iteratec.oms.da.external.wpt.resolve.WptDetailDataStrategyI
+import de.iteratec.osm.da.external.wpt.data.WPTVersion
+import de.iteratec.osm.da.external.wpt.data.WptDetailResult
+import de.iteratec.osm.da.external.wpt.resolve.WptDetailDataStrategyBuilder
+import de.iteratec.osm.da.external.wpt.resolve.WptDetailDataStrategyI
 import de.iteratec.osm.da.external.FetchJob
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.transaction.Transactional
@@ -18,7 +18,7 @@ import java.util.concurrent.Executors
  * All downloaded data will be passed to the persistense service and therefore will be persisted.
  */
 @Transactional
-class WptDownloadService {
+class WptDetailResultDownloadService {
 
 
     AssetRequestPersistenceService assetPersistenceService
@@ -27,7 +27,7 @@ class WptDownloadService {
     ExecutorService executor = Executors.newFixedThreadPool(8)
 
 
-    public WptDownloadService(){
+    public WptDetailResultDownloadService(){
         8.times {
             executor.execute{
                 while (true){

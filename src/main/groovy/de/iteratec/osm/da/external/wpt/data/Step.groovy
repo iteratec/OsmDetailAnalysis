@@ -1,4 +1,4 @@
-package de.iteratec.oms.da.external.wpt.data
+package de.iteratec.osm.da.external.wpt.data
 
 /**
  * On step during a wpt test

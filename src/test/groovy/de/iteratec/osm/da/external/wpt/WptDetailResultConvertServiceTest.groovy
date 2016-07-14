@@ -1,15 +1,16 @@
 package de.iteratec.osm.da.external.wpt
 
-import de.iteratec.oms.da.TestDataUtil
+import de.iteratec.osm.da.TestDataUtil
 import de.iteratec.osm.da.external.FetchJob
 import de.iteratec.osm.da.external.instances.OsmInstance
-import de.iteratec.osm.da.external.instances.OsmMapping
 import de.iteratec.osm.da.external.mapping.MappingService
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import spock.lang.Specification
+import spock.lang.Unroll
+
 @TestFor(WptDetailResultConvertService)
-@Mock([OsmInstance, OsmMapping])
+@Mock([OsmInstance])
 class WptDetailResultConvertServiceTest extends Specification {
 
     def setup(){
@@ -39,6 +40,22 @@ class WptDetailResultConvertServiceTest extends Specification {
 
         then: "There should be a group for every media type, of every event in a step"
         TestDataUtil.countAssetsInAssetResourceGroup(list) == assetCount
+    }
+
+    @Unroll("Test that the pagename of the eventname #eventName should be #expectedName")
+    def "test that the page will be correct parsed"(){
+        given:
+        expect:
+        service.getPageName(eventName) == expectedName
+
+        where:
+        eventName               | expectedName
+        "WK:::test"             | "WK"
+        "WK:::testStuff:::3"    | "undefined"
+        "WK::testStuff"         | "undefined"
+        "WK:testStuff"          | "undefined"
+        "HP_ENTRY:::test"       | "HP_ENTRY"
+        "test"                  | "undefined"
     }
 
     def mockService(){

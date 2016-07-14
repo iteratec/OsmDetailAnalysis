@@ -1,7 +1,7 @@
 package de.iteratec.osm.da.external.wpt
 
-import de.iteratec.oms.da.external.wpt.data.Request
-import de.iteratec.oms.da.external.wpt.data.WptDetailResult
+import de.iteratec.osm.da.external.wpt.data.Request
+import de.iteratec.osm.da.external.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.asset.AssetRequest
 import de.iteratec.osm.da.external.FetchJob
@@ -13,8 +13,12 @@ class WptDetailResultConvertService {
 
     MappingService mappingService
 
-    static String undefinedMediaType = "undefined"
-    static String undefinedSubtype = "undefined"
+    static String UNDEFINED_MEDIA_TYPE = "undefined"
+    static String UNDEFINED_SUBTYPE = "undefined"
+    static String UNDEFINED_PAGE = "undefined"
+
+    /** EventName can contain information of tested pages and teststep-number. Both informations are delimitted through this. **/
+    public static final String STEPNAME_DELIMITTER = ':::'
 
     public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
         List<AssetRequestGroup> assetGroups = []
@@ -37,7 +41,7 @@ class WptDetailResultConvertService {
 
     private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName){
         long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)
-        long page = -1 //TODO get page
+        long page  = mappingService.getIdForPageName(fetchJob.osmInstance, getPageName(eventName))
         long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)
         long browser = mappingService.getIdForBrowserName(fetchJob.osmInstance,result.browser)
 
@@ -46,6 +50,11 @@ class WptDetailResultConvertService {
                 packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
                 browser: browser, epochTimeCompleted: result.epochTimeCompleted, mediaType: mediaType,
                 wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView)
+    }
+
+    private String getPageName(String eventName){
+        List<String> tokenized = eventName.split(STEPNAME_DELIMITTER)
+        return tokenized.size() == 2 ? tokenized[0] : UNDEFINED_PAGE
     }
 
     private static AssetRequest createAsset(Request req){
@@ -57,8 +66,8 @@ class WptDetailResultConvertService {
                 urlWithoutParams: req.host+createURLWithoutParams(req.url))
     }
 
-    private static String getMediaType(String mimeType){
-        if(!mimeType || mimeType.indexOf("/")<0) return undefinedMediaType
+    static String getMediaType(String mimeType){
+        if(!mimeType || mimeType.indexOf("/")<0) return UNDEFINED_MEDIA_TYPE
         return mimeType?.split("/")[0]
     }
 
@@ -86,7 +95,7 @@ class WptDetailResultConvertService {
      * @return String[0] = mediaType, String[1]=subtype
      */
     private static String[] convertMimeTypesInAssetMap(String mimeType){
-        String[] result = [undefinedMediaType,undefinedSubtype]
+        String[] result = [UNDEFINED_MEDIA_TYPE, UNDEFINED_SUBTYPE]
         if(!mimeType) return result
         String[] split = mimeType?.split("/")
         if(split.size()>=1)result[0] = split[0]

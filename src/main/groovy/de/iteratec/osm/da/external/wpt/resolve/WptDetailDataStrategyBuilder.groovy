@@ -1,6 +1,6 @@
-package de.iteratec.oms.da.external.wpt.resolve
+package de.iteratec.osm.da.external.wpt.resolve
 
-import de.iteratec.oms.da.external.wpt.data.WPTVersion
+import de.iteratec.osm.da.external.wpt.data.WPTVersion
 
 /**
  * Decides which strategy should be used to download the detail data from wpt

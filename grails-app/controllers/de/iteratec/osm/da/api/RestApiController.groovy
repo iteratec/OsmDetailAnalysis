@@ -1,16 +1,16 @@
 package de.iteratec.osm.da.api
 
 import de.iteratec.oms.da.external.mapping.OSMDomain
-import de.iteratec.oms.da.external.wpt.data.WPTVersion
+import de.iteratec.osm.da.external.wpt.data.WPTVersion
 import de.iteratec.osm.da.external.instances.OsmInstance
-import de.iteratec.osm.da.external.wpt.WptDownloadService
+import de.iteratec.osm.da.external.wpt.WptDetailResultDownloadService
 import de.iteratec.osm.da.external.mapping.MappingService
 
 
 class RestApiController {
 
     MappingService mappingService
-    WptDownloadService wptDownloadService
+    WptDetailResultDownloadService wptDownloadService
 
 
     /**

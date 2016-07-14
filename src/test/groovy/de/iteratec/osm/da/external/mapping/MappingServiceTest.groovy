@@ -10,7 +10,7 @@ import groovy.mock.interceptor.StubFor
 import spock.lang.Specification
 
 @TestFor(MappingService)
-@Mock([OsmInstance, OsmMapping])
+@Mock([OsmInstance])
 class MappingServiceTest extends Specification {
 
     def "Test update of one mapping"() {
@@ -121,6 +121,17 @@ class MappingServiceTest extends Specification {
         name == "ME"
     }
 
+    def "GetNameForPageId"() {
+        given:
+        OsmInstance instance = createInstance()
+
+        when:
+        String name = service.getNameForPageId(instance.id, 1)
+
+        then:
+        name == "Page"
+    }
+
 
     def "GetIdForJobGroupName"() {
         given:
@@ -166,12 +177,24 @@ class MappingServiceTest extends Specification {
         id == 1L
     }
 
+    def "GetIdForPageName"() {
+        given:
+        OsmInstance instance = createInstance()
+
+        when:
+        Long id = service.getIdForPageName(instance.id, "Page")
+
+        then:
+        id == 1L
+    }
+
     private createInstance = { ->
         def instance = new OsmInstance(name: "TestInstance", url: "http://test.openspeedmonitor.org")
         instance.browserMapping.mapping."1" = "FF"
         instance.locationMapping.mapping."1" = "Location"
         instance.measuredEventMapping.mapping."1" = "ME"
         instance.jobGroupMapping.mapping."1" = "JG"
+        instance.pageMapping.mapping."1" = "Page"
         instance.save()
     }
 }

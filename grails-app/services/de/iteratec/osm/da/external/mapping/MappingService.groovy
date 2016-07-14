@@ -56,9 +56,8 @@ class MappingService {
     }
 
     String getMappingEntryFromOsm(Long osmId, OSMDomain domain, long id){
-//        OsmInstance osm = OsmInstance.findById(osmId)
-//        return osm.getMapping(domain).mapping."$id"
-        return "blah"
+        OsmInstance osm = OsmInstance.findById(osmId)
+        return osm.getMapping(domain).mapping."$id"
     }
 
     String getNameForBrowserId(long osmId, long id){
@@ -73,21 +72,23 @@ class MappingService {
     String getNameForMeasuredEventId(long osmId, long id){
         return getMappingEntryFromOsm(osmId, OSMDomain.MeasuredEvent,id)
     }
+    String getNameForPageId(long osmId, long id){
+        return getMappingEntryFromOsm(osmId, OSMDomain.Page,id)
+    }
 
 
     long getMappingEntryFromOsm(Long osmId, OSMDomain domain, String name){
-//        OsmInstance osm = OsmInstance.findById(osmId)
-//        OsmMapping mapping = osm.getMapping(domain)
-//        int id = -1
-//        mapping.mapping.find {k,v->
-//            if(v == name){
-//                id = k.toLong()
-//                return true
-//            }
-//            return false
-//        }
-//        return id
-            return -1
+        OsmInstance osm = OsmInstance.findById(osmId)
+        OsmMapping mapping = osm.getMapping(domain)
+        int id = -1
+        mapping.mapping.find {k,v->
+            if(v == name){
+                id = k.toLong()
+                return true
+            }
+            return false
+        }
+        return id
     }
 
     long getIdForJobGroupName(long osmId, String name){
@@ -101,6 +102,9 @@ class MappingService {
     }
     long getIdForMeasuredEventName(long osmId, String name){
         return getMappingEntryFromOsm(osmId, OSMDomain.MeasuredEvent,name)
+    }
+    long getIdForPageName(long osmId, String name){
+        return getMappingEntryFromOsm(osmId, OSMDomain.Page,name)
     }
 
 
