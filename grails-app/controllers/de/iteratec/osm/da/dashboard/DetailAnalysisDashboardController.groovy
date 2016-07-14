@@ -17,8 +17,7 @@
 
 package de.iteratec.osm.da.dashboard
 
-import de.iteratec.oms.da.dashboard.DetailAnalysisDashboardCommand
-import de.iteratec.oms.da.util.ControllerUtils
+import de.iteratec.osm.da.util.ControllerUtils
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 
 /**

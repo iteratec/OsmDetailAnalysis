@@ -1,9 +1,9 @@
 package de.iteratec.osm.da.persistence
 
-import de.iteratec.osm.da.external.wpt.data.WptDetailResult
+import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
-import de.iteratec.osm.da.external.FetchJob
-import de.iteratec.osm.da.external.wpt.WptDetailResultConvertService
+import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.wpt.WptDetailResultConvertService
 import grails.transaction.Transactional
 
 @Transactional

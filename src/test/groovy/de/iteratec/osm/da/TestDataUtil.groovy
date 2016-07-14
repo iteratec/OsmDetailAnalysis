@@ -1,14 +1,11 @@
 package de.iteratec.osm.da
 
-import de.iteratec.oms.da.external.mapping.OsmDomain
-import de.iteratec.osm.da.external.wpt.data.Request
-import de.iteratec.osm.da.external.wpt.data.Step
-import de.iteratec.osm.da.external.wpt.data.WptDetailResult
+import de.iteratec.osm.da.wpt.data.Request
+import de.iteratec.osm.da.wpt.data.Step
+import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
-import de.iteratec.osm.da.external.FetchJob
-import de.iteratec.osm.da.external.instances.OsmInstance
-import de.iteratec.osm.da.external.instances.OsmMapping
-
+import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.instances.OsmInstance
 
 class TestDataUtil {
     OsmInstance createOsmInstance(){
