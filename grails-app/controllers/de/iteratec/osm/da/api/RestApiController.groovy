@@ -44,18 +44,19 @@ class RestApiController {
      * @return
      */
     def updateMapping(MappingCommand command){
-
-        OsmInstance url = OsmInstance.findByUrl(command.osmUrl)
-        if(command.Browser) mappingService.updateMapping(url,OsmDomain.Browser, command.Browser)
-        if(command.JobGroup) mappingService.updateMapping(url,OsmDomain.JobGroup, command.JobGroup)
-        if(command.Location) mappingService.updateMapping(url,OsmDomain.Location, command.Location)
-        if(command.MeasuredEvent) mappingService.updateMapping(url,OsmDomain.MeasuredEvent, command.MeasuredEvent)
-        sendSimpleResponseAsStream(200,"Aye")
+        OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
+        if(command.Browser) mappingService.updateMapping(instance,OsmDomain.Browser, command.Browser)
+        if(command.JobGroup) mappingService.updateMapping(instance,OsmDomain.JobGroup, command.JobGroup)
+        if(command.Location) mappingService.updateMapping(instance,OsmDomain.Location, command.Location)
+        if(command.MeasuredEvent) mappingService.updateMapping(instance,OsmDomain.MeasuredEvent, command.MeasuredEvent)
+        sendSimpleResponseAsStream(200,"Mapping was updated")
 
     }
 
     def updateOsmUrl(UrlUpdateCommand command){
-
+        OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
+        mappingService.updateOsmUrl(instance, command.newOsmUrl)
+        sendSimpleResponseAsStream(200,"Url updated to $command.newOsmUrl")
     }
 
 
@@ -77,7 +78,6 @@ public class PersistenceCommand{
         wptVersion(nullable:false)
     }
 
-
     @Override
     public String toString() {
         return "PersistenceCommand{" +
@@ -90,7 +90,8 @@ public class PersistenceCommand{
 }
 
 public class UrlUpdateCommand{
-
+    String osmUrl
+    String newOsmUrl
 }
 
 public class MappingCommand{

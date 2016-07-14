@@ -27,7 +27,7 @@ class MappingService {
 
 
     /**
-     * Checks if every domain has the needed id mapping. If a mapping is missing, we will contact the OsmInstance to give us the needed value
+     * Checks if every domain has the needed id mappings. If a mapping is missing, we will contact the OsmInstance to give us the needed values
      * @return True if this map contains all values. If there is still a missing value, even after the upate try, this method will return false
      */
     boolean updateIfMappingsDoesntExist(OsmInstance instance, Map<OsmDomain, List<Long>> domains){
@@ -46,6 +46,12 @@ class MappingService {
         return true
     }
 
+    /**
+     * Sends a Request to osm instance to get missing mappings.
+     * @param idsToUpdate Map of Strings, which maps to a list of ids, which are missing within the domain
+     * @param instance The osm instance which should be updated
+     * @return A map with the anweser from the osm instance
+     */
     private Map getUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
         //TODO Check again, when OSM is able to handle such request, IT-1115
         return httpRequestService.getJsonResponse(instance.url,"api", idsToUpdate) as Map
@@ -55,6 +61,13 @@ class MappingService {
         return OsmInstance.findByUrl(url)?.id
     }
 
+    /**
+     * Returns the name of a id within a domain of a wpt instance
+     * @param osmId The id of the osm instance
+     * @param domain The domain to search
+     * @param id The id to search
+     * @return
+     */
     String getMappingEntryFromOsm(Long osmId, OsmDomain domain, long id){
         OsmInstance osm = OsmInstance.findById(osmId)
         return osm.getMapping(domain).mapping."$id"
@@ -76,7 +89,13 @@ class MappingService {
         return getMappingEntryFromOsm(osmId, OsmDomain.Page,id)
     }
 
-
+    /**
+     * Returns the id of a given name in the domain of osm instance
+     * @param osmId The id of the osm instance
+     * @param domain The domain to search
+     * @param name  The name of a domain entry to search
+     * @return
+     */
     long getMappingEntryFromOsm(Long osmId, OsmDomain domain, String name){
         OsmInstance osm = OsmInstance.findById(osmId)
         OsmMapping mapping = osm.getMapping(domain)
@@ -107,5 +126,7 @@ class MappingService {
         return getMappingEntryFromOsm(osmId, OsmDomain.Page,name)
     }
 
-
+    def updateOsmUrl(OsmInstance osmInstance, String newUrl) {
+        osmInstance.setUrl(newUrl).save(flush:true)
+    }
 }
