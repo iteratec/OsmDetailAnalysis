@@ -2,8 +2,8 @@ package de.iteratec.oms.da.external.wpt.resolve
 
 import de.iteratec.oms.da.external.wpt.data.Request
 import de.iteratec.oms.da.external.wpt.data.Step
-import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
 import de.iteratec.oms.da.external.wpt.data.WPTVersion
+import de.iteratec.oms.da.external.wpt.data.WptDetailResult
 import de.iteratec.osm.da.external.HTTPRequestService
 import de.iteratec.osm.da.external.FetchJob
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,20 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired
 /**
  * Use this strategy for versions >= 2.19
  */
-class WPTDetailDataDefaultStrategy implements WPTDetailDataStrategyI{
+class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
     @Autowired
     HTTPRequestService httpRequestService
     static WPTVersion minimumVersion = WPTVersion.get("2.19")
 
     @Override
-    WPTDetailResult getResult(FetchJob fetchJob) {
-        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.currentId,requests: 1])
+    WptDetailResult getResult(FetchJob fetchJob) {
+        //We set the multiStepFormat, because the new version can delivery single steps with the same format as the multi step results.
+        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.currentId,requests: 1, multiStepFormat:1])
         return createResult(fetchJob, jsonResponse)
     }
 
-    static private WPTDetailResult createResult(FetchJob fetchJob, def jsonResponse){
-        WPTDetailResult result = new WPTDetailResult(fetchJob)
+    static private WptDetailResult createResult(FetchJob fetchJob, def jsonResponse){
+        WptDetailResult result = new WptDetailResult(fetchJob)
         result.location = jsonResponse.data.location
         result.epochTimeCompleted = jsonResponse.data.completed as long
         def locationSplit = jsonResponse.data.location.split(":")
@@ -35,14 +36,14 @@ class WPTDetailDataDefaultStrategy implements WPTDetailDataStrategyI{
         return result
     }
 
-    static private void setConnectivity(WPTDetailResult result, def json){
+    static private void setConnectivity(WptDetailResult result, def json){
         result.bandwidthDown = json.data.bwDown
         result.bandwidthUp = json.data.bwUp
         result.latency = json.data.latency
         result.packagelossrate = Integer.parseInt(json.data.plr)
     }
 
-    static private void setSteps(WPTDetailResult result, def json){
+    static private void setSteps(WptDetailResult result, def json){
         List<Step> steps = []
         json.data.runs.each{def run ->
             run.value?.firstView?.steps?.each{

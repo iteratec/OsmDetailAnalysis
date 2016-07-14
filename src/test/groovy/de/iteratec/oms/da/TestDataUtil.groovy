@@ -3,7 +3,7 @@ package de.iteratec.oms.da
 import de.iteratec.oms.da.external.mapping.OSMDomain
 import de.iteratec.oms.da.external.wpt.data.Request
 import de.iteratec.oms.da.external.wpt.data.Step
-import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
+import de.iteratec.oms.da.external.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.external.FetchJob
 import de.iteratec.osm.da.external.instances.OsmInstance
@@ -24,8 +24,8 @@ class TestDataUtil {
      * @param fetchJob
      * @return
      */
-    static WPTDetailResult createResult(FetchJob fetchJob){
-        WPTDetailResult result = new WPTDetailResult(fetchJob)
+    static WptDetailResult createResult(FetchJob fetchJob){
+        WptDetailResult result = new WptDetailResult(fetchJob)
         result.osmInstance = fetchJob.osmInstance
         result.browser = "FF"
         result.bandwidthDown = 200
@@ -93,7 +93,7 @@ class TestDataUtil {
         return result
     }
 
-    static countAssetsInWPTDetailResult(WPTDetailResult wptDetailResult){
+    static countAssetsInWPTDetailResult(WptDetailResult wptDetailResult){
         int count = 0
         wptDetailResult.steps.each {
             it.requests.each {

@@ -1,7 +1,7 @@
 package de.iteratec.osm.da.external.wpt
 
 import de.iteratec.oms.da.external.wpt.data.Request
-import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
+import de.iteratec.oms.da.external.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.asset.AssetRequest
 import de.iteratec.osm.da.external.FetchJob
@@ -9,14 +9,14 @@ import de.iteratec.osm.da.external.mapping.MappingService
 import grails.transaction.Transactional
 
 @Transactional
-class WPTDetailResultConvertService {
+class WptDetailResultConvertService {
 
     MappingService mappingService
 
     static String undefinedMediaType = "undefined"
     static String undefinedSubtype = "undefined"
 
-    public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WPTDetailResult result, FetchJob fetchJob){
+    public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
         List<AssetRequestGroup> assetGroups = []
         result.steps.each {step ->
             Map<String, List<Request>> mediaTypeMap = step.requests.groupBy {
@@ -35,7 +35,7 @@ class WPTDetailResultConvertService {
         return assetGroups
     }
 
-    private AssetRequestGroup createAssetGroup(WPTDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName){
+    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName){
         long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)
         long page = -1 //TODO get page
         long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)

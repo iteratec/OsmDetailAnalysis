@@ -1,18 +1,18 @@
 package de.iteratec.oms.da.external.wpt.resolve
 
-import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
+import de.iteratec.oms.da.external.wpt.data.WptDetailResult
 import de.iteratec.oms.da.external.wpt.data.WPTVersion
 import de.iteratec.osm.da.external.FetchJob
 
 /**
  * Created by benni on 08.07.16.
  */
-class WPTDetailDataOldStrategy implements WPTDetailDataStrategyI{
+class WptDetailDataOldStrategy implements WptDetailDataStrategyI{
 
     static WPTVersion maximumVersion = WPTVersion.get("2.18")
 
     @Override
-    WPTDetailResult getResult(FetchJob fetchJob) {
+    WptDetailResult getResult(FetchJob fetchJob) {
         //TODO implement me
         return null
     }

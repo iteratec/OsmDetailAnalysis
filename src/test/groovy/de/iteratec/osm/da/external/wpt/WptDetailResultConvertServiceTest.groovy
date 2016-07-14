@@ -8,9 +8,9 @@ import de.iteratec.osm.da.external.mapping.MappingService
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import spock.lang.Specification
-@TestFor(WPTDetailResultConvertService)
+@TestFor(WptDetailResultConvertService)
 @Mock([OsmInstance, OsmMapping])
-class WPTDetailResultConvertServiceTest extends Specification {
+class WptDetailResultConvertServiceTest extends Specification {
 
     def setup(){
         mockService()

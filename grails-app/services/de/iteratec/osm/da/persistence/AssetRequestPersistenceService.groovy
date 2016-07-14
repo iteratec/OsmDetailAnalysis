@@ -1,21 +1,21 @@
 package de.iteratec.osm.da.persistence
 
-import de.iteratec.oms.da.external.wpt.data.WPTDetailResult
+import de.iteratec.oms.da.external.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.external.FetchJob
-import de.iteratec.osm.da.external.wpt.WPTDetailResultConvertService
+import de.iteratec.osm.da.external.wpt.WptDetailResultConvertService
 import grails.transaction.Transactional
 
 @Transactional
 class AssetRequestPersistenceService {
 
-    WPTDetailResultConvertService wptDetailResultConvertService
+    WptDetailResultConvertService wptDetailResultConvertService
     /**
-     * Parses a WPTDetailResult and saves all Assets
+     * Parses a WptDetailResult and saves all Assets
      * @param result JobResult which belongs to this HAR
      * @param har The HAR which belongs to this JobResult
      */
-    public void saveHARDataForJobResult(WPTDetailResult result, FetchJob fetchJob) {
+    public void saveDetailDataForJobResult(WptDetailResult result, FetchJob fetchJob) {
         List<AssetRequestGroup> assetGroups = wptDetailResultConvertService.convertWPTDetailResultToAssetGroups(result, fetchJob)
         assetGroups.each {
             it.save(failOnError: true)

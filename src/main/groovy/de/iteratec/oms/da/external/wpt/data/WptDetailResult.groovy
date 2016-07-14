@@ -5,7 +5,7 @@ import de.iteratec.osm.da.external.FetchJob
 /**
  * This represents the whole necessary data which to save the detail data.
  */
-class WPTDetailResult {
+class WptDetailResult {
 
 
     int bandwidthDown
@@ -22,7 +22,7 @@ class WPTDetailResult {
 
     List<Step> steps
 
-    public WPTDetailResult(FetchJob fetchJob){
+    public WptDetailResult(FetchJob fetchJob){
         this.jobGroupID = fetchJob.jobGroupId
         this.wptTestID = fetchJob.currentId
         this.wptBaseUrl = fetchJob.wptBaseURL
@@ -39,7 +39,7 @@ class WPTDetailResult {
 
     @Override
     public String toString() {
-        return "WPTDetailResult{" +
+        return "WptDetailResult{" +
                 ", bandwidthDown=" + bandwidthDown +
                 ", bandwidthUp=" + bandwidthUp +
                 ", latency=" + latency +

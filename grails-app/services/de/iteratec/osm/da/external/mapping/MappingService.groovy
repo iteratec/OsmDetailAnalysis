@@ -56,8 +56,9 @@ class MappingService {
     }
 
     String getMappingEntryFromOsm(Long osmId, OSMDomain domain, long id){
-        OsmInstance osm = OsmInstance.findById(osmId)
-        return osm.getMapping(domain).mapping."$id"
+//        OsmInstance osm = OsmInstance.findById(osmId)
+//        return osm.getMapping(domain).mapping."$id"
+        return "blah"
     }
 
     String getNameForBrowserId(long osmId, long id){
@@ -75,17 +76,18 @@ class MappingService {
 
 
     long getMappingEntryFromOsm(Long osmId, OSMDomain domain, String name){
-        OsmInstance osm = OsmInstance.findById(osmId)
-        OsmMapping mapping = osm.getMapping(domain)
-        int id = -1
-        mapping.mapping.find {k,v->
-            if(v == name){
-                id = k.toLong()
-                return true
-            }
-            return false
-        }
-        return id
+//        OsmInstance osm = OsmInstance.findById(osmId)
+//        OsmMapping mapping = osm.getMapping(domain)
+//        int id = -1
+//        mapping.mapping.find {k,v->
+//            if(v == name){
+//                id = k.toLong()
+//                return true
+//            }
+//            return false
+//        }
+//        return id
+            return -1
     }
 
     long getIdForJobGroupName(long osmId, String name){

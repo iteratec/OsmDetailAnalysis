@@ -7,12 +7,12 @@ import spock.lang.Unroll
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-class WPTDetailDataStrategyBuilderTest extends Specification {
+class WptDetailDataStrategyBuilderTest extends Specification {
 
     @Unroll
     def "get only compatible strategies"() {
         expect:
-        WPTDetailDataStrategyBuilder.getStrategyForVersion(getVersion).compatibleWithVersion(actualTestVersion) == truth
+        WptDetailDataStrategyBuilder.getStrategyForVersion(getVersion).compatibleWithVersion(actualTestVersion) == truth
 
         where:
         getVersion              | actualTestVersion      || truth

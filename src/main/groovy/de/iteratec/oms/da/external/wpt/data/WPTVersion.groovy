@@ -21,7 +21,7 @@ class WPTVersion implements Comparable{
      */
     private WPTVersion(String version){
         String[] split = version.split("\\.")
-        //We need the padding because other wise we woulh compare the minor version with a different of digit wrong
+        //We need the padding because other wise we would compare the minor version with a different of digit wrong
         //For example 2.2 would be less than 2.19. So we shift the versions to represent 2 digits -> 2.20
         this.major = Integer.parseInt(split[0])
         this.minor = Integer.parseInt(split[1].padRight(2,"0"))
