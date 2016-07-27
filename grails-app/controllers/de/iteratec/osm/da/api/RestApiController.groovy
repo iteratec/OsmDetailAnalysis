@@ -10,7 +10,7 @@ import de.iteratec.osm.da.mapping.MappingService
 class RestApiController {
 
     MappingService mappingService
-    WptDetailResultDownloadService wptDownloadService
+    WptDetailResultDownloadService wptDetailResultDownloadService
 
 
     /**
@@ -33,7 +33,7 @@ class RestApiController {
         if(!WPTVersion.validWPTVersion(command.wptVersion)){
             sendSimpleResponseAsStream(400,"WPT Version ${command.wptVersion} is not valid")
         }
-        wptDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
+        wptDetailResultDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
         sendSimpleResponseAsStream(200,"Added to queue")
     }
 
@@ -103,5 +103,16 @@ public class MappingCommand{
 
     static constraints = {
         osmUrl(nullable:false)
+    }
+
+    @Override
+    public String toString() {
+        return "MappingCommand{" +
+                "osmUrl='" + osmUrl + '\'' +
+                ", JobGroup=" + JobGroup +
+                ", Location=" + Location +
+                ", Browser=" + Browser +
+                ", MeasuredEvent=" + MeasuredEvent +
+                '}';
     }
 }

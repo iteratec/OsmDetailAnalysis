@@ -8,6 +8,8 @@ import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.transaction.Transactional
 
+import javax.persistence.criteria.Fetch
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -23,7 +25,7 @@ class WptDetailResultDownloadService {
 
     AssetRequestPersistenceService assetPersistenceService
     int queueMaximumInMemory = 100
-    final BlockingQueue<FetchJob> queue = [] as BlockingQueue
+    final BlockingQueue<FetchJob> queue = new ArrayBlockingQueue(queueMaximumInMemory)
     ExecutorService executor = Executors.newFixedThreadPool(8)
 
 
@@ -63,7 +65,8 @@ class WptDetailResultDownloadService {
      */
     public void getNextFromQueue(){
         fillQueueFromDatabase()
-        FetchJob currentJob = queue.poll()
+        FetchJob currentJob
+        currentJob = queue.poll()
         if(currentJob){
             while(currentJob.next()){
                 WptDetailResult result = downloadWptDetailResultFromWPTInstance(currentJob)
@@ -79,7 +82,21 @@ class WptDetailResultDownloadService {
     private void fillQueueFromDatabase(){
         synchronized (queue){
             if(queue.size() < queueMaximumInMemory/2){
-                queue.addAll(FetchJob.list(max: queueMaximumInMemory-queue.size(), sort: "created"))
+                println "fill queue"
+                FetchJob.withNewSession{
+                    println queue
+                    def c = FetchJob.createCriteria()
+                    def jobs = c.list (max:queueMaximumInMemory-queue.size()) {
+                        not {
+                            'in' ("id", queue*.id)
+                        }
+                    }
+                    println "Ids ${jobs*.id} jobs to qeue"
+                    println "Added ${jobs.size()} jobs to qeue"
+                    queue.addAll(jobs)
+                }
+            } else{
+                println "skipping fill queue"
             }
         }
     }

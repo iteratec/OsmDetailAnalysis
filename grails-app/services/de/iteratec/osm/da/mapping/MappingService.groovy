@@ -3,6 +3,7 @@ package de.iteratec.osm.da.mapping
 import de.iteratec.osm.da.HTTPRequestService
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
+import grails.converters.JSON
 import grails.transaction.Transactional
 
 @Transactional
@@ -18,7 +19,7 @@ class MappingService {
      * @param toUpdate Mappings which should be updated
      */
     void updateMapping(OsmInstance instance, OsmDomain domain, Map<Long, String> toUpdate){
-        toUpdate.each {key,value ->
+        toUpdate?.each {key,value ->
             instance.getMapping(domain).mapping."$key" = value
         }
         instance.save(flush:true, failOnError:true)
@@ -29,18 +30,38 @@ class MappingService {
      * Checks if every domain has the needed id mappings. If a mapping is missing, we will contact the OsmInstance to give us the needed values
      * @return True if this map contains all values. If there is still a missing value, even after the upate try, this method will return false
      */
-    boolean updateIfMappingsDoesntExist(OsmInstance instance, Map<OsmDomain, List<Long>> domains){
+    boolean updateIfIdMappingsDoesntExist(OsmInstance instance, Map<OsmDomain, List<Long>> domains){
         Map<String, List<Long>> domainsToUpdate = [:]
         domains.each { OsmDomain domain, List<Long> idsNeeded->
             List<Long> missingIds = idsNeeded - instance.getMapping(domain).mapping.keySet()*.toLong()
             if(missingIds.size()>0) domainsToUpdate."$domain" = missingIds
         }
         if(domainsToUpdate.size() > 0 ){
-            def updates = getUpdate(domainsToUpdate, instance)
-            updates."resolved".each{String domain, Map<Long,String> value->
+            def updates = getIdUpdate(domainsToUpdate, instance)
+            updates."target".each{String domain, Map<Long,String> value->
                 updateMapping(instance, OsmDomain.valueOf(domain), value)
             }
-            return !(updates."missing"?.size>0)
+            //TODO check if something is missing
+        }
+        return true
+    }
+
+    /**
+     * Checks if every domain has the needed id mappings. If a mapping is missing, we will contact the OsmInstance to give us the needed values
+     * @return True if this map contains all values. If there is still a missing value, even after the upate try, this method will return false
+     */
+    boolean updateIfNameMappingsDoesntExist(OsmInstance instance, Map<OsmDomain, List<String>> domains){
+        Map<String, List<Long>> domainsToUpdate = [:]
+        domains.each { OsmDomain domain, List<String> namesNeeded->
+            List<String> missingNames = namesNeeded - instance.getMapping(domain).mapping.values()
+            if(missingNames.size()>0) domainsToUpdate."$domain" = missingNames
+        }
+        if(domainsToUpdate.size() > 0 ){
+            def updates = getNameUpdate(domainsToUpdate, instance)
+            updates."target".each{String domain, Map<Long,String> value->
+                updateMapping(instance, OsmDomain.valueOf(domain), value)
+            }
+            //TODO check if something is missing
         }
         return true
     }
@@ -49,13 +70,21 @@ class MappingService {
      * Sends a Request to osm instance to get missing mappings.
      * @param idsToUpdate Map of Strings, which maps to a list of ids, which are missing within the domain
      * @param instance The osm instance which should be updated
-     * @return A map with the anweser from the osm instance
+     * @return A map with the answer from the osm instance
      */
-    private Map getUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
-        //TODO Check again, when OSM is able to handle such request, IT-1115
-        return httpRequestService.getJsonResponse(instance.url,"api", idsToUpdate) as Map
+    private def getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
+        return httpRequestService.getJsonResponse(instance.url,"rest/domain/namesForIds", idsToUpdate)
     }
 
+    /**
+     * Sends a Request to osm instance to get missing mappings.
+     * @param namesToUpdate Map of Strings, which maps to a list of names, which are missing within the domain
+     * @param instance The osm instance which should be updated
+     * @return A map with the answer from the osm instance
+     */
+    private def getNameUpdate(Map<String, List<String>> namesToUpdate, OsmInstance instance){
+        return httpRequestService.getJsonResponse(instance.url,"/rest/domain/idsForNames/", namesToUpdate)
+    }
     Long getOSMInstanceId(String url){
         return OsmInstance.findByUrl(url)?.id
     }
