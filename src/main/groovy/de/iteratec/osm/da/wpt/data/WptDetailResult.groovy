@@ -33,7 +33,11 @@ class WptDetailResult {
      * Analyzes the steps and mark the calculated median step with step.isMedian=true
      */
     void markMedianRuns(){
-        //TODO implement median algorithm
+         steps.groupBy {it.stepNumber}.each {int stepNumber,List<Step> steps ->
+             int medianPlace = Math.ceil(steps.size()/2) -1 as Integer
+             steps.sort{it.docTime}
+             steps[medianPlace].isMedian = true
+        }
     }
 
 

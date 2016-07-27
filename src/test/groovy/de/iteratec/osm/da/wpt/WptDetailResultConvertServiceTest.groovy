@@ -22,7 +22,7 @@ class WptDetailResultConvertServiceTest extends Specification {
         given:
         OsmInstance instance = new TestDataUtil().createOsmInstance().save()
         FetchJob fetchJob = new FetchJob(osmInstance: instance.id,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
-        def result = TestDataUtil.createResult(fetchJob)
+        def result = TestDataUtil.createResultWith2Runs(fetchJob)
         when:
         def list = service.convertWPTDetailResultToAssetGroups(result,fetchJob)
         then: "There should be a group for every media type, of every event in a step"
@@ -33,7 +33,7 @@ class WptDetailResultConvertServiceTest extends Specification {
         given:
         OsmInstance instance = new TestDataUtil().createOsmInstance().save()
         FetchJob fetchJob = new FetchJob(osmInstance: instance.id,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
-        def result = TestDataUtil.createResult(fetchJob)
+        def result = TestDataUtil.createResultWith2Runs(fetchJob)
         def assetCount = TestDataUtil.countAssetsInWPTDetailResult(result)
 
         when:

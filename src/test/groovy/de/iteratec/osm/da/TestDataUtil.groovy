@@ -20,7 +20,7 @@ class TestDataUtil {
      * @param fetchJob
      * @return
      */
-    static WptDetailResult createResult(FetchJob fetchJob){
+    static WptDetailResult createResultWith2Runs(FetchJob fetchJob){
         WptDetailResult result = new WptDetailResult(fetchJob)
         result.osmInstance = fetchJob.osmInstance
         result.browser = "FF"
@@ -35,7 +35,7 @@ class TestDataUtil {
         result.wptTestID = fetchJob.wptTestId[0]
 
         List<Step> steps = []
-        def step = new Step(run: 1, step: 1, docTime: 1000, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
+        def step = new Step(run: 1, stepNumber: 1, docTime: 900, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
         List<Request> requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -46,7 +46,7 @@ class TestDataUtil {
         step.requests = requests
         steps << step
 
-        step = new Step(run: 1, step: 2, docTime: 1000, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true)
+        step = new Step(run: 1, stepNumber: 2, docTime: 900, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true)
         requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/path/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -60,7 +60,7 @@ class TestDataUtil {
         step.requests = requests
         steps << step
 
-        step = new Step(run: 2, step: 1, docTime: 1000, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
+        step = new Step(run: 2, stepNumber: 1, docTime: 1000, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
         requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -71,7 +71,7 @@ class TestDataUtil {
         step.requests = requests
         steps << step
 
-        step = new Step(run: 2, step: 2, docTime: 1000, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true)
+        step = new Step(run: 2, stepNumber: 2, docTime: 1000, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true)
         requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/path/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -88,6 +88,20 @@ class TestDataUtil {
         result.steps = steps
         return result
     }
+
+    static Step createStep(int docTime, int stepNumber, int run){
+        def step = new Step(run: run, stepNumber: stepNumber, docTime: docTime, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
+        List<Request> requests = []
+        requests << new Request(host: "openspeedmonitor.org",url: "/index.html", loadMs: 300, connectTimeMs: 30,
+                downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
+                contentType: "text/html", indexWithinStep: 1)
+        requests << new Request(host: "openspeedmonitor.org",url: "/picture.jpg", loadMs: 400, connectTimeMs: 30,
+                downloadMs: 200,ttfbMs: 70,loadStart: 310,bytesIn: 300,bytesOut: 10,sslNegotiationTimeMs: 0,
+                contentType: "image/jpg", indexWithinStep: 2)
+        step.requests = requests
+        return step
+    }
+
 
     static countAssetsInWPTDetailResult(WptDetailResult wptDetailResult){
         int count = 0

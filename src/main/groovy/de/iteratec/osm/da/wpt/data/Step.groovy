@@ -7,7 +7,7 @@ class Step {
 
     List<Request>  requests
     int run
-    int step
+    int stepNumber
     int docTime
     String url
     String eventName
@@ -20,7 +20,7 @@ class Step {
         return "Step{" +
                 "requests=" + requests.size() +
                 ", run=" + run +
-                ", step=" + step +
+                ", stepNumber=" + stepNumber +
                 ", docTime=" + docTime +
                 ", url='" + url + '\'' +
                 ", eventName='" + eventName + '\'' +
