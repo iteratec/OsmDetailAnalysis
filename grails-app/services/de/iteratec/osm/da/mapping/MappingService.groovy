@@ -1,15 +1,14 @@
 package de.iteratec.osm.da.mapping
 
-import de.iteratec.osm.da.HTTPRequestService
+import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
-import grails.converters.JSON
 import grails.transaction.Transactional
 
 @Transactional
 class MappingService {
 
-    HTTPRequestService httpRequestService
+    HttpRequestService httpRequestService
 
     /**
      * Updates the mappings of a given domain from an OsmInstance. This doesn't affect
@@ -75,7 +74,7 @@ class MappingService {
      * @return A map with the answer from the osm instance
      */
     private def getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
-        return httpRequestService.getJsonResponse(instance.url,"rest/domain/namesForIds", idsToUpdate)
+        return httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/namesForIds/", idsToUpdate)
     }
 
     /**
@@ -85,7 +84,7 @@ class MappingService {
      * @return A map with the answer from the osm instance
      */
     private def getNameUpdate(Map<String, List<String>> namesToUpdate, OsmInstance instance){
-        return httpRequestService.getJsonResponse(instance.url,"/rest/domain/idsForNames/", namesToUpdate)
+        return httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/idsForNames/", namesToUpdate)
     }
     Long getOSMInstanceId(String url){
         return OsmInstance.findByUrl(url)?.id

@@ -9,7 +9,6 @@ import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.transaction.Transactional
 
-import javax.persistence.criteria.Fetch
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ExecutorService
@@ -24,7 +23,7 @@ import java.util.concurrent.Executors
 class WptDetailResultDownloadService {
 
 
-    AssetRequestPersistenceService assetPersistenceService
+    AssetRequestPersistenceService assetRequestPersistenceService
     MappingService mappingService
     int queueMaximumInMemory = 100
     final BlockingQueue<FetchJob> queue = new ArrayBlockingQueue(queueMaximumInMemory)
@@ -32,7 +31,7 @@ class WptDetailResultDownloadService {
 
 
     public WptDetailResultDownloadService(){
-        8.times {
+        1.times {
             executor.execute{
                 while (true){
                     while (!queue.isEmpty()){
@@ -72,7 +71,7 @@ class WptDetailResultDownloadService {
         if(currentJob){
             while(currentJob.next()){
                 WptDetailResult result = downloadWptDetailResultFromWPTInstance(currentJob)
-                assetPersistenceService.saveDetailDataForJobResult(result,currentJob)
+                assetRequestPersistenceService.saveDetailDataForJobResult(result,currentJob)
             }
         }
         currentJob.delete(flush:true)
@@ -84,7 +83,6 @@ class WptDetailResultDownloadService {
     private void fillQueueFromDatabase(){
         synchronized (queue){
             if(queue.size() < queueMaximumInMemory/2){
-                println "fill queue"
                 FetchJob.withNewSession{
                     println queue
                     def c = FetchJob.createCriteria()
@@ -93,12 +91,8 @@ class WptDetailResultDownloadService {
                             'in' ("id", queue*.id)
                         }
                     }
-                    println "Ids ${jobs*.id} jobs to qeue"
-                    println "Added ${jobs.size()} jobs to qeue"
                     queue.addAll(jobs)
                 }
-            } else{
-                println "skipping fill queue"
             }
         }
     }

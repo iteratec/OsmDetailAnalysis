@@ -1,6 +1,6 @@
 package de.iteratec.osm.da.mapping
 
-import de.iteratec.osm.da.HTTPRequestService
+import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.instances.OsmInstance
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
@@ -44,7 +44,7 @@ class MappingServiceTest extends Specification {
     def "Don't fetch, if all mappings exists within instance"() {
         given:
         boolean httpCall = false
-        def stub = new StubFor(HTTPRequestService)
+        def stub = new StubFor(HttpRequestService)
         stub.demand.getJsonResponse {String baseUrl, String path, queryParams ->
             httpCall = true
         }

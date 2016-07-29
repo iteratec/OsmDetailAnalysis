@@ -4,8 +4,9 @@ import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.Step
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import de.iteratec.osm.da.HTTPRequestService
+import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.fetch.FetchJob
+import grails.util.Holders
 import org.springframework.beans.factory.annotation.Autowired
 
 /**
@@ -13,8 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
  */
 class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
-    @Autowired
-    HTTPRequestService httpRequestService
+    HttpRequestService httpRequestService = Holders.grailsApplication.mainContext.getBean(HttpRequestService)
     static WPTVersion minimumVersion = WPTVersion.get("2.19")
 
     @Override
@@ -64,7 +64,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         Step step = new Step()
         step.docTime = stepInJason.docTime
         step.run = stepInJason.run
-        step.step = stepInJason.step
+        step.stepNumber = stepInJason.step
         step.eventName = stepInJason.eventName
         step.url = stepInJason.URL
         step.requests = createRequests(stepInJason.requests)
