@@ -1,16 +1,16 @@
 package de.iteratec.osm.da.wpt
 
-import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyBuilder
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
+import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
+import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
 import grails.transaction.Transactional
 
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.BlockingQueue
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -19,27 +19,51 @@ import java.util.concurrent.Executors
  * The downloading will be queued and therefore eventually persisted. The queue will be persisted.
  * All downloaded data will be passed to the persistense service and therefore will be persisted.
  */
-@Transactional
 class WptDetailResultDownloadService {
 
+    /**
+     * Number of workers which should download data from wpt.
+     * Not that if you change this value you have to disable and enable the worker again.
+     */
+    Integer NUMBER_OF_WORKERS = 8
+    /**
+     * This boolean should be false at start.
+     * It used to determine if the worker should be cancelled
+     */
+    boolean workerShouldRun = false
 
     AssetRequestPersistenceService assetRequestPersistenceService
-    MappingService mappingService
     int queueMaximumInMemory = 100
-    final BlockingQueue<FetchJob> queue = new ArrayBlockingQueue(queueMaximumInMemory)
-    ExecutorService executor = Executors.newFixedThreadPool(8)
+    final ConcurrentLinkedQueue<FetchJob> queue = new ConcurrentLinkedQueue<>()
+    final HashSet<FetchJob> inProgress = []
+    /**
+     * We ned one additional worker to refill the queue. Otherwise every thread has to check if the queue should be refilled.
+     */
+    ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS+1)
 
 
     public WptDetailResultDownloadService(){
-        1.times {
-            executor.execute{
-                while (true){
-                    while (!queue.isEmpty()){
-                        getNextFromQueue()
-                    }
-                    sleep(2000)//To reduce overhead we just wait 2 second and recheck, if the queue is still empty
-                }
+        startWorker()
+    }
+
+    /**
+     * Stops all worker. All currently running will finish their current job and
+     */
+    void disableWorker(){
+        workerShouldRun = false
+    }
+
+    /**
+     * Starts the worker. This will only has an effect, if the worker weren't running
+     */
+    void startWorker(){
+        if(!workerShouldRun){
+            println "starting worker"
+            workerShouldRun = true
+            NUMBER_OF_WORKERS.times {
+                executor.execute(new WptDownloadWorker(this))
             }
+            executor.execute(new WptQueueFillWorker(this))
         }
     }
 
@@ -51,50 +75,25 @@ class WptDetailResultDownloadService {
      * @param wptTestId
      * @param wptVersion
      */
-    public void addToQeue(long osmInstance, long jobGroupId, String wptBaseUrl, List<String> wptTestId, String wptVersion){
+    public void addToQueue(long osmInstance, long jobGroupId, String wptBaseUrl, List<String> wptTestId, String wptVersion){
         FetchJob fetchJob =  new FetchJob(osmInstance: osmInstance,jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
                 wptTestId: wptTestId, wptVersion: wptVersion).save(flush:true, failOnError:true)
         synchronized (queue){
             if(queue.size()< queueMaximumInMemory){
-                queue << fetchJob
+                queue.offer(fetchJob)
             }
         }
     }
 
-    /**
-     * Taktes the next job from the qeue and persist it to the database. The FetchJob will be deleted afterwards.
-     */
-    public void getNextFromQueue(){
-        fillQueueFromDatabase()
-        FetchJob currentJob
-        currentJob = queue.poll()
-        if(currentJob){
-            while(currentJob.next()){
-                WptDetailResult result = downloadWptDetailResultFromWPTInstance(currentJob)
-                assetRequestPersistenceService.saveDetailDataForJobResult(result,currentJob)
-            }
-        }
-        currentJob.delete(flush:true)
+    public void deleteJob(FetchJob job){
+        job.delete(flush:true)
+        inProgress.remove(job)
     }
 
-    /**
-     * Fills the queue to queueMaximumInMemory, if the qeue is half empty
-     */
-    private void fillQueueFromDatabase(){
-        synchronized (queue){
-            if(queue.size() < queueMaximumInMemory/2){
-                FetchJob.withNewSession{
-                    println queue
-                    def c = FetchJob.createCriteria()
-                    def jobs = c.list (max:queueMaximumInMemory-queue.size()) {
-                        not {
-                            'in' ("id", queue*.id)
-                        }
-                    }
-                    queue.addAll(jobs)
-                }
-            }
-        }
+    public synchronized FetchJob getNextJob(){
+        FetchJob currentJob = queue.poll()
+        if(currentJob) inProgress << currentJob
+        return currentJob
     }
 
 
@@ -104,8 +103,8 @@ class WptDetailResultDownloadService {
      * @param fetchJob
      * @return WptDetailResult
      */
-    private WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
-        WptDetailDataStrategyI strategy = WptDetailDataStrategyBuilder.getStrategyForVersion(new WPTVersion(fetchJob.wptVersion))
+    public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
+        WptDetailDataStrategyI strategy = WptDetailDataStrategyBuilder.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
         return strategy.getResult(fetchJob)
     }
 }

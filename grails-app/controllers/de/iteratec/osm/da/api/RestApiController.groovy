@@ -27,13 +27,16 @@ class RestApiController {
 
     def persistAssetsForWptResult(PersistenceCommand command){
         Long osmInstanceId = mappingService.getOSMInstanceId(command.osmUrl)
+        println command.osmUrl
         if(!osmInstanceId){
             sendSimpleResponseAsStream(400, "Osm with URL ${command.osmUrl} isn't registered")
+            return
         }
         if(!WPTVersion.validWPTVersion(command.wptVersion)){
             sendSimpleResponseAsStream(400,"WPT Version ${command.wptVersion} is not valid")
+            return
         }
-        wptDetailResultDownloadService.addToQeue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
+        wptDetailResultDownloadService.addToQueue(osmInstanceId,command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
         sendSimpleResponseAsStream(200,"Added to queue")
     }
 

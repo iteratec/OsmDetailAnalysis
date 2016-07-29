@@ -11,7 +11,7 @@ class HttpRequestService {
     private Map<String, RESTClient> clients = new HashMap()
 
     Object getHTTPResponse(String baseUrl, String path, Map query, ContentType contentType, Map headers){
-        getRestClientCached(baseUrl).get(
+        getRestClient(baseUrl).get(
                 path: path,
                 query: query,
                 contentType: contentType,
@@ -45,7 +45,7 @@ class HttpRequestService {
     }
 
     def getJsonResponseFromOsm(String baseUrl, String path, Map queryParams){
-        RESTClient client = getRestClientCached(baseUrl)
+        RESTClient client = getRestClient(baseUrl)
         String json = new JsonBuilder(queryParams).toString()
         def response = client.get(
                 path: path+json,
@@ -56,7 +56,7 @@ class HttpRequestService {
     }
 
     def getJsonResponse(String baseUrl, String path, queryParams){
-        RESTClient client = getRestClientCached(baseUrl)
+        RESTClient client = getRestClient(baseUrl)
         def response = client.get(
                 path: path,
                 query: queryParams,
