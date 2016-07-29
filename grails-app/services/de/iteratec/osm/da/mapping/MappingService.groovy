@@ -30,7 +30,8 @@ class MappingService {
      * Checks if every domain has the needed id mappings. If a mapping is missing, we will contact the OsmInstance to give us the needed values
      * @return True if this map contains all values. If there is still a missing value, even after the upate try, this method will return false
      */
-    boolean updateIfIdMappingsDoesntExist(OsmInstance instance, Map<OsmDomain, List<Long>> domains){
+    synchronized boolean updateIfIdMappingsDoesntExist(long instanceId, Map<OsmDomain, List<Long>> domains){
+        OsmInstance instance = OsmInstance.get(instanceId)
         Map<String, List<Long>> domainsToUpdate = [:]
         domains.each { OsmDomain domain, List<Long> idsNeeded->
             List<Long> missingIds = idsNeeded - instance.getMapping(domain).mapping.keySet()*.toLong()
@@ -50,7 +51,8 @@ class MappingService {
      * Checks if every domain has the needed id mappings. If a mapping is missing, we will contact the OsmInstance to give us the needed values
      * @return True if this map contains all values. If there is still a missing value, even after the upate try, this method will return false
      */
-    boolean updateIfNameMappingsDoesntExist(OsmInstance instance, Map<OsmDomain, List<String>> domains){
+    synchronized boolean updateIfNameMappingsDoesntExist(long instanceId, Map<OsmDomain, List<String>> domains){
+        OsmInstance instance = OsmInstance.get(instanceId)
         Map<String, List<Long>> domainsToUpdate = [:]
         domains.each { OsmDomain domain, List<String> namesNeeded->
             List<String> missingNames = namesNeeded - instance.getMapping(domain).mapping.values()

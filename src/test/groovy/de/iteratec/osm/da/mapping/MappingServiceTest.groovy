@@ -56,7 +56,7 @@ class MappingServiceTest extends Specification {
         neededIds[OsmDomain.Location] = [1L]
         neededIds[OsmDomain.MeasuredEvent] = [1L]
         when:
-        service.updateIfIdMappingsDoesntExist(instance,neededIds)
+        service.updateIfIdMappingsDoesntExist(instance.id,neededIds)
         then:
         !httpCall
 

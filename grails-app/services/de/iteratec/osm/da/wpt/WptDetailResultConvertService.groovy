@@ -1,5 +1,7 @@
 package de.iteratec.osm.da.wpt
 
+import de.iteratec.osm.da.instances.OsmInstance
+import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
@@ -40,16 +42,25 @@ class WptDetailResultConvertService {
     }
 
     private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName){
+        updateMappings(fetchJob.osmInstance,result,eventName, fetchJob.jobGroupId)
         long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)
         long page  = mappingService.getIdForPageName(fetchJob.osmInstance, getPageName(eventName))
         long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)
         long browser = mappingService.getIdForBrowserName(fetchJob.osmInstance,result.browser)
-
         return new AssetRequestGroup(osmInstance: fetchJob.osmInstance,eventName: eventName, jobGroup: result.jobGroupID,
                 bandwithUp: result.bandwidthUp, bandwidhtDown: result.bandwidthDown, latency: result.latency,
                 packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
                 browser: browser, epochTimeCompleted: result.epochTimeCompleted, mediaType: mediaType,
                 wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView)
+    }
+
+    private void updateMappings(long osmInstance, WptDetailResult wptDetailResult, String eventName, long jobGroup){
+        Map updateMap = [(OsmDomain.Page):[getPageName(eventName)],
+                         (OsmDomain.Browser):[wptDetailResult.browser],
+                         (OsmDomain.MeasuredEvent):[eventName],
+                         (OsmDomain.Location):[wptDetailResult.location]]
+        mappingService.updateIfNameMappingsDoesntExist(osmInstance,updateMap)
+        mappingService.updateIfIdMappingsDoesntExist(osmInstance,[(OsmDomain.JobGroup):[jobGroup]])
     }
 
     private String getPageName(String eventName){

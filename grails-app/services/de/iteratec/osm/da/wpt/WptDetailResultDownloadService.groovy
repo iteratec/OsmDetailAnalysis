@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.wpt
 
+import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyBuilder
@@ -24,6 +25,7 @@ class WptDetailResultDownloadService {
 
 
     AssetRequestPersistenceService assetPersistenceService
+    MappingService mappingService
     int queueMaximumInMemory = 100
     final BlockingQueue<FetchJob> queue = new ArrayBlockingQueue(queueMaximumInMemory)
     ExecutorService executor = Executors.newFixedThreadPool(8)
