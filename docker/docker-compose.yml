@@ -1,6 +1,6 @@
 osm_da:
   image: iteratec/openspeedmonitor-da
-  entrypoint: dockerize -wait tcp://osm_mongodb:20717 -timeout 240s /entrypoint.sh
+  entrypoint: dockerize -wait tcp://osm_mongodb:27017 -timeout 240s /entrypoint.sh
   ports:
    - "8080:8080"
   links:
