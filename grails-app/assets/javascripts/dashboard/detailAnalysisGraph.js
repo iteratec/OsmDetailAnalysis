@@ -1,4 +1,5 @@
 function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
+
     // Defining charts
     var browserChart = dc.pieChart('#' + graphIdentifier +  ' #browser-chart');
     var mediaTypeChart = dc.pieChart('#' + graphIdentifier +  ' #media-type-chart');
@@ -6,19 +7,13 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
     var lineChart = dc.lineChart('#' + graphIdentifier +  ' #line-chart');
     var dataCount = dc.dataCount('#' + graphIdentifier +  ' #dc-data-count');
 
-    // Defining some data
-    // TODO change to from/to
-    var minDate = new Date(d3.min(data, function (d) {
-        return d.date
-    }));
-    var maxDate = new Date(d3.max(data, function (d) {
-        return d.date
-    }));
-    // var minDate = new Date(from);
-    // var maxDate = new Date(to);
+    // Parse data at beginning for better performance
+    data.forEach(function (d) {
+        d.date = new Date(d.epochTimeCompleted * 1000);
+    });
 
-    console.log(minDate);
-    console.log(maxDate);
+    var minDate = from;
+    var maxDate = to;
 
     var allData = crossfilter(data);
     var allDataGroup = allData.groupAll();
@@ -40,7 +35,7 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
     var browserGroup = browser.group();
 
     var dataDate = allData.dimension(function (d) {
-        return new Date(d.date);
+        return d.date;
     });
     var ttfsGroup = dataDate.group().reduceSum(function (d) {
         return d.timeToFirstByteMs;
@@ -131,7 +126,7 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
         });
 
 
-    // Drawing everything
+    // // Drawing everything
     dc.renderAll();
     dc.redrawAll();
 }

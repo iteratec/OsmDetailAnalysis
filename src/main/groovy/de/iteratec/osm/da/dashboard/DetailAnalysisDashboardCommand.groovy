@@ -1,19 +1,34 @@
 package de.iteratec.osm.da.dashboard
 
 import grails.validation.Validateable
+import org.grails.databinding.BindUsing
 import org.joda.time.DateTime
 import org.joda.time.Interval
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+
+import java.text.SimpleDateFormat
 import java.util.regex.Pattern
 
 
-class DetailAnalysisDashboardCommand implements Validateable{
+class DetailAnalysisDashboardCommand implements Validateable {
     /**
      * The selected start date.
      *
      * Please use {@link #getSelectedTimeFrame()}.
      */
+    @BindUsing({
+        obj, source ->
+            def dateObject = source['from']
+            if (dateObject) {
+                if (dateObject instanceof Date) {
+                    return dateObject
+                } else {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(DetailAnalysisDashboardController.DATE_TIME_FORMAT_STRING)
+                    return dateFormat.parse(dateObject)
+                }
+            }
+    })
     Date from
 
     /**
@@ -21,6 +36,19 @@ class DetailAnalysisDashboardCommand implements Validateable{
      *
      * Please use {@link #getSelectedTimeFrame()}.
      */
+    @BindUsing({
+        obj, source ->
+
+            def dateObject = source['to']
+            if (dateObject) {
+                if (dateObject instanceof Date) {
+                    return dateObject
+                } else {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(DetailAnalysisDashboardController.DATE_TIME_FORMAT_STRING)
+                    return dateFormat.parse(dateObject)
+                }
+            }
+    })
     Date to
 
     /**
@@ -41,7 +69,6 @@ class DetailAnalysisDashboardCommand implements Validateable{
      * A predefined time frame.
      */
     int selectedTimeFrameInterval = 259200
-
 
     /**
      * The database IDs of the selected {@linkplain de.iteratec.osm.measurement.schedule.JobGroup CSI groups}
@@ -134,7 +161,6 @@ class DetailAnalysisDashboardCommand implements Validateable{
      */
     Boolean selectedAllConnectivityProfiles = true
 
-
     /**
      * Whether or not the time of the start-date should be selected manually.
      */
@@ -159,8 +185,6 @@ class DetailAnalysisDashboardCommand implements Validateable{
      * connectivity name matches this regex.
      */
     String customConnectivityName
-
-
 
     /**
      * Constraints needs to fit.

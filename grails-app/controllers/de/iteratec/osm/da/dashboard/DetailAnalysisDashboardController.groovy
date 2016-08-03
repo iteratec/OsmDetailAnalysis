@@ -17,8 +17,10 @@
 
 package de.iteratec.osm.da.dashboard
 
-import de.iteratec.osm.da.util.ControllerUtils
+import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
+import grails.converters.JSON
+import org.joda.time.DateTime
 
 /**
  * DetailAnalysisDashboardController
@@ -26,23 +28,24 @@ import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
  */
 class DetailAnalysisDashboardController {
 
-    String DATE_TIME_FORMAT_STRING = 'dd.MM.yyyy'
+    public static final String DATE_TIME_FORMAT_STRING = 'dd.MM.yyyy'
     public final static int MONDAY_WEEKSTART = 1
 
-    AssetRequestPersistenceService harPersistenceService
+    AssetRequestPersistenceService assetRequestPersistenceService
+    MappingService mappingService
 
     Map<String, Object> show(DetailAnalysisDashboardCommand cmd) {
-        Map<String, Object> modelToRender = constructStaticViewData()
+        Map<String, Object> modelToRender = [:]//constructStaticViewData()
 
         cmd.copyRequestDataToViewModelMap(modelToRender)
 
-        if (!ControllerUtils.isEmptyRequest(params)) {
-            if (!cmd.validate()) {
-                modelToRender.put('command', cmd)
-            } else {
-                fillWithDashboardData(modelToRender, cmd);
-            }
-        }
+//        if (!ControllerUtils.isEmptyRequest(params)) {
+//            if (!cmd.validate()) {
+//                modelToRender.put('command', cmd)
+//            } else {
+        fillWithDashboardData(modelToRender, cmd);
+//            }
+//        }
 
         modelToRender
     }
@@ -65,6 +68,7 @@ class DetailAnalysisDashboardController {
      */
     private Map<String, Object> constructStaticViewData() {
         Map<String, Object> result = [:]
+
 //
 //        // JobGroups
 //        List<JobGroup> jobGroups = eventResultDashboardService.getAllJobGroups()
@@ -135,36 +139,45 @@ class DetailAnalysisDashboardController {
     }
 
     private void fillWithDashboardData(Map<String, Object> modelToRender, DetailAnalysisDashboardCommand cmd) {
-        // TODO select data from cmd
-//        def from = cmd.from
-//        def to = cmd.to
-//        def from = new Date(0)
-//        def to = new Date()
-//        def jobGroupIds = cmd.selectedFolder as List
-//        def pageIds = cmd.selectedPages as List
+        Date from = cmd.from
+        Date to = cmd.to
+
+        List<Long> jobGroupIds = cmd.selectedFolder as List
+        List<Long> pageIds = cmd.selectedPages as List
+
+        List<Long> browserIds = cmd.selectedBrowsers as List
+        List<Long> locationIds = cmd.selectedLocations as List
+
 //        def browserIds = (cmd.selectedAllBrowsers ? Browser.list()*.id : cmd.selectedBrowsers) as List
 //        def locationIds = (cmd.selectedAllLocations ? Location.list()*.id : cmd.selectedLocations) as List
 //        def connectivityList = (cmd.selectedAllConnectivityProfiles ? ConnectivityProfile.list()*.name : cmd.selectedConnectivityProfiles) as List
-//
-//        def graphData = harPersistenceService.getAssets(from, to, [], [], [], [], [])
-////        def graphData = harPersistenceService.getAssets(from, to, jobGroupIds, pageIds, browserIds, locationIds, connectivityList)
-//        def graphDataJson = graphData
-//        modelToRender.put('graphData', graphDataJson)
-//
-//        fillWithLabelAliases(modelToRender)
+
+        def graphData = assetRequestPersistenceService.getRequestAssetsAsJson(from, to, jobGroupIds, pageIds, browserIds, locationIds)
+
+        def fromDate = new DateTime(cmd.from)
+        def toDate = new DateTime(cmd.to).plusDays(1)
+
+        modelToRender.put('graphData', graphData)
+        modelToRender.put('fromDateInMillis', fromDate.millis)
+        modelToRender.put('toDateInMillis', toDate.millis)
+
+        fillWithLabelAliases(modelToRender)
     }
 
     private void fillWithLabelAliases(Map<String, Object> modelToRender) {
-//        def labelAliases = [:]
-//
-//        labelAliases['browser'] = [:]
+        def labelAliases = [:]
+
+        labelAliases['browser'] = [:]
+        labelAliases['browser'].put(4, mappingService.getNameForBrowserId(1l, 4l))
 //
 //        Browser.list().each {
 //            labelAliases['browser'].put(it.id.toString(), it.name)
 //        }
 //
-//        labelAliases = labelAliases as JSON
-//
-//        modelToRender.put('labelAliases', labelAliases)
+        labelAliases = labelAliases as JSON
+
+        println "LABEL ALIASES " + labelAliases
+
+        modelToRender.put('labelAliases', labelAliases)
     }
 }

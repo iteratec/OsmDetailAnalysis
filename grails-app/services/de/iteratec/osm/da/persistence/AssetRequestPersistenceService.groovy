@@ -2,7 +2,10 @@ package de.iteratec.osm.da.persistence
 
 import com.mongodb.MongoClient
 import com.mongodb.client.AggregateIterable
+import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
+import grails.converters.JSON
+import groovy.json.JsonOutput
 import org.bson.Document
 
 import static com.mongodb.client.model.Aggregates.*;
@@ -34,7 +37,7 @@ class AssetRequestPersistenceService {
         }
     }
 
-    public ArrayList<Set<Map.Entry<String, Object>>> getRequestAssets(Date from, Date to, List<Long> jobGroups, List<Long> pages, List<Long> browser, List<Long> locations){
+    public String getRequestAssetsAsJson(Date from, Date to, List<Long> jobGroups, List<Long> pages, List<Long> browser, List<Long> locations){
         //TODO implement connectivity check
         List aggregateList = []
         List matchList = []
@@ -51,7 +54,8 @@ class AssetRequestPersistenceService {
         aggregateList << match(and(matchList))
         aggregateList << unwind("\$assets")
         aggregateList << project(createProjectDocument())
-        return db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true)*.entrySet()
+
+        return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
     }
 
     /**
@@ -73,6 +77,7 @@ class AssetRequestPersistenceService {
                              location:'\$location',
                              measuredEvent:'\$measuredEvent',
                              mediaType:'\$mediaType',
+                             subtype:'\$assets.subtype',
                              packetLoss:'\$packetLoss',
                              page:'\$page',
                              bytesIn:'\$assets.bytesIn',
