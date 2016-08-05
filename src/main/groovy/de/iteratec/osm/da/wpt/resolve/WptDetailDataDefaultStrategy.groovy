@@ -76,11 +76,11 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         requestMap?.each {
             Request request = new Request()
             request.bytesIn = it.bytesIn as int
-            request.bytesOut = it.bytesIn as int
-            request.indexWithinStep = it.bytesIn as int
-            request.ttfbMs = it.bytesIn as int
-            request.loadStart = it.bytesIn as int
-            request.loadMs = it.bytesIn as int
+            request.bytesOut = it.bytesOut as int
+            request.indexWithinStep = it.index as int
+            request.ttfbMs = it.ttfb_ms as int
+            request.loadStart = it.load_start as int
+            request.loadMs = it.load_ms as int
             request.host = it.host
             request.url = it.url
             request.sslNegotiationTimeMs = it.ssl_ms as int

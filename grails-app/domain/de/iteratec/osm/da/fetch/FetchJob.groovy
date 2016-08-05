@@ -9,6 +9,7 @@ class FetchJob {
     Date created = new Date()
 
     long osmInstance
+    long jobId
     long jobGroupId
     String wptBaseURL
     //List of all tests which should be persisted

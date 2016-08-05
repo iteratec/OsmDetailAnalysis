@@ -39,25 +39,25 @@ class WptDetailResultDownloadService {
     /**
      * We ned one additional worker to refill the queue. Otherwise every thread has to check if the queue should be refilled.
      */
-    ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS+1)
+    ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1)
 
 
-    public WptDetailResultDownloadService(){
+    public WptDetailResultDownloadService() {
         startWorker()
     }
 
     /**
      * Stops all worker. All currently running will finish their current job and
      */
-    void disableWorker(){
+    void disableWorker() {
         workerShouldRun = false
     }
 
     /**
      * Starts the worker. This will only has an effect, if the worker weren't running
      */
-    void startWorker(){
-        if(!workerShouldRun){
+    void startWorker() {
+        if (!workerShouldRun) {
             println "starting worker"
             workerShouldRun = true
             NUMBER_OF_WORKERS.times {
@@ -69,33 +69,32 @@ class WptDetailResultDownloadService {
 
     /**
      * Add a Job to the queue, so the assets will be downloaded eventually
-     * @param  osmInstance OSMInstance request source
+     * @param osmInstance OSMInstance request source
      * @param jobGroupId
      * @param wptBaseUrl
      * @param wptTestId
      * @param wptVersion
      */
-    public void addToQueue(long osmInstance, long jobGroupId, String wptBaseUrl, List<String> wptTestId, String wptVersion){
-        FetchJob fetchJob =  new FetchJob(osmInstance: osmInstance,jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                wptTestId: wptTestId, wptVersion: wptVersion).save(flush:true, failOnError:true)
-        synchronized (queue){
-            if(queue.size()< queueMaximumInMemory){
+    public void addToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestId, String wptVersion) {
+        FetchJob fetchJob = new FetchJob(osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+                wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
+        synchronized (queue) {
+            if (queue.size() < queueMaximumInMemory) {
                 queue.offer(fetchJob)
             }
         }
     }
 
-    public void deleteJob(FetchJob job){
-        job.delete(flush:true)
+    public void deleteJob(FetchJob job) {
+        job.delete(flush: true)
         inProgress.remove(job)
     }
 
-    public synchronized FetchJob getNextJob(){
+    public synchronized FetchJob getNextJob() {
         FetchJob currentJob = queue.poll()
-        if(currentJob) inProgress << currentJob
+        if (currentJob) inProgress << currentJob
         return currentJob
     }
-
 
     /**
      * Fetches the WptDetailData from the given detail page.

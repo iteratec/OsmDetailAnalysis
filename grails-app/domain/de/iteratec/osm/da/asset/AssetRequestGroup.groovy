@@ -30,6 +30,7 @@ class AssetRequestGroup {
     String eventName
     long measuredEvent
     long page
+    long jobId
     long jobGroup
     @Delegate Connectivity connectivity = new Connectivity()
     long location

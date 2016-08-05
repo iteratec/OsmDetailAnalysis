@@ -2,7 +2,7 @@ package de.iteratec.osm.da.mapping
 
 enum OsmDomain {
 
-    Browser("Browser"), JobGroup("JobGroup"), Location("Location"), MeasuredEvent("MeasuredEvent"), Page("Page")
+    Browser("Browser"), JobGroup("JobGroup"), Location("Location"), MeasuredEvent("MeasuredEvent"), Page("Page"), Job("Job")
 
     private String value
 

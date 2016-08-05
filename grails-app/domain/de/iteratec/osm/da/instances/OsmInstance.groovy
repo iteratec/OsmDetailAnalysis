@@ -39,7 +39,8 @@ class OsmInstance {
     OsmMapping measuredEventMapping = new OsmMapping(domain: OsmDomain.MeasuredEvent)
     OsmMapping browserMapping = new OsmMapping(domain: OsmDomain.Browser)
     OsmMapping pageMapping = new OsmMapping(domain: OsmDomain.Page)
-    static embedded = ['jobGroupMapping','locationMapping','measuredEventMapping','browserMapping', 'pageMapping']
+    OsmMapping jobMapping = new OsmMapping(domain: OsmDomain.Job)
+    static embedded = ['jobGroupMapping','locationMapping','measuredEventMapping','browserMapping', 'pageMapping', 'jobMapping']
 
     static constraints = {
     }
@@ -56,6 +57,7 @@ class OsmInstance {
             case OsmDomain.Location: return locationMapping
             case OsmDomain.JobGroup: return jobGroupMapping
             case OsmDomain.Page: return pageMapping
+            case OsmDomain.Job: return jobMapping
         }
     }
 }

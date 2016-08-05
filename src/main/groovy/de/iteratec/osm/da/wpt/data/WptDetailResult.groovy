@@ -19,10 +19,12 @@ class WptDetailResult {
     String wptTestID
     long osmInstance
     long epochTimeCompleted
+    long jobId
 
     List<Step> steps
 
     public WptDetailResult(FetchJob fetchJob){
+        this.jobId = fetchJob.jobId
         this.jobGroupID = fetchJob.jobGroupId
         this.wptTestID = fetchJob.currentId
         this.wptBaseUrl = fetchJob.wptBaseURL
