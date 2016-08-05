@@ -106,6 +106,7 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
         .x(d3.time.scale().domain([minDate, maxDate]))
         .xUnits(d3.time.days)
         .elasticY(true)
+        .elasticX(true)
         .renderHorizontalGridLines(true)
         .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
         .group(ttfsGroup, 'Time to first Byte')

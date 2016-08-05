@@ -54,6 +54,10 @@ grails:
     spring:
         transactionManagement:
             proxies: false
+    i18n:
+        locales:
+            - en
+            - de
 info:
     app:
         name: '@info.app.name@'

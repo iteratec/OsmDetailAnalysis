@@ -12,18 +12,19 @@ buildscript {
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
         classpath "org.grails.plugins:hibernate4:5.0.5"
         classpath 'com.moowork.gradle:gradle-node-plugin:0.13'
+        classpath 'com.bertramlabs.plugins:less-asset-pipeline:2.9.4'
     }
 }
 
 version "0.1"
 group "osmdetailanalysis"
 
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"war"
-apply plugin:"org.grails.grails-web"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"asset-pipeline"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "war"
+apply plugin: "org.grails.grails-web"
+apply plugin: "org.grails.grails-gsp"
+apply plugin: "asset-pipeline"
 apply plugin: 'com.moowork.node'
 
 ext {
@@ -66,6 +67,8 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    compile 'com.bertramlabs.plugins:less-asset-pipeline:2.9.4'
+    assets 'com.bertramlabs.plugins:less-asset-pipeline:2.9.4'
 }
 
 task wrapper(type: Wrapper) {
@@ -75,6 +78,9 @@ task wrapper(type: Wrapper) {
 assets {
     minifyJs = true
     minifyCss = true
+    configOptions = [:]
+    includes = ['bootstrap-custom.less']
+    excludes = ['**/*.less']
 }
 
 node {
@@ -91,7 +97,7 @@ node {
     nodeModulesDir = file("${project.projectDir}/node_modules")
 }
 
-npmInstall{
+npmInstall {
     outputs.files file('node_modules')
 }
 
@@ -112,7 +118,11 @@ task bowerSyncJavascript(type: Sync) {
     include 'crossfilter/crossfilter.min.js'
     include 'dcjs/dc.min.js'
     include 'd3/d3.min.js'
-    include 'jquery/dist/jquery.min.js'
+    include 'jquery/jquery.min.js'
+    include 'jquery-ui/ui/jquery-ui.js'
+    include 'bootstrap/docs/assets/js/bootstrap.min.js'
+    include 'bootstrap/js/*.js'
+    include 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'
     dependsOn bowerInstall
 }
 
@@ -120,6 +130,11 @@ task bowerSyncStylesheets(type: Sync) {
     from 'bower_components'
     into "grails-app/assets/stylesheets/bower_components"
     include 'dcjs/dc.css'
+    include 'bootstrap/docs/assets/css/bootstrap*.css'
+    include 'bootstrap/less/*.less'
+    include 'bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css'
+    include 'components-font-awesome/css/font-awesome.min.css'
+    include 'components-font-awesome/fonts/*'
     dependsOn bowerInstall
 }
 

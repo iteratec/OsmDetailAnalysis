@@ -176,8 +176,6 @@ class DetailAnalysisDashboardController {
 //
         labelAliases = labelAliases as JSON
 
-        println "LABEL ALIASES " + labelAliases
-
         modelToRender.put('labelAliases', labelAliases)
     }
 }
