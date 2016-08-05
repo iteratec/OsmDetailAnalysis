@@ -66,30 +66,13 @@ class AssetRequestPersistenceService {
     private Document createProjectDocument(){
         if(projectionDocument) return projectionDocument
         projectionDocument = Document.parse("""
-                            {bandwidthDown:'\$bandwidthDown',
-                             bandwidthUp:'\$bandwidthUp',
-                             browser:'\$browser',
+                            {browser:'\$browser',
                              epochTimeCompleted:'\$epochTimeCompleted',
-                             eventName:'\$eventName',
-                             isFirstViewInStep:'\$isFirstViewInStep',
-                             jobGroup:'\$jobGroup',
-                             latency:'\$latency',
-                             location:'\$location',
-                             measuredEvent:'\$measuredEvent',
+                             jobId: '\$jobId',
                              mediaType:'\$mediaType',
                              subtype:'\$assets.subtype',
-                             packetLoss:'\$packetLoss',
-                             page:'\$page',
-                             bytesIn:'\$assets.bytesIn',
-                             bytesOut:'\$assets.bytesOut',
-                             connectTimeMs:'\$assets.connectTimeMs',
-                             downloadTimeMs:'\$assets.downloadTimeMs',
-                             host:'\$assets.host',
-                             indexWithinHar:'\$assets.indexWithinHar',
                              loadTimeMs:'\$assets.loadTimeMs',
-                             sslNegotiationTimeMs:'\$assets.sslNegotiationTimeMs',
                              timeToFirstByteMs:'\$assets.timeToFirstByteMs',
-                             url:'\$assets.url'
                             }""")
         return projectionDocument
     }

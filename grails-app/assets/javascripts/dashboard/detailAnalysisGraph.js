@@ -1,11 +1,11 @@
 function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
 
     // Defining charts
-    var browserChart = dc.pieChart('#' + graphIdentifier +  ' #browser-chart');
-    var mediaTypeChart = dc.pieChart('#' + graphIdentifier +  ' #media-type-chart');
-    var subTypeChart = dc.pieChart('#' + graphIdentifier +  ' #subtype-chart');
-    var lineChart = dc.lineChart('#' + graphIdentifier +  ' #line-chart');
-    var dataCount = dc.dataCount('#' + graphIdentifier +  ' #dc-data-count');
+    var browserChart = dc.pieChart('#' + graphIdentifier + ' #browser-chart');
+    var mediaTypeChart = dc.pieChart('#' + graphIdentifier + ' #media-type-chart');
+    var subTypeChart = dc.pieChart('#' + graphIdentifier + ' #subtype-chart');
+    var seriesChart = dc.seriesChart('#' + graphIdentifier + ' #line-chart');
+    var dataCount = dc.dataCount('#' + graphIdentifier + ' #dc-data-count');
 
     // Parse data at beginning for better performance
     data.forEach(function (d) {
@@ -34,14 +34,11 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
     });
     var browserGroup = browser.group();
 
-    var dataDate = allData.dimension(function (d) {
-        return d.date;
-    });
-    var ttfsGroup = dataDate.group().reduceSum(function (d) {
-        return d.timeToFirstByteMs;
+    var seriesChartDimension = allData.dimension(function (d) {
+        return [d.date, d.jobId];
     });
 
-    var loadTimeGroup = dataDate.group().reduceSum(function (d) {
+    var loadTimeGroup = seriesChartDimension.group().reduceSum(function (d) {
         return d.loadTimeMs;
     });
 
@@ -97,24 +94,29 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
             return d.key;
         });
 
-    lineChart
+
+    seriesChart
         .width(990)
-        .height(200)
+        .height(400)
         .transitionDuration(1000)
         .margins({top: 30, right: 50, bottom: 25, left: 60})
-        .dimension(dataDate)
+        .dimension(seriesChartDimension)
+        .brushOn(false)
         .x(d3.time.scale().domain([minDate, maxDate]))
         .xUnits(d3.time.days)
         .elasticY(true)
         .elasticX(true)
         .renderHorizontalGridLines(true)
         .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
-        .group(ttfsGroup, 'Time to first Byte')
-        .valueAccessor(function (d) {
-            return d.value;
+        .group(loadTimeGroup)
+        .seriesAccessor(function (d) {
+            return d.key[1] + " | LoadTimeInMs";
         })
-        .stack(loadTimeGroup, 'Load Time in Ms', function (d) {
-            return d.value;
+        .keyAccessor(function (d) {
+            return d.key[0];
+        })
+        .valueAccessor(function (d) {
+            return d.value
         });
 
     dataCount
