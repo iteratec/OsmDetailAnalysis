@@ -90,6 +90,11 @@ class MappingService {
         return OsmInstance.findByUrl(url)?.id
     }
 
+    Map<Long, String> getOsmMapping(OsmDomain domain, long osmId) {
+        OsmInstance osm = OsmInstance.findById(osmId)
+        return osm.getMapping(domain).mapping
+    }
+
     /**
      * Returns the name of a id within a domain of a wpt instance
      * @param osmId The id of the osm instance
@@ -98,8 +103,7 @@ class MappingService {
      * @return
      */
     String getMappingEntryFromOsm(Long osmId, OsmDomain domain, long id){
-        OsmInstance osm = OsmInstance.findById(osmId)
-        return osm.getMapping(domain).mapping."$id"
+        return getOsmMapping(domain, osmId)."$id"
     }
 
     String getNameForBrowserId(long osmId, long id){
@@ -157,5 +161,13 @@ class MappingService {
 
     def updateOsmUrl(OsmInstance osmInstance, String newUrl) {
         osmInstance.setUrl(newUrl).save(flush:true)
+    }
+
+    Map<Long, String> getBrowserMappings(long osmID) {
+        getOsmMapping(OsmDomain.Browser, osmID)
+    }
+
+    Map<Long, String> getJobMappings(long osmID) {
+        getOsmMapping(OsmDomain.Job, osmID)
     }
 }

@@ -186,13 +186,42 @@ class MappingServiceTest extends Specification {
         id == 1L
     }
 
+    def "getBrowserMappings" () {
+        given:
+        OsmInstance instance = createInstance()
+
+        when:
+        Map browserMappings = service.getBrowserMappings(instance.id)
+
+        then:
+        browserMappings.size() == 2
+        browserMappings["1"] == "FF"
+        browserMappings["2"] == "Chrome"
+    }
+
+    def "getJobMappings" () {
+        given:
+        OsmInstance instance = createInstance()
+
+        when:
+        Map browserMappings = service.getJobMappings(instance.id)
+
+        then:
+        browserMappings.size() == 2
+        browserMappings["1"] == "Job 1"
+        browserMappings["2"] == "Job 2"
+    }
+
     private createInstance = { ->
         def instance = new OsmInstance(name: "TestInstance", url: "http://test.openspeedmonitor.org")
         instance.browserMapping.mapping."1" = "FF"
+        instance.browserMapping.mapping."2" = "Chrome"
         instance.locationMapping.mapping."1" = "Location"
         instance.measuredEventMapping.mapping."1" = "ME"
         instance.jobGroupMapping.mapping."1" = "JG"
         instance.pageMapping.mapping."1" = "Page"
+        instance.jobMapping.mapping."1" = "Job 1"
+        instance.jobMapping.mapping."2" = "Job 2"
         instance.save()
     }
 }

@@ -107,10 +107,10 @@ function drawDcGraph(data, labelAliases, from, to, graphIdentifier) {
         .elasticY(true)
         .elasticX(true)
         .renderHorizontalGridLines(true)
-        .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
+        .legend(dc.legend().x(650).y(50).itemHeight(13).gap(5))
         .group(loadTimeGroup)
         .seriesAccessor(function (d) {
-            return d.key[1] + " | LoadTimeInMs";
+            return labelAliases['job'][d.key[1]] + " | LoadTimeInMs";
         })
         .keyAccessor(function (d) {
             return d.key[0];

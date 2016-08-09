@@ -73,19 +73,16 @@ class DetailAnalysisDashboardController {
         modelToRender.put('fromDateInMillis', fromDate.millis)
         modelToRender.put('toDateInMillis', toDate.millis)
 
-        fillWithLabelAliases(modelToRender)
+        // TODO osmInstanceId einbauen
+        fillWithLabelAliases(modelToRender, 1)
     }
 
-    private void fillWithLabelAliases(Map<String, Object> modelToRender) {
+    private void fillWithLabelAliases(Map<String, Object> modelToRender, Long osmInstanceId) {
         def labelAliases = [:]
 
-        labelAliases['browser'] = [:]
-        labelAliases['browser'].put(4, mappingService.getNameForBrowserId(1l, 4l))
-//
-//        Browser.list().each {
-//            labelAliases['browser'].put(it.id.toString(), it.name)
-//        }
-//
+        labelAliases['browser'] = mappingService.getBrowserMappings(osmInstanceId)
+        labelAliases['job'] = mappingService.getJobMappings(osmInstanceId)
+
         labelAliases = labelAliases as JSON
 
         modelToRender.put('labelAliases', labelAliases)
