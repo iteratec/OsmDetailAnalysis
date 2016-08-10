@@ -22,6 +22,8 @@ import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.converters.JSON
 import org.joda.time.DateTime
 
+import java.util.zip.GZIPOutputStream
+
 /**
  * DetailAnalysisDashboardController
  * A controller class handles incoming web requests and performs actions such as redirects, rendering views and so on.
@@ -56,15 +58,37 @@ class DetailAnalysisDashboardController {
 
         List<Long> jobGroupIds = cmd.selectedFolder as List
         List<Long> pageIds = cmd.selectedPages as List
-
         List<Long> browserIds = cmd.selectedBrowsers as List
         List<Long> locationIds = cmd.selectedLocations as List
+        List<Long> connectivityProfileIds = cmd.selectedConnectivityProfiles as List
+        List<Long> measuredEventIds = cmd.selectedMeasuredEventIds as List
+        String customConnectivityName = cmd.customConnectivityName==null ? "" : cmd.customConnectivityName
 
-//        def browserIds = (cmd.selectedAllBrowsers ? Browser.list()*.id : cmd.selectedBrowsers) as List
-//        def locationIds = (cmd.selectedAllLocations ? Location.list()*.id : cmd.selectedLocations) as List
-//        def connectivityList = (cmd.selectedAllConnectivityProfiles ? ConnectivityProfile.list()*.name : cmd.selectedConnectivityProfiles) as List
+        boolean selectedAllBrowsers = cmd.selectedAllBrowsers
+        boolean selectedAllLocations = cmd.selectedAllLocations
+        boolean selectedAllConnectivityProfiles = cmd.selectedAllConnectivityProfiles
+        boolean selectedAllMeasuredEvents = cmd.selectedAllMeasuredEvents
+        boolean includeNativeConnectivity = cmd.includeNativeConnectivity
+        boolean includeCustomConnectivity = cmd.includeCustomConnectivity
 
-        def graphData = assetRequestPersistenceService.getRequestAssetsAsJson(from, to, jobGroupIds, pageIds, browserIds, locationIds)
+
+
+        def graphData = assetRequestPersistenceService.getRequestAssetsAsJson(
+                from,
+                to,
+                jobGroupIds,
+                pageIds,
+                browserIds,
+                selectedAllBrowsers,
+                locationIds,
+                selectedAllLocations,
+                connectivityProfileIds,
+                selectedAllConnectivityProfiles,
+                measuredEventIds,
+                selectedAllMeasuredEvents,
+                customConnectivityName,
+                includeCustomConnectivity,
+                includeNativeConnectivity)
 
         def fromDate = new DateTime(cmd.from)
         def toDate = new DateTime(cmd.to).plusDays(1)

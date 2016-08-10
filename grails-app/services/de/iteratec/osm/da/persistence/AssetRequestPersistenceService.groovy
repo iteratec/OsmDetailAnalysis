@@ -1,5 +1,7 @@
 package de.iteratec.osm.da.persistence
 
+import com.mongodb.BasicDBObject
+import com.mongodb.DBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoCollection
@@ -8,7 +10,8 @@ import grails.converters.JSON
 import groovy.json.JsonOutput
 import org.bson.Document
 
-import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Aggregates.*
+import static com.mongodb.client.model.Accumulators.*
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
@@ -37,7 +40,23 @@ class AssetRequestPersistenceService {
         }
     }
 
-    public String getRequestAssetsAsJson(Date from, Date to, List<Long> jobGroups, List<Long> pages, List<Long> browser, List<Long> locations){
+    public String getRequestAssetsAsJson(
+            Date from,
+            Date to,
+            List<Long> jobGroups,
+            List<Long> pages,
+            List<Long> browsers,
+            boolean selectedAllBrowsers,
+            List<Long> locations,
+            boolean selectedAllLocations,
+            List<Long> connectivityProfiles,
+            boolean selectedAllConnectivityProfiles,
+            List<Long> measuredEvents,
+            boolean selectedAllMeasuredEvents,
+            String customConnectivityName,
+            boolean includeCustomConnectivity,
+            boolean includeNativeConnectivity
+    ){
         //TODO implement connectivity check
         List aggregateList = []
         List matchList = []
@@ -48,13 +67,15 @@ class AssetRequestPersistenceService {
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
         if(jobGroups) matchList << Filters.in("jobGroup", jobGroups)
         if(pages)     matchList << Filters.in("page", pages)
-        if(browser)   matchList << Filters.in("browser", browser)
-        if(locations) matchList << Filters.in("location", locations)
+        if(!selectedAllBrowsers && browsers) matchList << Filters.in("browser", browsers)
+        if(!selectedAllLocations && locations) matchList << Filters.in("location", locations)
+//        if(!selectedAllConnectivityProfiles && connectivityProfiles) matchList << Filter.in("NotImplmentedYet")
+        if(!selectedAllMeasuredEvents && measuredEvents) matchList << Filters.in("measuredEvent", measuredEvents)
+
 
         aggregateList << match(and(matchList))
         aggregateList << unwind("\$assets")
         aggregateList << project(createProjectDocument())
-
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
     }
 
