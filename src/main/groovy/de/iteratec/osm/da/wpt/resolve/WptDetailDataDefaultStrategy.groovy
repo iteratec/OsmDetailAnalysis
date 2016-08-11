@@ -47,7 +47,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         json.data.runs.each{def run ->
             run.value?.firstView?.steps?.each{
                 Step step = createStep(it)
-                step.started = it.date
+                step.epochTimeStarted = it.date
                 step.isFirstView = true
                 steps << step
             }
