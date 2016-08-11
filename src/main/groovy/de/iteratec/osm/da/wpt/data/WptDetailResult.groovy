@@ -25,7 +25,7 @@ class WptDetailResult {
     public WptDetailResult(FetchJob fetchJob){
         this.jobId = fetchJob.jobId
         this.jobGroupID = fetchJob.jobGroupId
-        this.wptTestID = fetchJob.currentId
+        this.wptTestID = fetchJob.wptTestId
         this.wptBaseUrl = fetchJob.wptBaseURL
         this.osmInstance = fetchJob.osmInstance
     }

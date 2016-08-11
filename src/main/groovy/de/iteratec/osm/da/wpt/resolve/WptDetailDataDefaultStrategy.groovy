@@ -20,7 +20,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
     @Override
     WptDetailResult getResult(FetchJob fetchJob) {
         //We set the multiStepFormat, because the new version can delivery single steps with the same format as the multi step results.
-        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.currentId,requests: 1, multiStepFormat:1])
+        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.wptTestId,requests: 1, multiStepFormat:1])
         return createResult(fetchJob, jsonResponse)
     }
 

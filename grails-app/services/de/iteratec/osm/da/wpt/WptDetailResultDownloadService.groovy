@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.wpt
 
+import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyBuilder
@@ -75,12 +76,16 @@ class WptDetailResultDownloadService {
      * @param wptTestId
      * @param wptVersion
      */
-    public void addToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestId, String wptVersion) {
-        FetchJob fetchJob = new FetchJob(osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
-        synchronized (queue) {
-            if (queue.size() < queueMaximumInMemory) {
-                queue.offer(fetchJob)
+    public void addToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion) {
+        wptTestIds.each {String wptTestId ->
+            if(!AssetRequestGroup.findAllByWptBaseUrlAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)) {
+                FetchJob fetchJob = new FetchJob(osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+                        wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
+                synchronized (queue) {
+                    if (queue.size() < queueMaximumInMemory) {
+                        queue.offer(fetchJob)
+                    }
+                }
             }
         }
     }

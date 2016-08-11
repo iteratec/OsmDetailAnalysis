@@ -20,10 +20,8 @@ class WptDownloadWorker implements Runnable{
                 FetchJob currentJob = service.getNextJob()
                 if(currentJob){
                     println Thread.currentThread().toString()+"found job and start: "+currentJob.id
-                    while(currentJob.next()){
-                        WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
-                        service.assetRequestPersistenceService.saveDetailDataForJobResult(result,currentJob)
-                    }
+                    WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
+                    service.assetRequestPersistenceService.saveDetailDataForJobResult(result,currentJob)
                     println Thread.currentThread().toString()+"FetchJob $currentJob.id finished, start deleting "
                     service.deleteJob(currentJob)
                 }
