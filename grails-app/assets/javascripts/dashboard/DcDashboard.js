@@ -6,7 +6,7 @@ var DcDashboard = function DcDashboard() {
 DcDashboard.prototype.addData = function (data) {
     // Parse data at beginning for better performance
     data.forEach(function (d) {
-        d.date = new Date(d.epochTimeCompleted * 1000);
+        d.date = new Date(d.epochTimeStarted * 1000);
     });
 
     this.allData.add(data);
@@ -80,10 +80,27 @@ DcDashboard.prototype.addSeriesChart = function (dashbaordIdentifier, chartIdent
             return d.key[0];
         })
         .valueAccessor(function (d) {
-            return d.value
+            return d.value.val
         });
 
     dc.renderAll();
 
     return seriesChart;
+};
+
+DcDashboard.prototype.addRowChart = function (dashbaordIdentifier, chartIdentifier, dimension, group) {
+    var chart = dc.rowChart('#' + dashbaordIdentifier + ' #' + chartIdentifier);
+
+    chart
+        .width(1000)
+        .height(1000)
+        .x(d3.scale.linear().domain([0,100]))
+        .elasticX(true)
+        .dimension(dimension)
+        .group(group)
+        .ordering(function(d) { return -d.value });
+
+    dc.renderAll();
+
+    return chart;
 };
