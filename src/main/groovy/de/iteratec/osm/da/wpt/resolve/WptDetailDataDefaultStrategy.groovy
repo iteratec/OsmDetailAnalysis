@@ -27,7 +27,6 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
     static private WptDetailResult createResult(FetchJob fetchJob, def jsonResponse){
         WptDetailResult result = new WptDetailResult(fetchJob)
         result.location = jsonResponse.data.location
-        result.epochTimeCompleted = jsonResponse.data.completed as long
         def locationSplit = jsonResponse.data.location.split(":")
         if(locationSplit.size() > 1) result.browser = locationSplit[1]
         setConnectivity(result,jsonResponse)
@@ -48,6 +47,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         json.data.runs.each{def run ->
             run.value?.firstView?.steps?.each{
                 Step step = createStep(it)
+                step.started = it.date
                 step.isFirstView = true
                 steps << step
             }

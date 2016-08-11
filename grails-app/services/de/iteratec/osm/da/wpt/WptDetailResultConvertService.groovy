@@ -28,7 +28,7 @@ class WptDetailResultConvertService {
                 getMediaType(it.contentType)
             }
             mediaTypeMap.each {key, value ->
-                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, step.eventName)
+                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, step.eventName, step.epochTimeStarted)
                 List<AssetRequest> assets = []
                 value.each {req ->
                     assets << createAsset(req)
@@ -40,7 +40,7 @@ class WptDetailResultConvertService {
         return assetGroups
     }
 
-    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName){
+    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, long epochTimeStarted){
         updateMappings(fetchJob.osmInstance,result,eventName, fetchJob.jobGroupId, fetchJob.jobId)
         long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)
         long page  = mappingService.getIdForPageName(fetchJob.osmInstance, getPageName(eventName))
@@ -49,7 +49,7 @@ class WptDetailResultConvertService {
         return new AssetRequestGroup(osmInstance: fetchJob.osmInstance,eventName: eventName, jobId: result.jobId, jobGroup: result.jobGroupID,
                 bandwithUp: result.bandwidthUp, bandwidhtDown: result.bandwidthDown, latency: result.latency,
                 packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
-                browser: browser, epochTimeCompleted: result.epochTimeCompleted, mediaType: mediaType,
+                browser: browser, epochTimeStarted: epochTimeStarted, mediaType: mediaType,
                 wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView)
     }
 

@@ -28,7 +28,6 @@ class TestDataUtil {
         result.bandwidthUp = 300
         result.latency = 2
         result.packagelossrate = 1
-        result.epochTimeCompleted = 1467969368
         result.jobGroupID = fetchJob.jobGroupId
         result.location = "location:$result.browser"
         result.wptBaseUrl = fetchJob.wptBaseURL

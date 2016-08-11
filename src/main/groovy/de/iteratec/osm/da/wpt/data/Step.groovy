@@ -11,6 +11,7 @@ class Step {
     int docTime
     String url
     String eventName
+    long epochTimeStarted
     boolean isMedian
     boolean isFirstView
 
@@ -24,6 +25,7 @@ class Step {
                 ", docTime=" + docTime +
                 ", url='" + url + '\'' +
                 ", eventName='" + eventName + '\'' +
+                ", epochTimeStarted='" + epochTimeStarted + '\'' +
                 ", isMedian=" + isMedian +
                 ", isFirstView=" + isFirstView +
                 '}';

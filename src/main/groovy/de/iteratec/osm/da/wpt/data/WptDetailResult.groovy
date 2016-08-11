@@ -18,7 +18,6 @@ class WptDetailResult {
     String wptBaseUrl
     String wptTestID
     long osmInstance
-    long epochTimeCompleted
     long jobId
 
     List<Step> steps
@@ -56,7 +55,6 @@ class WptDetailResult {
                 ", wptBaseUrl='" + wptBaseUrl + '\'' +
                 ", wptTestID='" + wptTestID + '\'' +
                 ", osmInstance=" + osmInstance +
-                ", epochTimeCompleted=" + epochTimeCompleted +
                 ", steps=" + steps +
                 '}';
     }
