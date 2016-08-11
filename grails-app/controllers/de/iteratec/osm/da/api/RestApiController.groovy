@@ -64,9 +64,20 @@ class RestApiController {
 
 }
 
-public class PersistenceCommand{
-
+public class OsmCommand{
     String osmUrl
+
+    static constraints = {
+        osmUrl(nullable:false)
+    }
+
+    void setOsmUrl(String url) {
+        this.osmUrl = OsmInstance.createUrl(url)
+    }
+}
+
+public class PersistenceCommand extends OsmCommand{
+
     String wptVersion
     List<String> wptTestId
     String wptServerBaseUrl
@@ -82,6 +93,8 @@ public class PersistenceCommand{
         wptVersion(nullable:false)
     }
 
+
+
     @Override
     public String toString() {
         return "PersistenceCommand{" +
@@ -94,21 +107,15 @@ public class PersistenceCommand{
     }
 }
 
-public class UrlUpdateCommand{
-    String osmUrl
+public class UrlUpdateCommand extends OsmCommand{
     String newOsmUrl
 }
 
-public class MappingCommand{
-    String osmUrl
+public class MappingCommand extends OsmCommand{
     Map<Long, String> JobGroup
     Map<Long, String> Location
     Map<Long, String> Browser
     Map<Long, String> MeasuredEvent
-
-    static constraints = {
-        osmUrl(nullable:false)
-    }
 
     @Override
     public String toString() {

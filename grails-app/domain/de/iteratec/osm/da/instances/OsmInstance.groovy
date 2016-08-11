@@ -45,7 +45,15 @@ class OsmInstance {
     static constraints = {
     }
 
-    /**
+    static String createUrl(String url){
+        if(url.endsWith("/")) url = url.substring(0,url.length()-1)
+        return url
+    }
+
+    void setUrl(String url) {
+        this.url = createUrl()
+    }
+/**
      * Get the right map for a OsmDomain
      * @param domain
      * @return OsmMapping
