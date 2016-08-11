@@ -77,7 +77,7 @@ class AssetRequestPersistenceService {
         aggregateList << unwind("\$assets") // return one document for each asset in the asset group
         aggregateList << project(createPreFilterProjectDocument()) //filter out unwanted fields and flatten hierarchy
         aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype',
-                                'epochTimeCompleted':'\$epochTimeCompleted',measuredEvent:'\$measuredEvent',
+                                'epochTimeStarted':'\$epochTimeStarted',measuredEvent:'\$measuredEvent',
                                 host:'\$host', page:'\$page',] as BasicDBObject, //aggregate the assets by dimension
                                 avg('loadTimeMs_avg','\$loadTimeMs'), //add average load time
                                 min('loadTimeMs_min','\$loadTimeMs'), //add min load time
@@ -96,7 +96,7 @@ class AssetRequestPersistenceService {
         if(preFilterProjectionDocument) return preFilterProjectionDocument
         preFilterProjectionDocument = Document.parse("""
                             {browser:'\$browser',
-                             epochTimeCompleted:'\$epochTimeCompleted',
+                             epochTimeStarted:'\$epochTimeStarted',
                              jobId: '\$jobId',
                              mediaType:'\$mediaType',
                              subtype:'\$assets.subtype',
@@ -117,7 +117,7 @@ class AssetRequestPersistenceService {
                             mediaType:'\$_id.mediaType',
                             browser:'\$_id.browser',
                             subtype:'\$_id.subtype',
-                            epochTimeCompleted:'\$_id.epochTimeCompleted',
+                            epochTimeStarted:'\$_id.epochTimeStarted',
                             measuredEvent:'\$_id.measuredEvent',
                             host:'\$_id.host',
                             page:'\$_id.page',
