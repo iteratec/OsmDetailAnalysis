@@ -25,20 +25,19 @@
 </g:if>
 
 <content tag="include.bottom">
-    <asset:javascript src="dashboard/detailAnalysisGraph.js"/>
+    <asset:javascript src="dashboard/DcDashboardCreator.js"/>
     <asset:script type="text/javascript">
 
-        $(document).ready(function(){
-        <g:applyCodec encodeAs="none">
+        $(document).ready(function () {
+            <g:applyCodec encodeAs="none">
             var data = ${graphData};
             var labels = ${labelAliases};
             var from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";
             var to = "${toDateInMillis}" ? new Date(${toDateInMillis}) : "";
-        </g:applyCodec>
+            </g:applyCodec>
 
-        drawDcGraph(data, labels, from, to, 'dcChart');
-    });
-
+            createDashboard(data, labels, from, to);
+        });
     </asset:script>
 </content>
 

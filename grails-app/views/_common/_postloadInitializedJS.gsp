@@ -3,8 +3,6 @@
 
         window.addEventListener("PostLoadedScriptArrived",function(){
 
-            var idOfItemToBeDeleted = ${item ? item.id : params.id ?: 'null'};
-
             POSTLOADED = new PostLoaded({
                 %{--i18n_deletionConfirmMessage: '${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}',--}%
             });

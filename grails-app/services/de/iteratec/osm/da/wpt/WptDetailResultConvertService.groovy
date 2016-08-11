@@ -1,13 +1,12 @@
 package de.iteratec.osm.da.wpt
 
-import de.iteratec.osm.da.instances.OsmInstance
+import de.iteratec.osm.da.asset.AssetRequest
+import de.iteratec.osm.da.asset.AssetRequestGroup
+import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import de.iteratec.osm.da.asset.AssetRequestGroup
-import de.iteratec.osm.da.asset.AssetRequest
-import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.mapping.MappingService
 import grails.transaction.Transactional
 
 @Transactional

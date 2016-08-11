@@ -1,26 +1,17 @@
 package de.iteratec.osm.da.persistence
 
-import com.mongodb.BasicDBObject
-import com.mongodb.DBObject
 import com.mongodb.MongoClient
-import com.mongodb.client.AggregateIterable
-import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
-import grails.converters.JSON
+import de.iteratec.osm.da.asset.AssetRequestGroup
+import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.wpt.WptDetailResultConvertService
+import de.iteratec.osm.da.wpt.data.WptDetailResult
+import grails.transaction.Transactional
 import groovy.json.JsonOutput
 import org.bson.Document
 
 import static com.mongodb.client.model.Aggregates.*
-import static com.mongodb.client.model.Accumulators.*
-import de.iteratec.osm.da.wpt.data.WptDetailResult
-import de.iteratec.osm.da.asset.AssetRequestGroup
-import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.wpt.WptDetailResultConvertService
-import grails.transaction.Transactional
-
-import static com.mongodb.client.model.Filters.and
-import static com.mongodb.client.model.Filters.gte
-import static com.mongodb.client.model.Filters.lte
+import static com.mongodb.client.model.Filters.*
 
 @Transactional
 class AssetRequestPersistenceService {

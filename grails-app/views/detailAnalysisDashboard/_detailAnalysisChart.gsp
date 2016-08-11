@@ -3,7 +3,7 @@
         <div class="span4">
             <span><strong>By MediaType</strong></span>
 
-            <div id="media-type-chart"></div>
+            <div id="mediaType-chart"></div>
         </div>
 
         <div class="span4">
@@ -32,5 +32,9 @@
         <div class="span12">
             <div id="dc-data-count"/>
         </div>
+    </div>
+
+    <div class="row">
+        <div class="span12" id="summary-div"/>
     </div>
 </div>
