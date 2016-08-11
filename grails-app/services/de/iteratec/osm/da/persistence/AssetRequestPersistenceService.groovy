@@ -1,7 +1,10 @@
 package de.iteratec.osm.da.persistence
 
+import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.model.Filters
+
+import static com.mongodb.client.model.Accumulators.*
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.WptDetailResultConvertService
@@ -17,7 +20,8 @@ import static com.mongodb.client.model.Filters.*
 class AssetRequestPersistenceService {
 
     WptDetailResultConvertService wptDetailResultConvertService
-    Document projectionDocument
+    Document preFilterProjectionDocument
+    Document unpackIdProjectionDocument
     MongoClient mongo
     /**
      * Parses a WptDetailResult and saves all Assets
@@ -66,7 +70,9 @@ class AssetRequestPersistenceService {
 
         aggregateList << match(and(matchList))
         aggregateList << unwind("\$assets")
-        aggregateList << project(createProjectDocument())
+        aggregateList << project(createPreFilterProjectDocument())
+        aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype','epochTimeComplete':'\$epochTimeComplete'] as BasicDBObject,avg('loadTimeMs_avg','\$loadTimeMs'),min('loadTimeMs_min','\$loadTimeMs'),max('loadTimeMs_max','\$loadTimeMs'))
+        aggregateList << project(createUnpackIdProjectDocument())
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
     }
 
@@ -75,9 +81,9 @@ class AssetRequestPersistenceService {
      * we should only parse a string once to get a matching document.
      * @return
      */
-    private Document createProjectDocument(){
-        if(projectionDocument) return projectionDocument
-        projectionDocument = Document.parse("""
+    private Document createPreFilterProjectDocument(){
+        if(preFilterProjectionDocument) return preFilterProjectionDocument
+        preFilterProjectionDocument = Document.parse("""
                             {browser:'\$browser',
                              epochTimeCompleted:'\$epochTimeCompleted',
                              jobId: '\$jobId',
@@ -86,6 +92,23 @@ class AssetRequestPersistenceService {
                              loadTimeMs:'\$assets.loadTimeMs',
                              timeToFirstByteMs:'\$assets.timeToFirstByteMs',
                             }""")
-        return projectionDocument
+        return preFilterProjectionDocument
+    }
+    private Document createUnpackIdProjectDocument(){
+        if(unpackIdProjectionDocument) return unpackIdProjectionDocument
+        unpackIdProjectionDocument =  Document.parse("""
+                            {
+                            _id:0
+                            'jobId':'\$_id.jobId',
+                            'mediaType':'\$_id.mediaType',
+                            'browser':'\$_id.browser',
+                            'subtype':'\$_id.subtype',
+                            'epochTimeComplete':'\$_id.epochTimeComplete',
+                            loadTimeMs_avg:'\$loadTimeMs_avg',
+                            loadTimeMs_min:'\$loadTimeMs_min',
+                            loadTimeMs_max:'\$loadTimeMs_max',
+                            count:'\$count'
+                            }""")
+        return unpackIdProjectionDocument
     }
 }
