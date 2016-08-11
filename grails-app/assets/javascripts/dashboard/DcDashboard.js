@@ -62,7 +62,7 @@ DcDashboard.prototype.addSeriesChart = function (dashbaordIdentifier, chartIdent
     var seriesChart = dc.seriesChart('#' + dashbaordIdentifier + ' #' + chartIdentifier);
 
     seriesChart
-        .width(990)
+        .width(1000)
         .height(400)
         .transitionDuration(1000)
         .margins({top: 30, right: 50, bottom: 25, left: 60})
@@ -73,7 +73,7 @@ DcDashboard.prototype.addSeriesChart = function (dashbaordIdentifier, chartIdent
         .elasticY(true)
         .elasticX(true)
         .renderHorizontalGridLines(true)
-        .legend(dc.legend().x(650).y(50).itemHeight(13).gap(5))
+        .legend(dc.legend().x(650).y(250).itemHeight(13).gap(5))
         .group(group)
         .seriesAccessor(labelAccessor)
         .keyAccessor(function (d) {
@@ -94,7 +94,7 @@ DcDashboard.prototype.addRowChart = function (dashbaordIdentifier, chartIdentifi
     chart
         .width(1000)
         .height(1000)
-        .x(d3.scale.linear().domain([0,100]))
+        .x(d3.scale.linear())
         .elasticX(true)
         .dimension(dimension)
         .group(group)

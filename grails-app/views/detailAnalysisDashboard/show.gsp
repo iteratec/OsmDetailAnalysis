@@ -14,6 +14,10 @@
         font-weight: bold;
         cursor: pointer;
     }
+
+    .dc-chart g.row text {
+        fill: black;
+    }
     </style>
 
 </head>
@@ -29,15 +33,15 @@
     <asset:script type="text/javascript">
 
         $(document).ready(function () {
-            <g:applyCodec encodeAs="none">
+        <g:applyCodec encodeAs="none">
             var data = ${graphData};
             var labels = ${labelAliases};
             var from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";
             var to = "${toDateInMillis}" ? new Date(${toDateInMillis}) : "";
-            </g:applyCodec>
+        </g:applyCodec>
 
-            createDashboard(data, labels, from, to);
-        });
+        createDashboard(data, labels, from, to);
+    });
     </asset:script>
 </content>
 

@@ -6,8 +6,6 @@ function createDashboard(data, labels, from, to) {
     var dataCounts = getDataCounts(data);
     showUniqueValues(dataCounts, data, labels);
 
-    console.log(dataCounts);
-
     if (dataCounts['browser'] > 1) {
         var browser = board.allData.dimension(function (d) {
             return "" + d['browser'];
@@ -16,7 +14,7 @@ function createDashboard(data, labels, from, to) {
             return d['count']
         });
         var browserLabelAccessor = function (d) {
-            return labels['browser'][d.key]
+            return labels['browser'] ? labels['browser'][d.key] : d.key
         };
         board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
     }
@@ -127,23 +125,19 @@ function showUniqueValues(dataCounts, data, labels) {
     }
 
     if (Object.keys(uniqueValues).length >= 0) {
-        var summary = "<strong>These values are similar for all selected data:</strong> <br/><ul>";
-
         for (var key in uniqueValues) {
             var label = labels[key] ? labels[key][uniqueValues[key]] : uniqueValues[key];
-            summary += "<li>" + key + ": " + label + "</li>";
-            var node = document.getElementById(key + "-chart").parentNode;
-            node.removeChild(node.childNodes[1]);
-        }
+            var summary = "for all values " + key + " is " + label;
 
-        document.getElementById("summary-div").innerHTML = summary + "</ul>";
+            document.getElementById(key + "-chart").innerHTML = summary.toLowerCase()
+        }
     }
 }
 
 function getDataCounts(data) {
     var result = {};
 
-    var uniqueMap = {'browser': [], 'mediaType': [], 'subtype': [], 'host': [], 'page' : []};
+    var uniqueMap = {'browser': [], 'mediaType': [], 'subtype': [], 'host': [], 'page': []};
     for (var i = 0; i < data.length; i++) {
         var datum = data[i];
 
