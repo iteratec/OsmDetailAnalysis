@@ -170,4 +170,8 @@ class MappingService {
     Map<Long, String> getJobMappings(long osmID) {
         getOsmMapping(OsmDomain.Job, osmID)
     }
+
+    Map<Long, String> getPageMappings(long osmID) {
+        getOsmMapping(OsmDomain.Page, osmID)
+    }
 }

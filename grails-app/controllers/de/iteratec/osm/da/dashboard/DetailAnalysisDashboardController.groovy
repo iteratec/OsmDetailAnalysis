@@ -106,6 +106,7 @@ class DetailAnalysisDashboardController {
 
         labelAliases['browser'] = mappingService.getBrowserMappings(osmInstanceId)
         labelAliases['job'] = mappingService.getJobMappings(osmInstanceId)
+        labelAliases['page'] = mappingService.getPageMappings(osmInstanceId)
 
         labelAliases = labelAliases as JSON
 
