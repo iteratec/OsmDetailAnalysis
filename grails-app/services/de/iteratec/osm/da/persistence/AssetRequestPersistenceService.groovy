@@ -73,11 +73,16 @@ class AssetRequestPersistenceService {
         }
 
 
-        aggregateList << match(and(matchList))
-        aggregateList << unwind("\$assets")
-        aggregateList << project(createPreFilterProjectDocument())
-        aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype','epochTimeCompleted':'\$epochTimeCompleted'] as BasicDBObject,avg('loadTimeMs_avg','\$loadTimeMs'),min('loadTimeMs_min','\$loadTimeMs'),max('loadTimeMs_max','\$loadTimeMs'),sum('count',1))
-        aggregateList << project(createUnpackIdProjectDocument())
+        aggregateList << match(and(matchList)) //filter out unwanted assets
+        aggregateList << unwind("\$assets") // return one document for each asset in the asset group
+        aggregateList << project(createPreFilterProjectDocument()) //filter out unwanted fields and flatten hierarchy
+        aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype',
+                                'epochTimeCompleted':'\$epochTimeCompleted'] as BasicDBObject, //aggregate the assets by dimension
+                                avg('loadTimeMs_avg','\$loadTimeMs'), //add average load time
+                                min('loadTimeMs_min','\$loadTimeMs'), //add min load time
+                                max('loadTimeMs_max','\$loadTimeMs'), //add max load time
+                                sum('count',1)) //add sum of elements per aggregation
+        aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
     }
 
