@@ -35,7 +35,7 @@ class AssetRequestGroup {
     @Delegate Connectivity connectivity = new Connectivity()
     long location
     long browser
-    long epochTimeCompleted
+    long epochTimeStarted
     String mediaType
     boolean isFirstViewInStep
 

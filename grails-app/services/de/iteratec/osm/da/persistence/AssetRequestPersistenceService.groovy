@@ -56,8 +56,8 @@ class AssetRequestPersistenceService {
         List aggregateList = []
         List matchList = []
         def db = mongo.getDatabase("OsmDetailAnalysis")
-        matchList<< gte("epochTimeCompleted",from.getTime()/1000 as Long)
-        matchList<< lte("epochTimeCompleted",to.getTime()/1000 as Long)
+        matchList<< gte("epochTimeStarted",from.getTime()/1000 as Long)
+        matchList<< lte("epochTimeStarted",to.getTime()/1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
         if(jobGroups) matchList << Filters.in("jobGroup", jobGroups)
