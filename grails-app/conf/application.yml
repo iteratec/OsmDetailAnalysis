@@ -110,6 +110,9 @@ grails:
         defaultScope: singleton
     converters:
         encoding: UTF-8
+    config:
+        defaults:
+            locations: []
     views:
         default:
             codec: html
@@ -124,5 +127,4 @@ grails:
 endpoints:
     jmx:
         unique-names: true
-server:
-    port: 8081
+
