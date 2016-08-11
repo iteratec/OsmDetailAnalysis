@@ -77,7 +77,8 @@ class AssetRequestPersistenceService {
         aggregateList << unwind("\$assets") // return one document for each asset in the asset group
         aggregateList << project(createPreFilterProjectDocument()) //filter out unwanted fields and flatten hierarchy
         aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype',
-                                'epochTimeCompleted':'\$epochTimeCompleted'] as BasicDBObject, //aggregate the assets by dimension
+                                'epochTimeCompleted':'\$epochTimeCompleted',measuredEvent:'\$measuredEvent',
+                                host:'\$host', page:'\$page',] as BasicDBObject, //aggregate the assets by dimension
                                 avg('loadTimeMs_avg','\$loadTimeMs'), //add average load time
                                 min('loadTimeMs_min','\$loadTimeMs'), //add min load time
                                 max('loadTimeMs_max','\$loadTimeMs'), //add max load time
@@ -101,6 +102,9 @@ class AssetRequestPersistenceService {
                              subtype:'\$assets.subtype',
                              loadTimeMs:'\$assets.loadTimeMs',
                              timeToFirstByteMs:'\$assets.timeToFirstByteMs',
+                             measuredEvent:'\$measuredEvent',
+                             host:'\$assets.host',
+                             page:'\$page'
                             }""")
         return preFilterProjectionDocument
     }
@@ -109,11 +113,14 @@ class AssetRequestPersistenceService {
         unpackIdProjectionDocument =  Document.parse("""
                             {
                             _id:0
-                            'jobId':'\$_id.jobId',
-                            'mediaType':'\$_id.mediaType',
-                            'browser':'\$_id.browser',
-                            'subtype':'\$_id.subtype',
-                            'epochTimeCompleted':'\$_id.epochTimeCompleted',
+                            jobId:'\$_id.jobId',
+                            mediaType:'\$_id.mediaType',
+                            browser:'\$_id.browser',
+                            subtype:'\$_id.subtype',
+                            epochTimeCompleted:'\$_id.epochTimeCompleted',
+                            measuredEvent:'\$_id.measuredEvent',
+                            host:'\$_id.host',
+                            page:'\$_id.page',
                             loadTimeMs_avg:'\$loadTimeMs_avg',
                             loadTimeMs_min:'\$loadTimeMs_min',
                             loadTimeMs_max:'\$loadTimeMs_max',
