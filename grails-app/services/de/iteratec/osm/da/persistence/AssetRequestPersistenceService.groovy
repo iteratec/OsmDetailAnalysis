@@ -73,7 +73,8 @@ class AssetRequestPersistenceService {
         aggregateList << project(createPreFilterProjectDocument())
         aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype','epochTimeCompleted':'\$epochTimeCompleted'] as BasicDBObject,avg('loadTimeMs_avg','\$loadTimeMs'),min('loadTimeMs_min','\$loadTimeMs'),max('loadTimeMs_max','\$loadTimeMs'))
         aggregateList << project(createUnpackIdProjectDocument())
-        return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
+        def test = JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
+        return test
     }
 
     /**
@@ -103,7 +104,7 @@ class AssetRequestPersistenceService {
                             'mediaType':'\$_id.mediaType',
                             'browser':'\$_id.browser',
                             'subtype':'\$_id.subtype',
-                            'epochTimeComplete':'\$_id.epochTimeComplete',
+                            'epochTimeCompleted':'\$_id.epochTimeCompleted',
                             loadTimeMs_avg:'\$loadTimeMs_avg',
                             loadTimeMs_min:'\$loadTimeMs_min',
                             loadTimeMs_max:'\$loadTimeMs_max',
