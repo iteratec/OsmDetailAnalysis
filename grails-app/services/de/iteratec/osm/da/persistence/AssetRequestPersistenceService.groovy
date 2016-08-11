@@ -71,10 +71,9 @@ class AssetRequestPersistenceService {
         aggregateList << match(and(matchList))
         aggregateList << unwind("\$assets")
         aggregateList << project(createPreFilterProjectDocument())
-        aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype','epochTimeCompleted':'\$epochTimeCompleted'] as BasicDBObject,avg('loadTimeMs_avg','\$loadTimeMs'),min('loadTimeMs_min','\$loadTimeMs'),max('loadTimeMs_max','\$loadTimeMs'))
+        aggregateList << group(['jobId':'\$jobId','mediaType':'\$mediaType','browser':'\$browser','subtype':'\$subtype','epochTimeCompleted':'\$epochTimeCompleted'] as BasicDBObject,avg('loadTimeMs_avg','\$loadTimeMs'),min('loadTimeMs_min','\$loadTimeMs'),max('loadTimeMs_max','\$loadTimeMs'),sum('count',1))
         aggregateList << project(createUnpackIdProjectDocument())
-        def test = JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
-        return test
+        return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
     }
 
     /**
