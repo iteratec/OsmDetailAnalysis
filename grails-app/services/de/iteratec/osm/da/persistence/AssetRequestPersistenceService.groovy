@@ -44,13 +44,13 @@ class AssetRequestPersistenceService {
             boolean selectedAllBrowsers,
             List<Long> locations,
             boolean selectedAllLocations,
-            List<Long> connectivityProfiles,
             boolean selectedAllConnectivityProfiles,
+            Integer bandwidthUp,
+            Integer bandwidthDown,
+            Integer latency,
+            Integer packetloss,
             List<Long> measuredEvents,
-            boolean selectedAllMeasuredEvents,
-            String customConnectivityName,
-            boolean includeCustomConnectivity,
-            boolean includeNativeConnectivity
+            boolean selectedAllMeasuredEvents
     ){
         //TODO implement connectivity check
         List aggregateList = []
@@ -64,8 +64,13 @@ class AssetRequestPersistenceService {
         if(pages)     matchList << Filters.in("page", pages)
         if(!selectedAllBrowsers && browsers) matchList << Filters.in("browser", browsers)
         if(!selectedAllLocations && locations) matchList << Filters.in("location", locations)
-//        if(!selectedAllConnectivityProfiles && connectivityProfiles) matchList << Filter.in("NotImplmentedYet")
         if(!selectedAllMeasuredEvents && measuredEvents) matchList << Filters.in("measuredEvent", measuredEvents)
+        if(!selectedAllConnectivityProfiles){
+            if(bandwidthUp) matchList << eq("bandwidthUp", bandwidthUp)
+            if(bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)
+            if(packetloss) matchList << eq("packetLoss",packetloss)
+            if(latency) matchList << eq("Latency", latency)
+        }
 
 
         aggregateList << match(and(matchList))

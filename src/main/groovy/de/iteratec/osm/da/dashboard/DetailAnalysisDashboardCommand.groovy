@@ -143,15 +143,6 @@ class DetailAnalysisDashboardCommand implements Validateable {
     Boolean selectedAllLocations = true
 
     /**
-     * The database IDs of the selected {@linkplain de.iteratec.osm.measurement.schedule.ConnectivityProfile}s which results to be shown.
-     *
-     * These selections are only relevant if
-     * {@link #selectedAllConnectivityProfiles} is evaluated to
-     * <code>false</code>.
-     */
-    Collection<Long> selectedConnectivityProfiles = []
-
-    /**
      * User enforced the selection of all ConnectivityProfiles.
      * This selection <em>is not</em> reflected in
      * {@link #selectedConnectivityProfiles} cause of URL length
@@ -161,6 +152,11 @@ class DetailAnalysisDashboardCommand implements Validateable {
      */
     Boolean selectedAllConnectivityProfiles = true
 
+    Integer bandwidthUp
+    Integer bandwidthDown
+    Integer latency
+    Integer packetloss
+
     /**
      * Whether or not the time of the start-date should be selected manually.
      */
@@ -169,22 +165,6 @@ class DetailAnalysisDashboardCommand implements Validateable {
      * Whether or not the time of the start-date should be selected manually.
      */
     Boolean setToHour
-
-    /**
-     * Whether or not EventResults measured with native connectivity should get included.
-     */
-    Boolean includeNativeConnectivity
-
-    /**
-     * Whether or not EventResults measured with native connectivity should get included.
-     */
-    Boolean includeCustomConnectivity
-
-    /**
-     * If set, this is handled as a regular expression to select results measured with custom connectivity and whos custom
-     * connectivity name matches this regex.
-     */
-    String customConnectivityName
 
     /**
      * Constraints needs to fit.
@@ -233,12 +213,6 @@ class DetailAnalysisDashboardCommand implements Validateable {
             if (!cmd.selectedAllLocations && currentCollection.isEmpty()) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.selectedLocations.validator.error.selectedLocations']
         })
         selectedAllConnectivityProfiles(nullable: true)
-
-        includeNativeConnectivity(nullable: true)
-
-        includeCustomConnectivity(nullable: true)
-
-        customConnectivityName(nullable: true)
     }
 
     static transients = ['selectedTimeFrame']
@@ -338,11 +312,13 @@ class DetailAnalysisDashboardCommand implements Validateable {
         viewModelToCopyTo.put('selectedAllLocations', this.selectedAllLocations)
         viewModelToCopyTo.put('selectedLocations', this.selectedLocations)
 
+        viewModelToCopyTo.put('bandwidthUp', this.bandwidthUp)
+        viewModelToCopyTo.put('bandwidthDown', this.bandwidthDown)
+        viewModelToCopyTo.put('latency', this.latency)
+        viewModelToCopyTo.put('packetloss', this.packetloss)
+
+
         viewModelToCopyTo.put('selectedAllConnectivityProfiles', this.selectedAllConnectivityProfiles)
-        viewModelToCopyTo.put('selectedConnectivityProfiles', this.selectedConnectivityProfiles)
-        viewModelToCopyTo.put('includeNativeConnectivity', this.includeNativeConnectivity)
-        viewModelToCopyTo.put('includeCustomConnectivity', this.includeCustomConnectivity)
-        viewModelToCopyTo.put('customConnectivityName', this.customConnectivityName)
 
         viewModelToCopyTo.put('from', this.from)
         if (!this.fromHour.is(null)) {

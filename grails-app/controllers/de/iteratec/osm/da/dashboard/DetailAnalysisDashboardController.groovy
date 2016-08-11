@@ -60,16 +60,16 @@ class DetailAnalysisDashboardController {
         List<Long> pageIds = cmd.selectedPages as List
         List<Long> browserIds = cmd.selectedBrowsers as List
         List<Long> locationIds = cmd.selectedLocations as List
-        List<Long> connectivityProfileIds = cmd.selectedConnectivityProfiles as List
+        Integer bandwidthUp = cmd.bandwidthUp
+        Integer bandwidthDown = cmd.bandwidthDown
+        Integer latency = cmd.latency
+        Integer packetloss = cmd.packetloss
         List<Long> measuredEventIds = cmd.selectedMeasuredEventIds as List
-        String customConnectivityName = cmd.customConnectivityName==null ? "" : cmd.customConnectivityName
 
         boolean selectedAllBrowsers = cmd.selectedAllBrowsers
         boolean selectedAllLocations = cmd.selectedAllLocations
         boolean selectedAllConnectivityProfiles = cmd.selectedAllConnectivityProfiles
         boolean selectedAllMeasuredEvents = cmd.selectedAllMeasuredEvents
-        boolean includeNativeConnectivity = cmd.includeNativeConnectivity
-        boolean includeCustomConnectivity = cmd.includeCustomConnectivity
 
 
 
@@ -82,13 +82,13 @@ class DetailAnalysisDashboardController {
                 selectedAllBrowsers,
                 locationIds,
                 selectedAllLocations,
-                connectivityProfileIds,
                 selectedAllConnectivityProfiles,
+                bandwidthUp,
+                bandwidthDown,
+                latency,
+                packetloss,
                 measuredEventIds,
-                selectedAllMeasuredEvents,
-                customConnectivityName,
-                includeCustomConnectivity,
-                includeNativeConnectivity)
+                selectedAllMeasuredEvents)
 
         def fromDate = new DateTime(cmd.from)
         def toDate = new DateTime(cmd.to).plusDays(1)
