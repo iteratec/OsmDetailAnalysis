@@ -31,7 +31,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         if(locationSplit.size() > 1) result.browser = locationSplit[1]
         setConnectivity(result,jsonResponse)
         setSteps(result,jsonResponse)
-        result.markMedianRuns()
+        result.calculateAdditionalInformations()
         return result
     }
 
@@ -80,6 +80,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
             request.indexWithinStep = it.index as int
             request.ttfbMs = it.ttfb_ms as int
             request.loadStart = it.load_start as int
+            request.loadEnd = it.load_end as int
             request.loadMs = it.load_ms as int
             request.host = it.host
             request.url = it.url

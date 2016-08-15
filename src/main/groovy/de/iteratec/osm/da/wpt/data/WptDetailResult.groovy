@@ -1,6 +1,7 @@
 package de.iteratec.osm.da.wpt.data
 
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.wpt.LoadPhase
 
 /**
  * This represents the whole necessary data which to save the detail data.
@@ -31,6 +32,14 @@ class WptDetailResult {
     }
 
     /**
+     * Calculates the median runs and set the phases for all requests
+     */
+    void calculateAdditionalInformations(){
+        markMedianRuns()
+        setPhase()
+    }
+
+    /**
      * Analyzes the steps and mark the calculated median step with step.isMedian=true
      */
     void markMedianRuns(){
@@ -38,6 +47,17 @@ class WptDetailResult {
              int medianPlace = Math.ceil(steps.size()/2) -1 as Integer
              steps.sort{it.docTime}
              steps[medianPlace].isMedian = true
+        }
+    }
+
+    /**
+     * Analyzes all request and mark the loading start and end phase as doctime, loadtime or fully loaded
+     */
+    void setPhase(){
+        steps.each {Step step ->
+            step.requests.each {Request request ->
+                request.setPhases(step.domTime,step.loadTime)
+            }
         }
     }
 

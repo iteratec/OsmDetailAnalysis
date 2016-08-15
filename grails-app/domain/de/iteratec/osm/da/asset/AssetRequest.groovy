@@ -1,5 +1,7 @@
 package de.iteratec.osm.da.asset
 
+import de.iteratec.osm.da.wpt.LoadPhase
+
 /**
  * AssetRequest
  * Representation of one single request to load a resource.
@@ -27,6 +29,11 @@ class AssetRequest {
     String mediaType
     String subtype
     String urlWithoutParams
+
+    //Current phase while the asset request was started
+    LoadPhase startPhase
+    //Current phase while the asset was done loading
+    LoadPhase endPhase
 
     static mapWith = 'mongo'
     static mapping = {

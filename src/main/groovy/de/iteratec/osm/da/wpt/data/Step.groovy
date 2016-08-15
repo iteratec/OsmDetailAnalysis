@@ -8,12 +8,14 @@ class Step {
     List<Request>  requests
     int run
     int stepNumber
-    int docTime
     String url
     String eventName
     long epochTimeStarted
     boolean isMedian
     boolean isFirstView
+    int domTime
+    int loadTime
+    int fullyLoaded
 
 
     @Override
@@ -22,12 +24,14 @@ class Step {
                 "requests=" + requests.size() +
                 ", run=" + run +
                 ", stepNumber=" + stepNumber +
-                ", docTime=" + docTime +
                 ", url='" + url + '\'' +
                 ", eventName='" + eventName + '\'' +
                 ", epochTimeStarted='" + epochTimeStarted + '\'' +
                 ", isMedian=" + isMedian +
                 ", isFirstView=" + isFirstView +
+                ", domTime=" + domTime +
+                ", loadTime=" + loadTime +
+                ", fullyLoaded=" + fullyLoaded +
                 '}';
     }
 }

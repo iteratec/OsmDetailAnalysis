@@ -18,7 +18,7 @@ class WptDetailResultConvertService {
     static String UNDEFINED_SUBTYPE = "undefined"
     static String UNDEFINED_PAGE = "undefined"
 
-    /** EventName can contain information of tested pages and teststep-number. Both informations are delimitted through this. **/
+    /** EventName can contain information of tested pages and teststep-number. Both informations are delimited through this. **/
     public static final String STEPNAME_DELIMITTER = ':::'
 
     public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
@@ -73,7 +73,8 @@ class WptDetailResultConvertService {
                 downloadTimeMs: req.downloadMs,loadTimeMs: req.loadMs, timeToFirstByteMs: req.ttfbMs,
                 sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
                 mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
-                urlWithoutParams: req.host+createURLWithoutParams(req.url))
+                urlWithoutParams: req.host+createURLWithoutParams(req.url), startPhase: req.startPhase,
+                endPhase: req.endPhase)
     }
 
     static String getMediaType(String mimeType){
