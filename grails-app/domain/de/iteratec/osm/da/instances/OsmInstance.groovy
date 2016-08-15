@@ -51,7 +51,7 @@ class OsmInstance {
     }
 
     void setUrl(String url) {
-        this.url = createUrl()
+        this.url = createUrl(url)
     }
 /**
      * Get the right map for a OsmDomain

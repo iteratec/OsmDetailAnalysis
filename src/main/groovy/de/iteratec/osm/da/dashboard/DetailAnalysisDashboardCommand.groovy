@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.regex.Pattern
 
 
-class DetailAnalysisDashboardCommand extends OsmCommand implements Validateable {
+class DetailAnalysisDashboardCommand extends OsmCommand {
     /**
      * The selected start date.
      *
@@ -173,9 +173,9 @@ class DetailAnalysisDashboardCommand extends OsmCommand implements Validateable 
      * Constraints needs to fit.
      */
     static constraints = {
-        apiKey(validator: { String currentKey, DetailAnalysisDashboardCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey, cmd.osmUrl)
-            if (!validApiKey||!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+        apiKey(nullable: false, validator: { String currentKey, DetailAnalysisDashboardCommand cmd ->
+            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+            if (!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         from(nullable: true, validator: { Date currentFrom, DetailAnalysisDashboardCommand cmd ->
@@ -221,6 +221,12 @@ class DetailAnalysisDashboardCommand extends OsmCommand implements Validateable 
             if (!cmd.selectedAllLocations && currentCollection.isEmpty()) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.selectedLocations.validator.error.selectedLocations']
         })
         selectedAllConnectivityProfiles(nullable: true)
+        bandwidthDown(nullable: true)
+        packetloss(nullable: true)
+        latency(nullable: true)
+        bandwidthUp(nullable: true)
+        setFromHour(nullable: true)
+        setToHour(nullable: true)
     }
 
     static transients = ['selectedTimeFrame']

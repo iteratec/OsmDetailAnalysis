@@ -17,6 +17,7 @@
 
 package de.iteratec.osm.da.dashboard
 
+import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.converters.JSON
@@ -37,6 +38,14 @@ class DetailAnalysisDashboardController {
     MappingService mappingService
 
     Map<String, Object> show(DetailAnalysisDashboardCommand cmd) {
+        if (cmd.hasErrors()) {
+            StringWriter sw = new StringWriter()
+            cmd.errors.getFieldErrors().each { fieldError ->
+                sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
+            }
+            sendSimpleResponseAsStream(400, sw.toString())
+            return
+        }
         Map<String, Object> modelToRender = [:]
 
         cmd.copyRequestDataToViewModelMap(modelToRender)
@@ -97,20 +106,24 @@ class DetailAnalysisDashboardController {
         modelToRender.put('fromDateInMillis', fromDate.millis)
         modelToRender.put('toDateInMillis', toDate.millis)
 
-        // TODO osmInstanceId einbauen
-        fillWithLabelAliases(modelToRender, 1)
+        fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
     }
 
-    private void fillWithLabelAliases(Map<String, Object> modelToRender, Long osmInstanceId) {
+    private void fillWithLabelAliases(Map<String, Object> modelToRender, OsmInstance osmInstance) {
         def labelAliases = [:]
 
-        labelAliases['browser'] = mappingService.getBrowserMappings(osmInstanceId)
-        labelAliases['job'] = mappingService.getJobMappings(osmInstanceId)
-        labelAliases['page'] = mappingService.getPageMappings(osmInstanceId)
-        labelAliases['measuredEvent'] = mappingService.getMeasuredEventMappings(osmInstanceId)
+        labelAliases['browser'] = mappingService.getBrowserMappings(osmInstance)
+        labelAliases['job'] = mappingService.getJobMappings(osmInstance)
+        labelAliases['page'] = mappingService.getPageMappings(osmInstance)
+        labelAliases['measuredEvent'] = mappingService.getMeasuredEventMappings(osmInstance)
 
         labelAliases = labelAliases as JSON
 
         modelToRender.put('labelAliases', labelAliases)
+    }
+    private void sendSimpleResponseAsStream(Integer httpStatus, String message) {
+        response.setContentType('text/plain;charset=UTF-8')
+        response.status = httpStatus
+        render message
     }
 }

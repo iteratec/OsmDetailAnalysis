@@ -90,9 +90,8 @@ class MappingService {
         return OsmInstance.findByUrl(url)?.id
     }
 
-    Map<Long, String> getOsmMapping(OsmDomain domain, long osmId) {
-        OsmInstance osm = OsmInstance.findById(osmId)
-        return osm.getMapping(domain).mapping
+    Map<Long, String> getOsmMapping(OsmDomain domain, OsmInstance osmInstance) {
+        return osmInstance.getMapping(domain).mapping
     }
 
     /**
@@ -163,19 +162,19 @@ class MappingService {
         osmInstance.setUrl(newUrl).save(flush:true)
     }
 
-    Map<Long, String> getBrowserMappings(long osmID) {
-        getOsmMapping(OsmDomain.Browser, osmID)
+    Map<Long, String> getBrowserMappings(OsmInstance osmInstance) {
+        getOsmMapping(OsmDomain.Browser, osmInstance)
     }
 
-    Map<Long, String> getJobMappings(long osmID) {
-        getOsmMapping(OsmDomain.Job, osmID)
+    Map<Long, String> getJobMappings(OsmInstance osmInstance) {
+        getOsmMapping(OsmDomain.Job, osmInstance)
     }
 
-    Map<Long, String> getPageMappings(long osmID) {
-        getOsmMapping(OsmDomain.Page, osmID)
+    Map<Long, String> getPageMappings(OsmInstance osmInstance) {
+        getOsmMapping(OsmDomain.Page, osmInstance)
     }
 
-    Map<Long, String> getMeasuredEventMappings(long osmID) {
-        getOsmMapping(OsmDomain.MeasuredEvent, osmID)
+    Map<Long, String> getMeasuredEventMappings(OsmInstance osmInstance) {
+        getOsmMapping(OsmDomain.MeasuredEvent, osmInstance)
     }
 }

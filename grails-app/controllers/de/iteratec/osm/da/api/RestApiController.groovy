@@ -7,6 +7,7 @@ import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import de.iteratec.osm.da.mapping.MappingService
+import grails.validation.Validateable
 
 
 class RestApiController {
@@ -25,9 +26,6 @@ class RestApiController {
         response.setContentType('text/plain;charset=UTF-8')
         response.status = httpStatus
         render message
-    }
-    def test(PersistenceCommand command){
-        sendSimpleResponseAsStream(200,"Added to queue")
     }
 
     def securedViaApiKeyPersistAssetsForWptResult(PersistenceCommand command){
@@ -93,7 +91,7 @@ class RestApiController {
 
 }
 
-public class OsmCommand{
+public class OsmCommand implements Validateable{
     String apiKey
     String osmUrl
 
@@ -115,8 +113,8 @@ public class PersistenceCommand extends OsmCommand{
 
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey || !validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         osmUrl(nullable:false)
@@ -146,7 +144,7 @@ public class UrlUpdateCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, UrlUpdateCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey || !validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
     }
@@ -160,7 +158,7 @@ public class MappingCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, MappingCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey || !validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
     }
