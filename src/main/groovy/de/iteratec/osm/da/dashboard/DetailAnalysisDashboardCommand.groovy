@@ -1,6 +1,7 @@
 package de.iteratec.osm.da.dashboard
 
 import de.iteratec.osm.da.api.ApiKey
+import de.iteratec.osm.da.api.OsmCommand
 import de.iteratec.osm.da.api.RestApiController
 import grails.validation.Validateable
 import org.grails.databinding.BindUsing
@@ -13,8 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.regex.Pattern
 
 
-class DetailAnalysisDashboardCommand implements Validateable {
-    String apiKey
+class DetailAnalysisDashboardCommand extends OsmCommand implements Validateable {
     /**
      * The selected start date.
      *
@@ -174,8 +174,8 @@ class DetailAnalysisDashboardCommand implements Validateable {
      */
     static constraints = {
         apiKey(validator: { String currentKey, DetailAnalysisDashboardCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey, cmd.osmUrl)
+            if (!validApiKey||!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         from(nullable: true, validator: { Date currentFrom, DetailAnalysisDashboardCommand cmd ->

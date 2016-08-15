@@ -12,13 +12,18 @@ class UrlMappings {
         "/"(view:"/index")
         "500"(view:'/error')
         "404"(view:'/notFound')
+
         "/restApi/persistAssetsForWptResult" {
             controller = "RestApi"
-            action = [PUT: "securedViaApiKeyPersistAssetsForWptResult"]
+            action = [POST: "securedViaApiKeyPersistAssetsForWptResult"]
         }
-        "/restApi/showDashboard" {
+        "/restApi/updateMapping" {
             controller = "RestApi"
-            action = [GET: "securedViaApiKeyShowDashboard"]
+            action = [GET: "securedViaApiKeyUpdateMapping"]
+        }
+        "/restApi/updateOsmUrl" {
+            controller = "RestApi"
+            action = [GET: "securedViaApiKeyUpdateOsmUrl"]
         }
     }
 }

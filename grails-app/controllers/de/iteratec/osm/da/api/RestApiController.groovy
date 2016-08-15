@@ -26,6 +26,9 @@ class RestApiController {
         response.status = httpStatus
         render message
     }
+    def test(PersistenceCommand command){
+        sendSimpleResponseAsStream(200,"Added to queue")
+    }
 
     def securedViaApiKeyPersistAssetsForWptResult(PersistenceCommand command){
         if (command.hasErrors()) {
@@ -55,7 +58,15 @@ class RestApiController {
      * @param command
      * @return
      */
-    def updateMapping(MappingCommand command){
+    def securedViaApiKeyUpdateMapping(MappingCommand command){
+        if (command.hasErrors()) {
+            StringWriter sw = new StringWriter()
+            command.errors.getFieldErrors().each { fieldError ->
+                sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
+            }
+            sendSimpleResponseAsStream(400, sw.toString())
+            return
+        }
         OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
         if(command.Browser) mappingService.updateMapping(instance,OsmDomain.Browser, command.Browser)
         if(command.JobGroup) mappingService.updateMapping(instance,OsmDomain.JobGroup, command.JobGroup)
@@ -65,7 +76,15 @@ class RestApiController {
 
     }
 
-    def updateOsmUrl(UrlUpdateCommand command){
+    def securedViaApiKeyUpdateOsmUrl(UrlUpdateCommand command){
+        if (command.hasErrors()) {
+            StringWriter sw = new StringWriter()
+            command.errors.getFieldErrors().each { fieldError ->
+                sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
+            }
+            sendSimpleResponseAsStream(400, sw.toString())
+            return
+        }
         OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
         mappingService.updateOsmUrl(instance, command.newOsmUrl)
         sendSimpleResponseAsStream(200,"Url updated to $command.newOsmUrl")
@@ -75,6 +94,7 @@ class RestApiController {
 }
 
 public class OsmCommand{
+    String apiKey
     String osmUrl
 
     static constraints = {
@@ -87,7 +107,6 @@ public class OsmCommand{
 }
 
 public class PersistenceCommand extends OsmCommand{
-    String apiKey
     String wptVersion
     List<String> wptTestId
     String wptServerBaseUrl
@@ -96,8 +115,8 @@ public class PersistenceCommand extends OsmCommand{
 
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
+            if (!validApiKey || !validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         osmUrl(nullable:false)
@@ -124,6 +143,13 @@ public class PersistenceCommand extends OsmCommand{
 
 public class UrlUpdateCommand extends OsmCommand{
     String newOsmUrl
+    static constraints = {
+        apiKey(validator: { String currentKey, UrlUpdateCommand cmd ->
+            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
+            if (!validApiKey || !validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            else return true
+        })
+    }
 }
 
 public class MappingCommand extends OsmCommand{
@@ -131,7 +157,13 @@ public class MappingCommand extends OsmCommand{
     Map<Long, String> Location
     Map<Long, String> Browser
     Map<Long, String> MeasuredEvent
-
+    static constraints = {
+        apiKey(validator: { String currentKey, MappingCommand cmd ->
+            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
+            if (!validApiKey || !validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            else return true
+        })
+    }
     @Override
     public String toString() {
         return "MappingCommand{" +

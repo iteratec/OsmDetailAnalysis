@@ -1,2 +1,9 @@
 server:
     port: 8081
+grails:
+    de:
+        iteratec:
+            osm:
+                da:
+                    initialApiKey:
+                    initialOsmUrl: http://localhost:8080

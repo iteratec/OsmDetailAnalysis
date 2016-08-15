@@ -10,9 +10,13 @@ class ApiKey {
 
     String secretKey
     String description
+    String osmUrl
     Boolean valid = true
     Boolean allowedToTriggerFetchJobs = false
     Boolean allowedToDisplayResults = false
+    Boolean allowedToUpdateOsmUrl = false
+    Boolean allowedToUpdateMapping = false
+
 
 
     static mapping = {
@@ -22,6 +26,7 @@ class ApiKey {
 
     static constraints = {
         secretKey(nullable: false, blank: false)
+        osmUrl(nullable: false, blank: false)
         description(nullable: true)
         valid(nullable: false)
         allowedToTriggerFetchJobs(nullable: false)
