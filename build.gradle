@@ -115,7 +115,8 @@ task bowerInstall(type: NodeTask) {
 task bowerSyncJavascript(type: Sync) {
     from 'bower_components'
     into "grails-app/assets/javascripts/bower_components"
-    include 'crossfilter/crossfilter.min.js'
+    include 'crossfilter2/crossfilter.min.js'
+    include 'reductio/reductio.min.js'
     include 'dcjs/dc.min.js'
     include 'd3/d3.min.js'
     include 'jquery/jquery.min.js'

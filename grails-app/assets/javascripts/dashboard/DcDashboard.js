@@ -19,12 +19,10 @@ DcDashboard.prototype.clearData = function () {
     dc.redrawAll();
 };
 
-DcDashboard.prototype.addPieChart = function (dashbaordIdentifier, chartIdentifier, dimension, group, labelAccessor) {
-    var chart = dc.pieChart('#' + dashbaordIdentifier + ' #' + chartIdentifier);
+DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifier, dimension, group, labelAccessor) {
+    var chart = dc.pieChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
 
     chart
-        .width(180)
-        .height(180)
         .radius(80)
         .dimension(dimension)
         .group(group)
@@ -41,8 +39,8 @@ DcDashboard.prototype.addPieChart = function (dashbaordIdentifier, chartIdentifi
     return chart
 };
 
-DcDashboard.prototype.addDataCount = function (dashbaordIdentifier, chartIdentifier) {
-  var dataCount =   dc.dataCount('#' + dashbaordIdentifier + ' #' + chartIdentifier);
+DcDashboard.prototype.addDataCount = function (dashboardIdentifier, chartIdentifier) {
+    var dataCount = dc.dataCount('#' + dashboardIdentifier + ' #' + chartIdentifier);
 
     dataCount
         .dimension(this.allData)
@@ -50,7 +48,7 @@ DcDashboard.prototype.addDataCount = function (dashbaordIdentifier, chartIdentif
         .html({
             some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
             ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();\'\'>Reset All</a>',
-            all: 'All records selected. Please click on the graph to apply filters.'
+            all: 'All selected out of <strong>%total-count</strong> records. Please click on the graph to apply filters.'
         });
 
     dc.renderAll();
@@ -58,49 +56,68 @@ DcDashboard.prototype.addDataCount = function (dashbaordIdentifier, chartIdentif
     return dataCount;
 };
 
-DcDashboard.prototype.addSeriesChart = function (dashbaordIdentifier, chartIdentifier, dimension, group, from, to, labelAccessor) {
-    var seriesChart = dc.seriesChart('#' + dashbaordIdentifier + ' #' + chartIdentifier);
-
-    seriesChart
-        .width(1000)
-        .height(400)
-        .transitionDuration(1000)
-        .margins({top: 30, right: 50, bottom: 25, left: 60})
-        .dimension(dimension)
-        .brushOn(false)
-        .x(d3.time.scale().domain([from, to]))
-        .xUnits(d3.time.days)
-        .elasticY(true)
-        .elasticX(true)
-        .renderHorizontalGridLines(true)
-        .legend(dc.legend().x(650).y(250).itemHeight(13).gap(5))
-        .group(group)
-        .seriesAccessor(labelAccessor)
-        .keyAccessor(function (d) {
-            return d.key[0];
-        })
-        .valueAccessor(function (d) {
-            return d.value.val
-        });
-
-    dc.renderAll();
-
-    return seriesChart;
-};
-
-DcDashboard.prototype.addRowChart = function (dashbaordIdentifier, chartIdentifier, dimension, group) {
-    var chart = dc.rowChart('#' + dashbaordIdentifier + ' #' + chartIdentifier);
+DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifier, dimension, group, dataCount, labelAccessor) {
+    var chart = dc.rowChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
 
     chart
         .width(1000)
-        .height(1000)
+        .height(30 * dataCount + 50)
+        .fixedBarHeight(25)
         .x(d3.scale.linear())
         .elasticX(true)
         .dimension(dimension)
         .group(group)
-        .ordering(function(d) { return -d.value });
+        .label(labelAccessor)
+        .ordering(function (d) {
+            return -d.value
+        });
 
     dc.renderAll();
 
     return chart;
+};
+
+DcDashboard.prototype.getCompositeChart = function (dashboardIdentifier, chartIdentifier) {
+    if (!this.compositeChart)
+        this.compositeChart = dc.compositeChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
+
+    return this.compositeChart
+};
+
+DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartIdentifier, from, to, composeArray) {
+    var heightOfContainer = 700,
+        legendHeight = composeArray.length * (13 + 5);
+
+    var chart = this.getCompositeChart(dashboardIdentifier, chartIdentifier);
+
+    chart.margins().bottom = legendHeight + 20;
+
+    chart
+        .width(1200)
+        .height(700 + legendHeight)
+        .brushOn(false)
+        .renderHorizontalGridLines(true)
+        .elasticY(true)
+        .elasticX(true)
+        .legend(dc.legend().x(20).y(700).itemHeight(13).gap(5))
+        .x(d3.time.scale().domain([from, to]))
+        .xUnits(d3.time.days)
+
+        .compose(composeArray);
+
+    dc.renderAll();
+
+    return chart;
+};
+
+
+DcDashboard.prototype.createLineChart = function (parent, dimension, group, color, label, valueAccessor) {
+    return dc.lineChart(parent)
+        .dimension(dimension)
+        .group(group, label)
+        .keyAccessor(function (d) {
+            return d.key[0];
+        })
+        .valueAccessor(valueAccessor)
+        .colors(color);
 };

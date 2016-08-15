@@ -174,4 +174,8 @@ class MappingService {
     Map<Long, String> getPageMappings(long osmID) {
         getOsmMapping(OsmDomain.Page, osmID)
     }
+
+    Map<Long, String> getMeasuredEventMappings(long osmID) {
+        getOsmMapping(OsmDomain.MeasuredEvent, osmID)
+    }
 }
