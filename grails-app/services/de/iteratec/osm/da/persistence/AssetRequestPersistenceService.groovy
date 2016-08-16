@@ -24,14 +24,17 @@ class AssetRequestPersistenceService {
     Document unpackIdProjectionDocument
     MongoClient mongo
     /**
-     * Parses a WptDetailResult and saves all Assets
+     * Parses a WptDetailResult and saves all Assets.
+     * This will only happen if this result is not null and if there are steps within this result.
      * @param result JobResult which belongs to this HAR
      * @param har The HAR which belongs to this JobResult
      */
     public void saveDetailDataForJobResult(WptDetailResult result, FetchJob fetchJob) {
-        List<AssetRequestGroup> assetGroups = wptDetailResultConvertService.convertWPTDetailResultToAssetGroups(result, fetchJob)
-        assetGroups.each {
-            it.save(failOnError: true)
+        if(result?.steps && !result.steps.isEmpty()){
+            List<AssetRequestGroup> assetGroups = wptDetailResultConvertService.convertWPTDetailResultToAssetGroups(result, fetchJob)
+            assetGroups.each {
+                it.save(failOnError: true)
+            }
         }
     }
 
