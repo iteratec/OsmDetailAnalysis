@@ -3,13 +3,11 @@ package de.iteratec.osm.da.wpt
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyBuilder
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
-import grails.transaction.Transactional
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
@@ -108,7 +106,7 @@ class WptDetailResultDownloadService {
      * @return WptDetailResult
      */
     public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
-        WptDetailDataStrategyI strategy = WptDetailDataStrategyBuilder.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
+        WptDetailDataStrategyI strategy = WptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
         return strategy.getResult(fetchJob)
     }
 }

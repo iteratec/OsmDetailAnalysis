@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
  */
 class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
-    HttpRequestService httpRequestService = Holders.grailsApplication.mainContext.getBean(HttpRequestService)
+    HttpRequestService httpRequestService
     static WPTVersion minimumVersion = WPTVersion.get("2.19")
 
     @Override

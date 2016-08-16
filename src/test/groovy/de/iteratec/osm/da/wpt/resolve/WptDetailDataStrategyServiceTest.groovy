@@ -1,18 +1,22 @@
 package de.iteratec.osm.da.wpt.resolve
 
+import de.iteratec.osm.da.wpt.WptDetailDataStrategyService
 import de.iteratec.osm.da.wpt.data.WPTVersion
+import grails.test.mixin.TestFor
+import grails.util.Holders
 import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-class WptDetailDataStrategyBuilderTest extends Specification {
+@TestFor(WptDetailDataStrategyService)
+class WptDetailDataStrategyServiceTest extends Specification {
 
     @Unroll
     def "get only compatible strategies"() {
         expect:
-        WptDetailDataStrategyBuilder.getStrategyForVersion(getVersion).compatibleWithVersion(actualTestVersion) == truth
+        service.getStrategyForVersion(getVersion).compatibleWithVersion(actualTestVersion) == truth
 
         where:
         getVersion              | actualTestVersion      || truth
