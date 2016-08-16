@@ -191,7 +191,7 @@ class MappingServiceTest extends Specification {
         OsmInstance instance = createInstance()
 
         when:
-        Map browserMappings = service.getBrowserMappings(instance.id)
+        Map browserMappings = service.getBrowserMappings(instance)
 
         then:
         browserMappings.size() == 2
@@ -204,7 +204,7 @@ class MappingServiceTest extends Specification {
         OsmInstance instance = createInstance()
 
         when:
-        Map browserMappings = service.getJobMappings(instance.id)
+        Map browserMappings = service.getJobMappings(instance)
 
         then:
         browserMappings.size() == 2

@@ -102,7 +102,7 @@ class MappingService {
      * @return
      */
     String getMappingEntryFromOsm(Long osmId, OsmDomain domain, long id){
-        return getOsmMapping(domain, osmId)."$id"
+        return getOsmMapping(domain, OsmInstance.get(osmId))."$id"
     }
 
     String getNameForBrowserId(long osmId, long id){
