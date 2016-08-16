@@ -62,7 +62,9 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
     static private Step createStep(def stepInJason){
         Step step = new Step()
-        step.docTime = stepInJason.docTime
+        step.domTime = stepInJason.docTime
+        step.loadTime = stepInJason.loadTime
+        step.fullyLoaded = stepInJason.fullyLoaded
         step.run = stepInJason.run
         step.stepNumber = stepInJason.step
         step.eventName = stepInJason.eventName

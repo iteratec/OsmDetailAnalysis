@@ -51,8 +51,7 @@ class AssetRequestPersistenceService {
             Integer packetloss,
             List<Long> measuredEvents,
             boolean selectedAllMeasuredEvents
-    ) {
-        //TODO implement connectivity check
+    ){
         List aggregateList = []
         List matchList = []
         def db = mongo.getDatabase("OsmDetailAnalysis")

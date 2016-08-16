@@ -32,6 +32,7 @@ class WptDetailResultDownloadService {
     boolean workerShouldRun = false
 
     AssetRequestPersistenceService assetRequestPersistenceService
+    WptDetailDataStrategyService wptDetailDataStrategyService
     int queueMaximumInMemory = 100
     final ConcurrentLinkedQueue<FetchJob> queue = new ConcurrentLinkedQueue<>()
     final HashSet<FetchJob> inProgress = []
@@ -106,7 +107,7 @@ class WptDetailResultDownloadService {
      * @return WptDetailResult
      */
     public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
-        WptDetailDataStrategyI strategy = WptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
+        WptDetailDataStrategyI strategy = wptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
         return strategy.getResult(fetchJob)
     }
 }

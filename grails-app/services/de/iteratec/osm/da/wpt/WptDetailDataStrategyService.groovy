@@ -17,13 +17,14 @@ class WptDetailDataStrategyService {
      * Maps WptVersions to the correct Strategy. If a Version wasn't found in the map, we will look in our strategy List for the correct strategy.
      */
     Map<WPTVersion, WptDetailDataStrategyI> cache = [:].withDefault {findStrategy(it)}
-    List<WptDetailDataStrategyI> strategies = [new WptDetailDataDefaultStrategy(httpRequestService: httpRequestService), new WptDetailDataOldStrategy()]
+    List<WptDetailDataStrategyI> strategies
 
     WptDetailDataStrategyI getStrategyForVersion(WPTVersion version){
         return cache[version]
     }
 
     private WptDetailDataStrategyI findStrategy(WPTVersion version){
+        if(!strategies) strategies = [new WptDetailDataDefaultStrategy(httpRequestService: httpRequestService), new WptDetailDataOldStrategy()]
         return strategies.find{it.compatibleWithVersion(version)}
     }
 }
