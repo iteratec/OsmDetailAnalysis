@@ -45,7 +45,7 @@ class WptDetailResult {
     void markMedianRuns(){
          steps.groupBy {it.stepNumber}.each {int stepNumber,List<Step> steps ->
              int medianPlace = Math.ceil(steps.size()/2) -1 as Integer
-             steps.sort{it.docTime}
+             steps.sort{it.domTime}
              steps[medianPlace].isMedian = true
         }
     }

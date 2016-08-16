@@ -34,7 +34,7 @@ class TestDataUtil {
         result.wptTestID = fetchJob.wptTestId[0]
 
         List<Step> steps = []
-        def step = new Step(run: 1, stepNumber: 1, docTime: 900, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
+        def step = new Step(run: 1, stepNumber: 1, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true, domTime: 900, loadTime: 1000, fullyLoaded: 3000)
         List<Request> requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -45,7 +45,7 @@ class TestDataUtil {
         step.requests = requests
         steps << step
 
-        step = new Step(run: 1, stepNumber: 2, docTime: 900, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true)
+        step = new Step(run: 1, stepNumber: 2, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true, domTime: 900, loadTime: 1000, fullyLoaded: 3000)
         requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/path/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -59,7 +59,7 @@ class TestDataUtil {
         step.requests = requests
         steps << step
 
-        step = new Step(run: 2, stepNumber: 1, docTime: 1000, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
+        step = new Step(run: 2, stepNumber: 1, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true, domTime: 1000, loadTime: 1100, fullyLoaded: 3000)
         requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -70,7 +70,7 @@ class TestDataUtil {
         step.requests = requests
         steps << step
 
-        step = new Step(run: 2, stepNumber: 2, docTime: 1000, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true)
+        step = new Step(run: 2, stepNumber: 2, url: "http://openspeedmonitor.org/path", eventName: "osm", isFirstView: true, domTime: 1000, loadTime: 1100, fullyLoaded: 3000)
         requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/path/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
@@ -88,8 +88,8 @@ class TestDataUtil {
         return result
     }
 
-    static Step createStep(int docTime, int stepNumber, int run){
-        def step = new Step(run: run, stepNumber: stepNumber, docTime: docTime, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true)
+    static Step createStep(int domTime, int stepNumber, int run){
+        def step = new Step(run: run, stepNumber: stepNumber, url: "http://openspeedmonitor.org", eventName: "osm", isFirstView: true, domTime: domTime, loadTime: 1000, fullyLoaded: 3000)
         List<Request> requests = []
         requests << new Request(host: "openspeedmonitor.org",url: "/index.html", loadMs: 300, connectTimeMs: 30,
                 downloadMs: 100,ttfbMs: 70,loadStart: 10,bytesIn: 100,bytesOut: 10,sslNegotiationTimeMs: 0,
