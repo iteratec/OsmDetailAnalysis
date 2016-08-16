@@ -12,12 +12,8 @@ class FetchJob {
     long jobId
     long jobGroupId
     String wptBaseURL
-    //List of all tests which should be persisted
     String wptTestId
     String wptVersion
-
-    static embedded = ['wptTestId']
-    static transients = ['currentId']
 
     static constraints = {
     }

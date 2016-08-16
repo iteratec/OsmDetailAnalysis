@@ -33,7 +33,7 @@ class WptDetailResultDownloadService {
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
-    int queueMaximumInMemory = 100
+    int queueMaximumInMemory = 4
     final ConcurrentLinkedQueue<FetchJob> queue = new ConcurrentLinkedQueue<>()
     final HashSet<FetchJob> inProgress = []
     /**
@@ -58,7 +58,6 @@ class WptDetailResultDownloadService {
      */
     void startWorker() {
         if (!workerShouldRun) {
-            println "starting worker"
             workerShouldRun = true
             NUMBER_OF_WORKERS.times {
                 executor.execute(new WptDownloadWorker(this))
@@ -108,6 +107,10 @@ class WptDetailResultDownloadService {
      */
     public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
         WptDetailDataStrategyI strategy = wptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
+        if(!strategy){
+            log.error("No strategy for WPT-Version $fetchJob.wptVersion is supported")
+            return null
+        }
         return strategy.getResult(fetchJob)
     }
 }
