@@ -1,14 +1,28 @@
 var DcDashboard = function DcDashboard() {
     // init crossfilter
     this.allData = crossfilter([]);
+    this.dashboardWidth = 940;
+    this.allDashboardGraphs = [];
+};
+
+DcDashboard.prototype.setDashboardWidth = function (width) {
+    this.dashboardWidth = width
 };
 
 DcDashboard.prototype.addData = function (data) {
+    var minDate, maxDate;
     // Parse data at beginning for better performance
     data.forEach(function (d) {
         d.date = new Date(d.epochTimeStarted * 1000);
+        if (!minDate || d.date < minDate) {
+            minDate = d.date;
+        }
+        if (!maxDate || d.date > maxDate) {
+            maxDate = d.date;
+        }
     });
 
+    this.setLineChartDomain('dcChart', 'line-chart', minDate, maxDate);
     this.allData.add(data);
     dc.redrawAll();
 };
@@ -23,7 +37,7 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
     var chart = dc.pieChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
 
     chart
-        .radius(80)
+        .radius(90)
         .dimension(dimension)
         .group(group)
         .label(labelAccessor)
@@ -36,6 +50,7 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
 
     dc.renderAll();
 
+    this.allDashboardGraphs.push(chart);
     return chart
 };
 
@@ -60,7 +75,7 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
     var chart = dc.rowChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
 
     chart
-        .width(1000)
+        .width(this.dashboardWidth)
         .height(30 * dataCount + 50)
         .fixedBarHeight(25)
         .x(d3.scale.linear())
@@ -74,6 +89,7 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
 
     dc.renderAll();
 
+    this.allDashboardGraphs.push(chart);
     return chart;
 };
 
@@ -84,40 +100,53 @@ DcDashboard.prototype.getCompositeChart = function (dashboardIdentifier, chartId
     return this.compositeChart
 };
 
-DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartIdentifier, from, to, composeArray) {
-    var heightOfContainer = 700,
-        legendHeight = composeArray.length * (13 + 5);
+DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartIdentifier, from, to, dataCount) {
+    var legendHeight = dataCount * (13 + 5);
 
     var chart = this.getCompositeChart(dashboardIdentifier, chartIdentifier);
 
     chart.margins().bottom = legendHeight + 20;
+    chart.margins().left = 40;
 
     chart
-        .width(1200)
+        .width(this.dashboardWidth)
         .height(700 + legendHeight)
         .brushOn(false)
         .renderHorizontalGridLines(true)
         .elasticY(true)
-        .elasticX(true)
         .legend(dc.legend().x(20).y(700).itemHeight(13).gap(5))
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
-
-        .compose(composeArray);
+        .compose([]);
 
     dc.renderAll();
 
+    this.allDashboardGraphs.push(chart);
     return chart;
+};
+
+DcDashboard.prototype.setLineChartDomain = function (dashboardIdentifier, chartIdentifier, from, to) {
+    this.getCompositeChart(dashboardIdentifier, chartIdentifier).x(d3.time.scale().domain([from, to]))
 };
 
 
 DcDashboard.prototype.createLineChart = function (parent, dimension, group, color, label, valueAccessor) {
-    return dc.lineChart(parent)
+    var chart = dc.lineChart(parent)
         .dimension(dimension)
         .group(group, label)
         .keyAccessor(function (d) {
             return d.key[0];
         })
         .valueAccessor(valueAccessor)
+        .renderDataPoints({radius: 2, fillOpacity: 0.6, strokeOpacity: 0.8})
         .colors(color);
+
+    this.allDashboardGraphs.push(chart);
+    return chart;
+};
+
+DcDashboard.prototype.setAnimationTime = function (time) {
+    for(var i = 0; i < this.allDashboardGraphs.length; i++) {
+        this.allDashboardGraphs[i].transitionDuration(time);
+    }
 };

@@ -3,10 +3,15 @@
 function createDashboard(data, labels, from, to) {
     board = new DcDashboard();
 
+    // Set dashboard width same as div width
+    var width = $(".dashboardContainer").css("width").replace("px", "");
+    board.setDashboardWidth(+width);
+
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
 
+    // BROWSER FILTER
     if (dataCounts['browser'] > 1) {
         var browser = board.allData.dimension(function (d) {
             return "" + d['browser'];
@@ -20,6 +25,7 @@ function createDashboard(data, labels, from, to) {
         board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
     }
 
+    // MEDIATYPE FILTER
     if (dataCounts['mediaType'] > 1) {
         var mediaType = board.allData.dimension(function (d) {
             return "" + d['mediaType'];
@@ -33,6 +39,7 @@ function createDashboard(data, labels, from, to) {
         board.addPieChart('dcChart', 'mediaType-chart', mediaType, mediaTypeGroup, mediaTypeLabelAccessor);
     }
 
+    // SUBTYPE FILTER
     if (dataCounts['subtype'] > 1) {
         var subtype = board.allData.dimension(function (d) {
             return "" + d['subtype'];
@@ -46,6 +53,7 @@ function createDashboard(data, labels, from, to) {
         board.addPieChart('dcChart', 'subtype-chart', subtype, subtypeGroup, subtypeLabelAccessor);
     }
 
+    // PAGE FILTER
     if (dataCounts['page'] > 1) {
         var page = board.allData.dimension(function (d) {
             return "" + d['page'];
@@ -59,6 +67,7 @@ function createDashboard(data, labels, from, to) {
         board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
     }
 
+    // MEASURED EVENT FILTER
     if (dataCounts['measuredEvent'] > 1) {
         var measuredEvent = board.allData.dimension(function (d) {
             return "" + d['measuredEvent'];
@@ -67,11 +76,15 @@ function createDashboard(data, labels, from, to) {
             return d['count'];
         });
         var measuredEventLabelAccessor = function (d) {
+            if (d.key < 0) {
+                return "undefined"
+            }
             return labels['measuredEvent'] ? labels['measuredEvent'][d.key] : "" + d.key
         };
         board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
     }
 
+    // HOST FILTER
     if (dataCounts['host'] > 1) {
         var host = board.allData.dimension(function (d) {
             return "" + d['host'];
@@ -85,105 +98,187 @@ function createDashboard(data, labels, from, to) {
         board.addRowChart('dcChart', 'host-chart', host, hostGroup, dataCounts['host'], hostLabelAccessor);
     }
 
+    // Show count of selected data
     board.addDataCount('dcChart', 'dc-data-count');
 
-    var seriesChartDimension = board.allData.dimension(function (d) {
+    // ### BEGIN LINE CHARTS
+    var jobId_Date_Dimension = board.allData.dimension(function (d) {
         return [d.date, d.jobId];
     });
 
-    var loadTimeGroup_avg = seriesChartDimension.group().reduce(
+    var loadTime_ttfb_avg = jobId_Date_Dimension.group().reduce(
         //add
         function (p, v) {
             p.count += v['count'];
-            p.sum += v['loadTimeMs_avg'] * v['count'];
-            p.val = p.count ? d3.round((p.sum / p.count), 2) : 0;
+            p.loadTimeSum += v['loadTimeMs_avg'] * v['count'];
+            p.loadTimeAvg = p.count ? d3.round((p.loadTimeSum / p.count), 2) : 0;
+            p.ttfbSum += v['ttfb_avg'] * v['count'];
+            p.ttfbAvg = p.count ? d3.round((p.ttfbSum / p.count), 2) : 0;
             return p;
         },
         //remove
         function (p, v) {
             p.count -= v['count'];
-            p.sum -= v['loadTimeMs_avg'] * v['count'];
-            p.val = p.count ? d3.round((p.sum / p.count), 2) : 0;
+            p.loadTimeSum -= v['loadTimeMs_avg'] * v['count'];
+            p.loadTimeAvg = p.count ? d3.round((p.loadTimeSum / p.count), 2) : 0;
+            p.ttfbSum -= v['ttfb_avg'] * v['count'];
+            p.ttfbAvg = p.count ? d3.round((p.ttfbSum / p.count), 2) : 0;
             return p;
         },
         //init
         function (p, v) {
             return {
                 count: 0,
-                val: 0,
-                sum: 0
+                loadTimeAvg: 0,
+                loadTimeSum: 0,
+                ttfbAvg: 0,
+                ttfbSum: 0
             };
         });
 
+    // Accessors for reductio min and max
+    var minValueAccessor = function (d) {
+        if (d.value.min)
+            return d.value.min;
+        else
+            return null;
+    };
+    var maxValueAccessor = function (d) {
+        if (d.value.max)
+            return d.value.max;
+        else
+            return null;
+    };
+
     var loadTimeGroup_min = reductio().min(function (d) {
         return +d['loadTimeMs_min']
-    })(seriesChartDimension.group());
-
+    })(jobId_Date_Dimension.group());
     var loadTimeGroup_max = reductio().max(function (d) {
         return +d['loadTimeMs_max']
-    })(seriesChartDimension.group());
+    })(jobId_Date_Dimension.group());
+    var ttfbGroup_min = reductio().min(function (d) {
+        return +d['ttfb_min']
+    })(jobId_Date_Dimension.group());
+    var ttfbGroup_max = reductio().max(function (d) {
+        return +d['ttfb_max']
+    })(jobId_Date_Dimension.group());
 
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
 
-    var composeArray = [];
+    var allGraphsByJobId = {};
 
     var colorScale = d3.scale.category20c();
 
     for (var j = 0; j < jobs.length; j++) {
-        // avg graph
-        var dimension = seriesChartDimension;
-        var group = filterJobGroup(loadTimeGroup_avg, jobs[j]);
-        var color = colorScale(jobs[j] + "avg");
-        var label = (labels['job'] ? labels['job'][jobs[j]] : jobs[j]) + " | LoadTimeMs Avg";
-        var valueAccessor = function (d) {
-            return d.value.val;
+        var currentJobId = jobs[j];
+        allGraphsByJobId[currentJobId] = {};
+        // avg graph loadTime
+        var loadTimeAvg_valueAccessor = function (d) {
+            return d.value.loadTimeAvg;
         };
-        var lineChart_avg = board.createLineChart(composite, dimension, group, color, label, valueAccessor);
+        var loadTimeAvg_group = remove_empty_bins(filterJobGroup(loadTime_ttfb_avg, currentJobId), loadTimeAvg_valueAccessor);
+        var loadTimeAvg_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | LoadTimeMs Avg";
+        var lineChart_loadTime_avg = board.createLineChart(composite, jobId_Date_Dimension, loadTimeAvg_group, colorScale(loadTimeAvg_label), loadTimeAvg_label, loadTimeAvg_valueAccessor);
 
-        composeArray.push(lineChart_avg);
-
-        // min graph
-        var dimension = seriesChartDimension;
-        var group = filterJobGroup(loadTimeGroup_min, jobs[j]);
-        var color = colorScale(jobs[j] + "min");
-        var label = (labels['job'] ? labels['job'][jobs[j]] : jobs[j]) + " | LoadTimeMs Min";
-        var valueAccessor = function (d) {
-            if (d.value.min)
-                return d.value.min;
-            else
-                return null;
+        // avg graph ttfb
+        var ttfbAvg_valueAccessor = function (d) {
+            return d.value.ttfbAvg;
         };
-        var lineChart_min = board.createLineChart(composite, dimension, group, color, label, valueAccessor);
+        var ttfbAvg_group = remove_empty_bins(filterJobGroup(loadTime_ttfb_avg, currentJobId), ttfbAvg_valueAccessor);
+        var ttfbAvg_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | TTFB Avg";
+        var lineChart_ttfb_avg = board.createLineChart(composite, jobId_Date_Dimension, ttfbAvg_group, colorScale(ttfbAvg_label), ttfbAvg_label, ttfbAvg_valueAccessor);
 
-        composeArray.push(lineChart_min);
+        // min graph loadTime
+        var minGroup = remove_empty_bins(filterJobGroup(loadTimeGroup_min, currentJobId), minValueAccessor);
+        var loadTimeMin_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | LoadTimeMs Min";
+        var lineChart_loadTime_min = board.createLineChart(composite, jobId_Date_Dimension, minGroup, colorScale(loadTimeMin_label), loadTimeMin_label, minValueAccessor);
 
-        // max graph
-        var dimension = seriesChartDimension;
-        var group = filterJobGroup(loadTimeGroup_max, jobs[j]);
-        var color = colorScale(jobs[j] + "max");
-        var label = (labels['job'] ? labels['job'][jobs[j]] : jobs[j]) + " | LoadTimeMs Max";
-        var valueAccessor = function (d) {
-            if (d.value.max)
-                return d.value.max;
-            else
-                return null;
-        };
-        var lineChart_max = board.createLineChart(composite, dimension, group, color, label, valueAccessor);
+        // min graph ttfb
+        var minGroup = remove_empty_bins(filterJobGroup(ttfbGroup_min, currentJobId), minValueAccessor);
+        var ttfbMin_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | TTFB Min";
+        var lineChart_ttfb_min = board.createLineChart(composite, jobId_Date_Dimension, minGroup, colorScale(ttfbMin_label), ttfbMin_label, minValueAccessor);
 
-        composeArray.push(lineChart_max);
+        // max graph loadTime
+        var maxGroup = remove_empty_bins(filterJobGroup(loadTimeGroup_max, currentJobId), maxValueAccessor);
+        var loadTimeMax_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | LoadTimeMs Max";
+        var lineChart_loadTime_max = board.createLineChart(composite, jobId_Date_Dimension, maxGroup, colorScale(loadTimeMax_label), loadTimeMax_label, maxValueAccessor);
+
+        // max graph ttfb
+        var maxGroup = remove_empty_bins(filterJobGroup(ttfbGroup_max, currentJobId), maxValueAccessor);
+        var ttfbMax_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | TTFB Max";
+        var lineChart_ttfb_max = board.createLineChart(composite, jobId_Date_Dimension, maxGroup, colorScale(ttfbMax_label), ttfbMax_label, maxValueAccessor);
+
+        // Add all graphs for this job
+        allGraphsByJobId[currentJobId]['loadTimeAvg'] = lineChart_loadTime_avg;
+        allGraphsByJobId[currentJobId]['loadTimeMin'] = lineChart_loadTime_min;
+        allGraphsByJobId[currentJobId]['loadTimeMax'] = lineChart_loadTime_max;
+        allGraphsByJobId[currentJobId]['ttfbAvg'] = lineChart_ttfb_avg;
+        allGraphsByJobId[currentJobId]['ttfbMin'] = lineChart_ttfb_min;
+        allGraphsByJobId[currentJobId]['ttfbMax'] = lineChart_ttfb_max;
     }
 
-    board.addCompositeChart('dcChart', 'line-chart', from, to, composeArray);
+    // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
+    board.addCompositeChart('dcChart', 'line-chart', from, to, jobs.length * 6);
+    redrawCompositeChart();
 
+    // ### END LINE CHARTS
 
+    // Add data to dashboard
     var p1 = new Promise(
         function (resolve, reject) {
             board.addData(data);
         }
     );
+
+    // Add onClick Listener
+    $(document).on('change', 'input:checkbox[name="measurementCheckbox"]', function (event) {
+        redrawCompositeChart();
+    });
+
+    function redrawCompositeChart() {
+        board.setAnimationTime(0);
+
+        var visibleGraphs = [];
+
+        var showAvg = document.getElementById("avg").checked;
+        var showMax = document.getElementById("max").checked;
+        var showMin = document.getElementById("min").checked;
+
+        for (var j = 0; j < jobs.length; j++) {
+            var jobGraphs = allGraphsByJobId[jobs[j]];
+            if (document.getElementById("loadTimeMs").checked) {
+                if (showAvg)
+                    visibleGraphs.push(jobGraphs['loadTimeAvg']);
+                if (showMin)
+                    visibleGraphs.push(jobGraphs['loadTimeMin']);
+                if (showMax)
+                    visibleGraphs.push(jobGraphs['loadTimeMax']);
+            }
+            if (document.getElementById("ttfb").checked) {
+                if (showAvg)
+                    visibleGraphs.push(jobGraphs['ttfbAvg']);
+                if (showMin)
+                    visibleGraphs.push(jobGraphs['ttfbMin']);
+                if (showMax)
+                    visibleGraphs.push(jobGraphs['ttfbMax']);
+            }
+        }
+
+        board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);
+        dc.renderAll();
+
+        board.setAnimationTime(700);
+    }
 }
 
+/**
+ * For values with only one item there is no need for a hole dimension.
+ * Instead there is a message shown.
+ * @param dataCounts
+ * @param data
+ * @param labels
+ */
 function showUniqueValues(dataCounts, data, labels) {
     var uniqueValues = {};
 
@@ -203,6 +298,11 @@ function showUniqueValues(dataCounts, data, labels) {
     }
 }
 
+/**
+ * Counts the quantity of the different types.
+ * @param data
+ * @returns {{}}
+ */
 function getDataCounts(data) {
     var result = {};
 
@@ -240,6 +340,11 @@ function getDataCounts(data) {
     return result;
 }
 
+/**
+ * Returns a list of unique jobs
+ * @param data
+ * @returns {Array}
+ */
 function getJobs(data) {
     var result = [];
     for (var i = 0; i < data.length; i++) {
@@ -251,6 +356,13 @@ function getJobs(data) {
     return result;
 }
 
+/**
+ * A fake group which contains only data for the given job group
+ * @see https://github.com/dc-js/dc.js/wiki/FAQ#fake-groups
+ * @param source_group
+ * @param jobId
+ * @returns {{all: all, top: top}}
+ */
 function filterJobGroup(source_group, jobId) {
     function jobIdFilter(d) {
         return d.key[1] == jobId;
@@ -265,6 +377,22 @@ function filterJobGroup(source_group, jobId) {
             return source_group.top(Infinity)
                 .filter(jobIdFilter)
                 .slice(0, n);
+        }
+    };
+}
+
+/**
+ * Creates a new fake group which contains only existing data points
+ * @see https://github.com/dc-js/dc.js/wiki/FAQ#fake-groups
+ * @param source_group
+ * @returns {{all: all}}
+ */
+function remove_empty_bins(source_group, valueAccessor) {
+    return {
+        all: function () {
+            return source_group.all().filter(function (d) {
+                return valueAccessor(d) !== null && valueAccessor(d) != 0;
+            });
         }
     };
 }

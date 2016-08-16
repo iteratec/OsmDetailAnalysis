@@ -18,10 +18,12 @@
     .dc-chart g.row text {
         fill: black;
     }
-        #dashboardContainer{
-            margin: 0 auto;
-            width: 1000px;
-        }
+
+    .dashboardContainer {
+        margin: 0 auto;
+        width: 1000px;
+    }
+
     </style>
 
 </head>
