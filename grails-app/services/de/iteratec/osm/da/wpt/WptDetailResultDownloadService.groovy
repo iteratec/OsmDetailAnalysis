@@ -9,6 +9,7 @@ import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
 
+import javax.persistence.criteria.Fetch
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -30,14 +31,30 @@ class WptDetailResultDownloadService {
      * It used to determine if the worker should be cancelled
      */
     boolean workerShouldRun = false
+    /**
+     * Maximum tries a FetchJob should get, until it will be ignored
+     */
+    int maxTryCount = 3
+    /**
+     * Maximum FetchJob which should be cached in queue.
+     */
+    int queueMaximumInMemory = 100
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
-    int queueMaximumInMemory = 4
+
+    /**
+     * This List will cache FetchJobs and will be used from WptQueueDownloadWorker to get new Jobs to fetch.
+     * WptQueueFillWorker will fill this queue from the database in background.
+     */
     final ConcurrentLinkedQueue<FetchJob> queue = new ConcurrentLinkedQueue<>()
+    /**
+     * Every worker will take a FetchJob from the queue. If this happens we have to note that in this list,
+     * so the WptFillQueFillWorker will know that this FetchJob is still in progress and should't be added to queue again.
+     */
     final HashSet<FetchJob> inProgress = []
     /**
-     * We ned one additional worker to refill the queue. Otherwise every thread has to check if the queue should be refilled.
+     * This pool is used for multiple WptDownloadWorker to download WPTResults. We add one additional Thread to fill the queue.
      */
     ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1)
 
@@ -88,11 +105,31 @@ class WptDetailResultDownloadService {
         }
     }
 
+    /**
+     * Marks a job as failed and removes it from progress
+     * @param job
+     */
+    public void markJobAsFailed(FetchJob job){
+        if(job){
+            job.tryCount++
+            job.lastTryEpochTime = new Date().getTime()/1000
+            job.save(flush:true)
+            inProgress.remove(job)
+        }
+    }
+
+    /**
+     * Deletes a job and removes it from progress
+     * @param job
+     */
     public void deleteJob(FetchJob job) {
         job.delete(flush: true)
         inProgress.remove(job)
     }
-
+    /**
+     * Retrievs a job from the qeue and adds it to progress
+     * @return
+     */
     public synchronized FetchJob getNextJob() {
         FetchJob currentJob = queue.poll()
         if (currentJob) inProgress << currentJob

@@ -14,6 +14,8 @@ class FetchJob {
     String wptBaseURL
     String wptTestId
     String wptVersion
+    int tryCount
+    long lastTryEpochTime
 
     static constraints = {
     }
