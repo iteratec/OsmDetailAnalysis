@@ -91,14 +91,21 @@ class WptDetailResultDownloadService {
      * @param wptTestId
      * @param wptVersion
      */
-    public void addToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion) {
+    public synchronized void addToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion) {
         wptTestIds.each {String wptTestId ->
-            if(!AssetRequestGroup.findAllByWptBaseUrlAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)) {
-                FetchJob fetchJob = new FetchJob(osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                        wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
-                synchronized (queue) {
-                    if (queue.size() < queueMaximumInMemory) {
-                        queue.offer(fetchJob)
+            //if we find at least one FetchJobs we can just ignore this add. Otherwise we must also check for an AssetRequestGroup
+            def existingFetchJob = FetchJob.findByWptBaseURLAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)
+            if(!existingFetchJob){
+                //If we find at least one AssetRequestGroup with the same parameters we know that this Job was already executed
+                def existingAssetRequestGroup = AssetRequestGroup.findByWptBaseUrlAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)
+                if(!existingAssetRequestGroup){
+                    //We can safely add the job to the queue
+                    FetchJob fetchJob = new FetchJob(osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+                            wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
+                    synchronized (queue) {
+                        if (queue.size() < queueMaximumInMemory) {
+                            queue.offer(fetchJob)
+                        }
                     }
                 }
             }
