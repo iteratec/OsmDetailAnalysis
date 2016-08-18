@@ -1,6 +1,6 @@
 <div id="dcChart">
     %{--Needed for OSM integration--}%
-    <link rel="stylesheet" type="text/css" href="${serverUrl}/assets/bower_components/dcjs/dc.css">
+    <link rel="stylesheet" type="text/css" href="${serverBaseUrl}/assets/bower_components/dcjs/dc.css">
     <div>
         <h3>Detail Dashboard</h3>
 
