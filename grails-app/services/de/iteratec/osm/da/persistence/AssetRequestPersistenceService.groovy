@@ -78,8 +78,13 @@ class AssetRequestPersistenceService {
         aggregateList << match(and(matchList)) //filter out unwanted assets
         aggregateList << unwind("\$assets") // return one document for each asset in the asset group
         aggregateList << project(createPreFilterProjectDocument()) //filter out unwanted fields and flatten hierarchy
-        aggregateList << group(['jobId'           : '\$jobId', 'mediaType': '\$mediaType', 'browser': '\$browser', 'subtype': '\$subtype',
-                                'epochTimeStarted': '\$epochTimeStarted', measuredEvent: '\$measuredEvent',
+        aggregateList << group(['jobId'           : '\$jobId',
+                                'jobGroup'        : '\$jobGroup',
+                                'mediaType'       : '\$mediaType',
+                                'browser'         : '\$browser',
+                                'subtype'         : '\$subtype',
+                                'epochTimeStarted': '\$epochTimeStarted',
+                                measuredEvent     : '\$measuredEvent',
                                 host              : '\$host', page: '\$page',] as BasicDBObject, //aggregate the assets by dimension
                                 avg('loadTimeMs_avg', '\$loadTimeMs'), //add average load time
                                 min('loadTimeMs_min', '\$loadTimeMs'), //add min load time
@@ -103,6 +108,7 @@ class AssetRequestPersistenceService {
                             {browser:'\$browser',
                              epochTimeStarted:'\$epochTimeStarted',
                              jobId: '\$jobId',
+                             jobGroup: '\$jobGroup'
                              mediaType:'\$mediaType',
                              subtype:'\$assets.subtype',
                              loadTimeMs:'\$assets.loadTimeMs',
@@ -120,6 +126,7 @@ class AssetRequestPersistenceService {
                             {
                             _id:0
                             jobId:'\$_id.jobId',
+                            jobGroup:'\$_id.jobGroup',
                             mediaType:'\$_id.mediaType',
                             browser:'\$_id.browser',
                             subtype:'\$_id.subtype',

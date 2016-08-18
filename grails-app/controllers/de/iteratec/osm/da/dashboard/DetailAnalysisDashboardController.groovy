@@ -116,6 +116,7 @@ class DetailAnalysisDashboardController {
         labelAliases['job'] = mappingService.getJobMappings(osmInstance)
         labelAliases['page'] = mappingService.getPageMappings(osmInstance)
         labelAliases['measuredEvent'] = mappingService.getMeasuredEventMappings(osmInstance)
+        labelAliases['jobGroup'] = mappingService.getJobGroupMappings(osmInstance)
 
         labelAliases = labelAliases as JSON
 

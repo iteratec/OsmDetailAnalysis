@@ -177,4 +177,8 @@ class MappingService {
     Map<Long, String> getMeasuredEventMappings(OsmInstance osmInstance) {
         getOsmMapping(OsmDomain.MeasuredEvent, osmInstance)
     }
+
+    Map<Long, String> getJobGroupMappings(OsmInstance osmInstance) {
+        getOsmMapping(OsmDomain.JobGroup, osmInstance)
+    }
 }

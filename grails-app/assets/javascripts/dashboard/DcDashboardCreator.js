@@ -2,7 +2,6 @@
 
 function createDashboard(data, labels, from, to) {
     board = new DcDashboard();
-
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
     board.setDashboardWidth(+width);
@@ -67,6 +66,23 @@ function createDashboard(data, labels, from, to) {
         board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
     }
 
+    //JOBGROUP FILTER
+    if (dataCounts['jobGroup'] > 1){
+        var jobGroup = board.allData.dimension(function (d) {
+            return "" + d['jobGroup']
+        });
+        var jobGroupGroup = jobGroup.group().reduceSum(function (d) {
+            return d['count'];
+        });
+        var jobGroupLabelAccessor = function (d) {
+            if (d.key < 0) {
+                return "undefined"
+            }
+            return labels['jobGroup'] ? labels['jobGroup'][d.key] : "" + d.key
+        };
+        board.addPieChart('dcChart', 'jobGroup-chart', jobGroup, jobGroupGroup, jobGroupLabelAccessor)
+    }
+
     // MEASURED EVENT FILTER
     if (dataCounts['measuredEvent'] > 1) {
         var measuredEvent = board.allData.dimension(function (d) {
@@ -97,6 +113,7 @@ function createDashboard(data, labels, from, to) {
         };
         board.addRowChart('dcChart', 'host-chart', host, hostGroup, dataCounts['host'], hostLabelAccessor);
     }
+
 
     // Show count of selected data
     board.addDataCount('dcChart', 'dc-data-count');
@@ -237,7 +254,7 @@ function createDashboard(data, labels, from, to) {
     });
 
     function redrawCompositeChart() {
-        board.setAnimationTime(0);
+        board.setAnimationTime(500);
 
         var visibleGraphs = [];
 
@@ -306,7 +323,7 @@ function showUniqueValues(dataCounts, data, labels) {
 function getDataCounts(data) {
     var result = {};
 
-    var uniqueMap = {'browser': [], 'mediaType': [], 'subtype': [], 'host': [], 'page': [], 'measuredEvent': []};
+    var uniqueMap = {'browser': [], 'mediaType': [], 'subtype': [], 'host': [], 'page': [], 'measuredEvent': [], 'jobGroup': []};
     for (var i = 0; i < data.length; i++) {
         var datum = data[i];
 
@@ -328,6 +345,9 @@ function getDataCounts(data) {
         if (uniqueMap['measuredEvent'].indexOf(datum['measuredEvent']) < 0) {
             uniqueMap['measuredEvent'].push(datum['measuredEvent'])
         }
+        if (uniqueMap['jobGroup'].indexOf(datum['jobGroup']) < 0) {
+            uniqueMap['jobGroup'].push(datum['jobGroup'])
+        }
     }
 
     result['browser'] = uniqueMap['browser'].length;
@@ -336,6 +356,7 @@ function getDataCounts(data) {
     result['host'] = uniqueMap['host'].length;
     result['page'] = uniqueMap['page'].length;
     result['measuredEvent'] = uniqueMap['measuredEvent'].length;
+    result['jobGroup'] = uniqueMap['jobGroup'].length;
 
     return result;
 }

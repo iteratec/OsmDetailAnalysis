@@ -10,7 +10,7 @@
             </ul>
 
             <div class="row dashboardContainer">
-                <div class="tab-content" style="height: 300px;">
+                <div class="tab-content" style="height: 460px;">
                     <div class="tab-pane active" id="tab1">
                         <div class="row" align="center">
                             <div class="span2" style="margin:0 30px">
@@ -46,7 +46,16 @@
 
                             </div>
                         </div>
+                         <div class="row" align="center">
+                             <div class="span2" style="margin:0 30px">
+                                 <div>
+                                     <span><strong>By Job Group</strong></span>
+                                 </div>
 
+                                 <div class="pieChartDiv" id="jobGroup-chart"></div>
+
+                             </div>
+                         </div>
                     </div>
 
                     <div class="tab-pane" id="tab3" style="overflow-x: hidden">
