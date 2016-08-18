@@ -21,6 +21,7 @@ import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.converters.JSON
+import grails.web.mapping.LinkGenerator
 import org.joda.time.DateTime
 
 import java.util.zip.GZIPOutputStream
@@ -36,6 +37,7 @@ class DetailAnalysisDashboardController {
 
     AssetRequestPersistenceService assetRequestPersistenceService
     MappingService mappingService
+    LinkGenerator grailsLinkGenerator
 
     Map<String, Object> show(DetailAnalysisDashboardCommand cmd) {
         if (cmd.hasErrors()) {
@@ -47,16 +49,11 @@ class DetailAnalysisDashboardController {
             return
         }
         Map<String, Object> modelToRender = [:]
+        modelToRender.put("serverBaseUrl",grailsLinkGenerator.serverBaseURL)
 
         cmd.copyRequestDataToViewModelMap(modelToRender)
 
-//        if (!ControllerUtils.isEmptyRequest(params)) {
-//            if (!cmd.validate()) {
-//                modelToRender.put('command', cmd)
-//            } else {
         fillWithDashboardData(modelToRender, cmd);
-//            }
-//        }
 
         modelToRender
     }

@@ -1,17 +1,19 @@
 <div id="dcChart">
+    %{--Needed for OSM integration--}%
+    <link rel="stylesheet" type="text/css" href="${serverUrl}/assets/bower_components/dcjs/dc.css">
     <div>
         <h3>Detail Dashboard</h3>
 
         <div class="tabbable">
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#tab1" data-toggle="tab">General</a></li>
-                <li><a href="#tab3" data-toggle="tab">Measured Event</a></li>
-                <li><a href="#tab2" data-toggle="tab">Host</a></li>
+                <li class="active"><a href="#detailTab1" data-toggle="tab">General</a></li>
+                <li><a href="#detailTab3" data-toggle="tab">Measured Event</a></li>
+                <li><a href="#detailTab2" data-toggle="tab">Host</a></li>
             </ul>
 
-            <div class="row dashboardContainer">
+            <div class="row detailDashboardContainer">
                 <div class="tab-content" style="height: 460px;">
-                    <div class="tab-pane active" id="tab1">
+                    <div class="tab-pane active" id="detailTab1">
                         <div class="row" align="center">
                             <div class="span2" style="margin:0 30px">
                                 <div>
@@ -58,7 +60,7 @@
                          </div>
                     </div>
 
-                    <div class="tab-pane" id="tab3" style="overflow-x: hidden">
+                    <div class="tab-pane" id="detailTab3" style="overflow-x: hidden">
                         <div class="row">
                             <div class="span12">
                                 <div id="measuredEvent-chart"></div>
@@ -66,7 +68,7 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane" id="tab2" style="overflow-x: hidden">
+                    <div class="tab-pane" id="detailTab2" style="overflow-x: hidden">
                         <div class="row">
                             <div class="span12">
                                 <div id="host-chart"></div>

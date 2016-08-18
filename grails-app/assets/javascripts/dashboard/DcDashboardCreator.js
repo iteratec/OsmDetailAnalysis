@@ -1,3 +1,9 @@
+//= require_tree ../bower_components/jquery
+//= require_tree ../bower_components/jquery-ui
+//= require_tree ../bower_components/crossfilter2
+//= require_tree ../bower_components/d3
+//= require_tree ../bower_components/dcjs
+//= require_tree ../bower_components/reductio
 //= require DcDashboard.js
 
 function createDashboard(data, labels, from, to) {

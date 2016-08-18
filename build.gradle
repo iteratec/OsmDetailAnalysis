@@ -124,6 +124,8 @@ task bowerSyncJavascript(type: Sync) {
     include 'bootstrap/docs/assets/js/bootstrap.min.js'
     include 'bootstrap/js/*.js'
     include 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'
+    include 'components-font-awesome/*'
+
     dependsOn bowerInstall
 }
 

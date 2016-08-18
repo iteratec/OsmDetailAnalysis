@@ -205,12 +205,8 @@ class DetailAnalysisDashboardCommand extends OsmCommand {
         selectedAllBrowsers(nullable: true)
         selectedAllLocations(nullable: true)
 
-        selectedFolder(nullable: false, validator: { Collection currentCollection, DetailAnalysisDashboardCommand cmd ->
-            if (currentCollection.isEmpty()) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.selectedFolder.validator.error.selectedFolder']
-        })
-        selectedPages(nullable: false, validator: { Collection currentCollection, DetailAnalysisDashboardCommand cmd ->
-            if (currentCollection.isEmpty()) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.selectedPage.validator.error.selectedPage']
-        })
+        selectedFolder(nullable: true)
+        selectedPages(nullable: true)
         selectedBrowsers(nullable: false, validator: { Collection currentCollection, DetailAnalysisDashboardCommand cmd ->
             if (!cmd.selectedAllBrowsers && currentCollection.isEmpty()) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.selectedBrowsers.validator.error.selectedBrowsers']
         })

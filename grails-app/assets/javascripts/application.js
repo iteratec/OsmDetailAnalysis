@@ -8,7 +8,6 @@
 // Jquery has to be the first, because others like bootstrap depend on it
 //= require_tree bower_components/jquery
 //= require_tree bower_components
-//= require_tree kickstart
 //= require postload/PostLoader
 //= require_self
 
