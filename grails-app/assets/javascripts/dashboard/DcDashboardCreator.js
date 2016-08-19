@@ -15,7 +15,7 @@ function createDashboard(data, labels, from, to) {
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
-    
+
     // BROWSER FILTER
     if (dataCounts['browser'] > 1) {
         var browser = board.allData.dimension(function (d) {
@@ -253,7 +253,7 @@ function createDashboard(data, labels, from, to) {
         // min graph downloadTime
         createLineChart(downloadTimeGroup_min, " | Download Time Min", "downloadTimeMin", minValueAccessor);
         // min graph sslTime
-        createLineChart(downloadTimeGroup_min, " | SSL Time Min", "sslTimeMin", minValueAccessor);
+        createLineChart(sslTimeGroup_min, " | SSL Time Min", "sslTimeMin", minValueAccessor);
 
         // max graph loadTime
         createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
@@ -262,7 +262,7 @@ function createDashboard(data, labels, from, to) {
         // max graph ttfb
         createLineChart(downloadTimeGroup_max, " | Download Time Max", "downloadTimeMax", maxValueAccessor);
         // max graph ttfb
-        createLineChart(downloadTimeGroup_max, " | SSL Time Max", "sslTimeMax", maxValueAccessor);
+        createLineChart(sslTimeGroup_max, " | SSL Time Max", "sslTimeMax", maxValueAccessor);
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
