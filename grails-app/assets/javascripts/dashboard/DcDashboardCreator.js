@@ -261,23 +261,9 @@ function createDashboard(data, labels, from, to) {
     $(document).on('change', 'input:checkbox[name="measurementCheckbox"]', function (event) {
         redrawCompositeChart();
     });
-    
+
     function redrawCompositeChart() {
         board.setAnimationTime(500);
-
-
-        for (var j = 0; j < jobs.length; j++) {
-            var jobGraphs = allGraphsByJobId[jobs[j]];
-            if (document.getElementById("loadTimeMs").checked) {
-                handleValueTypeCheckbox("loadTimeAvg", "loadTimeMin", "loadTimeMax");
-            }
-            if (document.getElementById("ttfb").checked) {
-                handleValueTypeCheckbox("ttfbAvg","ttfbMin", "ttfbMax");
-            }
-            if (document.getElementById("downloadTime").checked) {
-                handleValueTypeCheckbox("downloadTimeAvg","downloadTimeMin", "downloadTimeMax");
-            }
-        }
 
         var showAvg = document.getElementById("avg").checked;
         var showMax = document.getElementById("max").checked;
@@ -292,6 +278,21 @@ function createDashboard(data, labels, from, to) {
             if (showMax)
                 visibleGraphs.push(jobGraphs[maxName]);
         }
+        
+        for (var j = 0; j < jobs.length; j++) {
+            var jobGraphs = allGraphsByJobId[jobs[j]];
+            if (document.getElementById("loadTimeMs").checked) {
+                handleValueTypeCheckbox("loadTimeAvg", "loadTimeMin", "loadTimeMax");
+            }
+            if (document.getElementById("ttfb").checked) {
+                handleValueTypeCheckbox("ttfbAvg","ttfbMin", "ttfbMax");
+            }
+            if (document.getElementById("downloadTime").checked) {
+                handleValueTypeCheckbox("downloadTimeAvg","downloadTimeMin", "downloadTimeMax");
+            }
+        }
+
+
 
         board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);
         dc.renderAll();
