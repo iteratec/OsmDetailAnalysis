@@ -98,6 +98,9 @@ class AssetRequestPersistenceService {
                                 avg('sslTime_avg', '\$sslTime'), //add average sslNegotiationTime
                                 min('sslTime_min', '\$sslTime'), //add min sslNegotiationTime
                                 max('sslTime_max', '\$sslTime'), //add max sslNegotiationTime
+                                avg('connectTime_avg', '\$connectTime'), //add average sslNegotiationTime
+                                min('connectTime_min', '\$connectTime'), //add min sslNegotiationTime
+                                max('connectTime_max', '\$connectTime'), //add max sslNegotiationTime
                                 sum('count', 1)) //add sum of elements per aggregation
         aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
@@ -119,6 +122,7 @@ class AssetRequestPersistenceService {
                              subtype:'\$assets.subtype',
                              loadTimeMs:'\$assets.loadTimeMs',
                              sslTime: '\$assets.sslNegotiationTimeMs'
+                             connectTime: '\$assets.connectTimeMs'
                              timeToFirstByteMs:'\$assets.timeToFirstByteMs',
                              downloadTimeMs:'\$assets.downloadTimeMs',
                              measuredEvent:'\$measuredEvent',
@@ -154,6 +158,9 @@ class AssetRequestPersistenceService {
                             sslTime_avg:'\$sslTime_avg',
                             sslTime_min:'\$sslTime_min',
                             sslTime_max:'\$sslTime_max',
+                            connectTime_avg:'\$connectTime_avg',
+                            connectTime_min:'\$connectTime_min',
+                            connectTime_max:'\$connectTime_max',
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument

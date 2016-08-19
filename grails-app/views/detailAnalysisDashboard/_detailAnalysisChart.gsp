@@ -112,6 +112,10 @@
                         <input type="checkbox" name="measurementCheckbox" id="sslTime">
                         SSL Negotiation Time
                     </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" name="measurementCheckbox" id="connectTime">
+                        Connect Time
+                    </label>
                 </div>
 
                 <div>
