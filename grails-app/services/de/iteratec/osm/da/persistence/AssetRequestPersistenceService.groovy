@@ -86,12 +86,15 @@ class AssetRequestPersistenceService {
                                 'epochTimeStarted': '\$epochTimeStarted',
                                 measuredEvent     : '\$measuredEvent',
                                 host              : '\$host', page: '\$page',] as BasicDBObject, //aggregate the assets by dimension
-                                avg('loadTimeMs_avg', '\$loadTimeMs'), //add average load time
-                                min('loadTimeMs_min', '\$loadTimeMs'), //add min load time
-                                max('loadTimeMs_max', '\$loadTimeMs'), //add max load time
-                                avg('ttfb_avg', '\$timeToFirstByteMs'), //add average ttfb
-                                min('ttfb_min', '\$timeToFirstByteMs'), //add min ttfb
-                                max('ttfb_max', '\$timeToFirstByteMs'), //add max ttfb
+                                avg('loadTimeMs_avg',   '\$loadTimeMs'), //add average load time
+                                min('loadTimeMs_min',   '\$loadTimeMs'), //add min load time
+                                max('loadTimeMs_max',   '\$loadTimeMs'), //add max load time
+                                avg('ttfb_avg',         '\$timeToFirstByteMs'), //add average ttfb
+                                min('ttfb_min',         '\$timeToFirstByteMs'), //add min ttfb
+                                max('ttfb_max',         '\$timeToFirstByteMs'), //add max ttfb
+                                avg('downloadTime_avg', '\$downloadTimeMs'), //add average downloadTime
+                                min('downloadTime_min', '\$downloadTimeMs'), //add min downloadTime
+                                max('downloadTime_max', '\$downloadTimeMs'), //add max downloadTime
                                 sum('count', 1)) //add sum of elements per aggregation
         aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
@@ -113,6 +116,7 @@ class AssetRequestPersistenceService {
                              subtype:'\$assets.subtype',
                              loadTimeMs:'\$assets.loadTimeMs',
                              timeToFirstByteMs:'\$assets.timeToFirstByteMs',
+                             downloadTimeMs:'\$assets.downloadTimeMs',
                              measuredEvent:'\$measuredEvent',
                              host:'\$assets.host',
                              page:'\$page'
@@ -140,6 +144,9 @@ class AssetRequestPersistenceService {
                             ttfb_avg:'\$ttfb_avg',
                             ttfb_min:'\$ttfb_min',
                             ttfb_max:'\$ttfb_max',
+                            downloadTime_avg:'\$downloadTime_avg',
+                            downloadTime_min:'\$downloadTime_min',
+                            downloadTime_max:'\$downloadTime_max',
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument

@@ -137,6 +137,8 @@ function createDashboard(data, labels, from, to) {
             p.loadTimeAvg = p.count ? d3.round((p.loadTimeSum / p.count), 2) : 0;
             p.ttfbSum += v['ttfb_avg'] * v['count'];
             p.ttfbAvg = p.count ? d3.round((p.ttfbSum / p.count), 2) : 0;
+            p.downloadTimeSum += v['downloadTime_avg'] * v['count'];
+            p.downloadTimeAvg = p.count ? d3.round((p.downloadTimeSum / p.count), 2) : 0;
             return p;
         },
         //remove
@@ -146,6 +148,8 @@ function createDashboard(data, labels, from, to) {
             p.loadTimeAvg = p.count ? d3.round((p.loadTimeSum / p.count), 2) : 0;
             p.ttfbSum -= v['ttfb_avg'] * v['count'];
             p.ttfbAvg = p.count ? d3.round((p.ttfbSum / p.count), 2) : 0;
+            p.downloadTimeSum -= v['downloadTime_avg'] * v['count'];
+            p.downloadTimeAvg = p.count ? d3.round((p.downloadTimeSum / p.count), 2) : 0;
             return p;
         },
         //init
@@ -155,7 +159,9 @@ function createDashboard(data, labels, from, to) {
                 loadTimeAvg: 0,
                 loadTimeSum: 0,
                 ttfbAvg: 0,
-                ttfbSum: 0
+                ttfbSum: 0,
+                downloadTimeAvg: 0,
+                downloadTimeSum: 0
             };
         });
 
@@ -185,6 +191,12 @@ function createDashboard(data, labels, from, to) {
     var ttfbGroup_max = reductio().max(function (d) {
         return +d['ttfb_max']
     })(jobId_Date_Dimension.group());
+    var downloadTimeGroup_min = reductio().min(function (d) {
+        return +d['downloadTime_min']
+    })(jobId_Date_Dimension.group());
+    var downloadTimeGroup_max = reductio().max(function (d) {
+        return +d['downloadTime_max']
+    })(jobId_Date_Dimension.group());
 
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
@@ -192,53 +204,44 @@ function createDashboard(data, labels, from, to) {
     var allGraphsByJobId = {};
 
     var colorScale = d3.scale.category20c();
+    
+    function createLineChart( jobFilter, labelPostfix, name, valueAccessor) {
+        var group = remove_empty_bins(filterJobGroup(jobFilter, currentJobId), valueAccessor);
+        var label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + labelPostfix;
+        allGraphsByJobId[currentJobId][name] = board.createLineChart(composite, jobId_Date_Dimension, group, colorScale(label), label, valueAccessor);
+    }
 
     for (var j = 0; j < jobs.length; j++) {
         var currentJobId = jobs[j];
         allGraphsByJobId[currentJobId] = {};
+
         // avg graph loadTime
-        var loadTimeAvg_valueAccessor = function (d) {
+       createLineChart(loadTime_ttfb_avg, " | LoadTimeMs Avg", "loadTimeAvg", function (d) {
             return d.value.loadTimeAvg;
-        };
-        var loadTimeAvg_group = remove_empty_bins(filterJobGroup(loadTime_ttfb_avg, currentJobId), loadTimeAvg_valueAccessor);
-        var loadTimeAvg_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | LoadTimeMs Avg";
-        var lineChart_loadTime_avg = board.createLineChart(composite, jobId_Date_Dimension, loadTimeAvg_group, colorScale(loadTimeAvg_label), loadTimeAvg_label, loadTimeAvg_valueAccessor);
+        });
 
         // avg graph ttfb
-        var ttfbAvg_valueAccessor = function (d) {
+        createLineChart(loadTime_ttfb_avg, " | TTFB Avg","ttfbAvg", function (d) {
             return d.value.ttfbAvg;
-        };
-        var ttfbAvg_group = remove_empty_bins(filterJobGroup(loadTime_ttfb_avg, currentJobId), ttfbAvg_valueAccessor);
-        var ttfbAvg_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | TTFB Avg";
-        var lineChart_ttfb_avg = board.createLineChart(composite, jobId_Date_Dimension, ttfbAvg_group, colorScale(ttfbAvg_label), ttfbAvg_label, ttfbAvg_valueAccessor);
+        });
+
+        // avg graph downloadTime
+        createLineChart(loadTime_ttfb_avg, " | Download Time Avg", "downloadTimeAvg", function (d) {
+            return d.value.downloadTimeAvg;
+        });
 
         // min graph loadTime
-        var minGroup = remove_empty_bins(filterJobGroup(loadTimeGroup_min, currentJobId), minValueAccessor);
-        var loadTimeMin_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | LoadTimeMs Min";
-        var lineChart_loadTime_min = board.createLineChart(composite, jobId_Date_Dimension, minGroup, colorScale(loadTimeMin_label), loadTimeMin_label, minValueAccessor);
-
+        createLineChart(loadTimeGroup_min, " | LoadTimeMs Min", "loadTimeMin", minValueAccessor);
         // min graph ttfb
-        var minGroup = remove_empty_bins(filterJobGroup(ttfbGroup_min, currentJobId), minValueAccessor);
-        var ttfbMin_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | TTFB Min";
-        var lineChart_ttfb_min = board.createLineChart(composite, jobId_Date_Dimension, minGroup, colorScale(ttfbMin_label), ttfbMin_label, minValueAccessor);
-
+        createLineChart(ttfbGroup_min, " | TTFB Min", "ttfbMin", minValueAccessor);
+        // min graph downloadTime
+        createLineChart(downloadTimeGroup_min, " | Download Time Min", "downloadTimeMin", minValueAccessor);
         // max graph loadTime
-        var maxGroup = remove_empty_bins(filterJobGroup(loadTimeGroup_max, currentJobId), maxValueAccessor);
-        var loadTimeMax_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | LoadTimeMs Max";
-        var lineChart_loadTime_max = board.createLineChart(composite, jobId_Date_Dimension, maxGroup, colorScale(loadTimeMax_label), loadTimeMax_label, maxValueAccessor);
-
+        createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
         // max graph ttfb
-        var maxGroup = remove_empty_bins(filterJobGroup(ttfbGroup_max, currentJobId), maxValueAccessor);
-        var ttfbMax_label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + " | TTFB Max";
-        var lineChart_ttfb_max = board.createLineChart(composite, jobId_Date_Dimension, maxGroup, colorScale(ttfbMax_label), ttfbMax_label, maxValueAccessor);
-
-        // Add all graphs for this job
-        allGraphsByJobId[currentJobId]['loadTimeAvg'] = lineChart_loadTime_avg;
-        allGraphsByJobId[currentJobId]['loadTimeMin'] = lineChart_loadTime_min;
-        allGraphsByJobId[currentJobId]['loadTimeMax'] = lineChart_loadTime_max;
-        allGraphsByJobId[currentJobId]['ttfbAvg'] = lineChart_ttfb_avg;
-        allGraphsByJobId[currentJobId]['ttfbMin'] = lineChart_ttfb_min;
-        allGraphsByJobId[currentJobId]['ttfbMax'] = lineChart_ttfb_max;
+        createLineChart(ttfbGroup_max, " | TTFB Max", "ttfbMax", maxValueAccessor);
+        // max graph ttfb
+        createLineChart(downloadTimeGroup_max, " | Download Time Max", "downloadTimeMax", maxValueAccessor);
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
@@ -258,34 +261,36 @@ function createDashboard(data, labels, from, to) {
     $(document).on('change', 'input:checkbox[name="measurementCheckbox"]', function (event) {
         redrawCompositeChart();
     });
-
+    
     function redrawCompositeChart() {
         board.setAnimationTime(500);
 
-        var visibleGraphs = [];
-
-        var showAvg = document.getElementById("avg").checked;
-        var showMax = document.getElementById("max").checked;
-        var showMin = document.getElementById("min").checked;
 
         for (var j = 0; j < jobs.length; j++) {
             var jobGraphs = allGraphsByJobId[jobs[j]];
             if (document.getElementById("loadTimeMs").checked) {
-                if (showAvg)
-                    visibleGraphs.push(jobGraphs['loadTimeAvg']);
-                if (showMin)
-                    visibleGraphs.push(jobGraphs['loadTimeMin']);
-                if (showMax)
-                    visibleGraphs.push(jobGraphs['loadTimeMax']);
+                handleValueTypeCheckbox("loadTimeAvg", "loadTimeMin", "loadTimeMax");
             }
             if (document.getElementById("ttfb").checked) {
-                if (showAvg)
-                    visibleGraphs.push(jobGraphs['ttfbAvg']);
-                if (showMin)
-                    visibleGraphs.push(jobGraphs['ttfbMin']);
-                if (showMax)
-                    visibleGraphs.push(jobGraphs['ttfbMax']);
+                handleValueTypeCheckbox("ttfbAvg","ttfbMin", "ttfbMax");
             }
+            if (document.getElementById("downloadTime").checked) {
+                handleValueTypeCheckbox("downloadTimeAvg","downloadTimeMin", "downloadTimeMax");
+            }
+        }
+
+        var showAvg = document.getElementById("avg").checked;
+        var showMax = document.getElementById("max").checked;
+        var showMin = document.getElementById("min").checked;
+        var visibleGraphs = [];
+
+        function handleValueTypeCheckbox(avgName,minName,maxName) {
+            if (showAvg)
+                visibleGraphs.push(jobGraphs[avgName]);
+            if (showMin)
+                visibleGraphs.push(jobGraphs[minName]);
+            if (showMax)
+                visibleGraphs.push(jobGraphs[maxName]);
         }
 
         board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);

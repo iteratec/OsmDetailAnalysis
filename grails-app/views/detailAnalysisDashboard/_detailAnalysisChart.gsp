@@ -104,6 +104,10 @@
                         <input type="checkbox" name="measurementCheckbox" id="ttfb">
                         Time to first byte
                     </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" name="measurementCheckbox" id="downloadTime">
+                        Download Time
+                    </label>
 
                 </div>
 
