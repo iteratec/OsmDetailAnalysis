@@ -98,7 +98,7 @@
                 <div>
                     <label class="checkbox inline">
                         <input type="checkbox" name="measurementCheckbox" id="loadTimeMs" checked="checked">
-                        LoadTime
+                        Load Time
                     </label>
                     <label class="checkbox inline">
                         <input type="checkbox" name="measurementCheckbox" id="ttfb">
@@ -108,7 +108,10 @@
                         <input type="checkbox" name="measurementCheckbox" id="downloadTime">
                         Download Time
                     </label>
-
+                    <label class="checkbox inline">
+                        <input type="checkbox" name="measurementCheckbox" id="sslTime">
+                        SSL Negotiation Time
+                    </label>
                 </div>
 
                 <div>

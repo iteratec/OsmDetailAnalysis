@@ -95,6 +95,9 @@ class AssetRequestPersistenceService {
                                 avg('downloadTime_avg', '\$downloadTimeMs'), //add average downloadTime
                                 min('downloadTime_min', '\$downloadTimeMs'), //add min downloadTime
                                 max('downloadTime_max', '\$downloadTimeMs'), //add max downloadTime
+                                avg('sslTime_avg', '\$sslTime'), //add average sslNegotiationTime
+                                min('sslTime_min', '\$sslTime'), //add min sslNegotiationTime
+                                max('sslTime_max', '\$sslTime'), //add max sslNegotiationTime
                                 sum('count', 1)) //add sum of elements per aggregation
         aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
@@ -115,6 +118,7 @@ class AssetRequestPersistenceService {
                              mediaType:'\$mediaType',
                              subtype:'\$assets.subtype',
                              loadTimeMs:'\$assets.loadTimeMs',
+                             sslTime: '\$assets.sslNegotiationTimeMs'
                              timeToFirstByteMs:'\$assets.timeToFirstByteMs',
                              downloadTimeMs:'\$assets.downloadTimeMs',
                              measuredEvent:'\$measuredEvent',
@@ -147,6 +151,9 @@ class AssetRequestPersistenceService {
                             downloadTime_avg:'\$downloadTime_avg',
                             downloadTime_min:'\$downloadTime_min',
                             downloadTime_max:'\$downloadTime_max',
+                            sslTime_avg:'\$sslTime_avg',
+                            sslTime_min:'\$sslTime_min',
+                            sslTime_max:'\$sslTime_max',
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument

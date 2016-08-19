@@ -15,7 +15,7 @@ function createDashboard(data, labels, from, to) {
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
-
+    
     // BROWSER FILTER
     if (dataCounts['browser'] > 1) {
         var browser = board.allData.dimension(function (d) {
@@ -139,6 +139,8 @@ function createDashboard(data, labels, from, to) {
             p.ttfbAvg = p.count ? d3.round((p.ttfbSum / p.count), 2) : 0;
             p.downloadTimeSum += v['downloadTime_avg'] * v['count'];
             p.downloadTimeAvg = p.count ? d3.round((p.downloadTimeSum / p.count), 2) : 0;
+            p.sslTimeSum += v['sslTime_avg'] * v['count'];
+            p.sslTimeAvg = p.count ? d3.round((p.sslTimeSum / p.count), 2) : 0;
             return p;
         },
         //remove
@@ -150,6 +152,8 @@ function createDashboard(data, labels, from, to) {
             p.ttfbAvg = p.count ? d3.round((p.ttfbSum / p.count), 2) : 0;
             p.downloadTimeSum -= v['downloadTime_avg'] * v['count'];
             p.downloadTimeAvg = p.count ? d3.round((p.downloadTimeSum / p.count), 2) : 0;
+            p.sslTimeSum -= v['sslTime_avg'] * v['count'];
+            p.sslTimeAvg = p.count ? d3.round((p.sslTimeSum / p.count), 2) : 0;
             return p;
         },
         //init
@@ -161,7 +165,9 @@ function createDashboard(data, labels, from, to) {
                 ttfbAvg: 0,
                 ttfbSum: 0,
                 downloadTimeAvg: 0,
-                downloadTimeSum: 0
+                downloadTimeSum: 0,
+                sslTimeAvg: 0,
+                sslTimeSum: 0
             };
         });
 
@@ -197,7 +203,12 @@ function createDashboard(data, labels, from, to) {
     var downloadTimeGroup_max = reductio().max(function (d) {
         return +d['downloadTime_max']
     })(jobId_Date_Dimension.group());
-
+    var sslTimeGroup_min = reductio().min(function (d) {
+        return +d['sslTime_min']
+    })(jobId_Date_Dimension.group());
+    var sslTimeGroup_max = reductio().max(function (d) {
+        return +d['sslTime_max']
+    })(jobId_Date_Dimension.group());
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
 
@@ -230,18 +241,28 @@ function createDashboard(data, labels, from, to) {
             return d.value.downloadTimeAvg;
         });
 
+        // avg graph sslTime
+        createLineChart(loadTime_ttfb_avg, " | SSL Time Avg", "sslTimeAvg", function (d) {
+            return d.value.sslTimeAvg;
+        });
+
         // min graph loadTime
         createLineChart(loadTimeGroup_min, " | LoadTimeMs Min", "loadTimeMin", minValueAccessor);
         // min graph ttfb
         createLineChart(ttfbGroup_min, " | TTFB Min", "ttfbMin", minValueAccessor);
         // min graph downloadTime
         createLineChart(downloadTimeGroup_min, " | Download Time Min", "downloadTimeMin", minValueAccessor);
+        // min graph sslTime
+        createLineChart(downloadTimeGroup_min, " | SSL Time Min", "sslTimeMin", minValueAccessor);
+
         // max graph loadTime
         createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
         // max graph ttfb
         createLineChart(ttfbGroup_max, " | TTFB Max", "ttfbMax", maxValueAccessor);
         // max graph ttfb
         createLineChart(downloadTimeGroup_max, " | Download Time Max", "downloadTimeMax", maxValueAccessor);
+        // max graph ttfb
+        createLineChart(downloadTimeGroup_max, " | SSL Time Max", "sslTimeMax", maxValueAccessor);
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
@@ -289,6 +310,9 @@ function createDashboard(data, labels, from, to) {
             }
             if (document.getElementById("downloadTime").checked) {
                 handleValueTypeCheckbox("downloadTimeAvg","downloadTimeMin", "downloadTimeMax");
+            }
+            if (document.getElementById("sslTime").checked) {
+                handleValueTypeCheckbox("sslTimeAvg","sslTimeMin", "sslTimeMax");
             }
         }
 
