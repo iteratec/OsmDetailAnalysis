@@ -3,7 +3,7 @@
     <link rel="stylesheet" type="text/css" href="${serverBaseUrl}/assets/bower_components/dcjs/dc.css">
     <div>
         <h3>Detail Dashboard</h3>
-
+        <g:if test="${graphData != "[]"}">
         <div class="tabbable">
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#detailTab1" data-toggle="tab">General</a></li>
@@ -79,8 +79,12 @@
                 </div>
             </div>
         </div>
+        </g:if>
+        <g:else>
+            There was no data available for the selected timeframe and filter.
+        </g:else>
     </div>
-
+    <g:if test="${graphData != "[]"}">
     <div>
         <div class="row dashboardContainer">
             <div class="row">
@@ -153,4 +157,5 @@
             </div>
         </div>
     </div>
+    </g:if>
 </div>

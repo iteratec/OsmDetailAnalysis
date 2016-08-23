@@ -7,11 +7,15 @@
 //= require DcDashboard.js
 
 function createDashboard(data, labels, from, to) {
+    if(data[0] == undefined){
+        //No data to show, so just stop here
+        return;
+    } 
     board = new DcDashboard();
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
     board.setDashboardWidth(+width);
-    console.log(data);
+
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
