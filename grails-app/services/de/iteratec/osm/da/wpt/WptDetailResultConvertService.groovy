@@ -74,7 +74,7 @@ class WptDetailResultConvertService {
                 sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
                 mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
                 urlWithoutParams: req.host+createURLWithoutParams(req.url), startPhase: req.startPhase,
-                endPhase: req.endPhase)
+                endPhase: req.endPhase, dnsMs: req.dnsTimeMs)
     }
 
     static String getMediaType(String mimeType){

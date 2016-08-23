@@ -90,6 +90,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
             request.connectTimeMs = it.connect_ms as int
             request.downloadMs = it.download_ms
             request.contentType = it.contentType
+            request.dnsTimeMs = it.dns_ms as int
             requests << request
         }
         return requests

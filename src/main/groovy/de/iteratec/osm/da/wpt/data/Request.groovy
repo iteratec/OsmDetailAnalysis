@@ -20,6 +20,7 @@ class Request {
     int sslNegotiationTimeMs
     String contentType
     int indexWithinStep
+    int dnsTimeMs
     //Current phase while the asset request was started
     LoadPhase startPhase
     //Current phase while the asset was done loading

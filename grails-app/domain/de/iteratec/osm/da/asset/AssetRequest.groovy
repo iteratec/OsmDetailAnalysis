@@ -20,7 +20,7 @@ class AssetRequest {
     //Resource order for one page call
     int indexWithinHar
     int sslNegotiationTimeMs
-
+    int dnsMs
     /**
      * Grouping values
      */
@@ -45,6 +45,7 @@ class AssetRequest {
         loadTimeMs defaultVaule:-1
         sslNegotiationTimeMs defaultVaule:-1
         timeToFirstByteMs defaultVaule:-1
+        dnsMs defaultVaule:-1
         url defaultVaule: "undefined"
         host defaultVaule: "undefined"
         mediaType defaultVaule: "undefined"
