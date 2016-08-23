@@ -114,6 +114,7 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
         .brushOn(false)
         .renderHorizontalGridLines(true)
         .elasticY(true)
+        .yAxisLabel("ms")
         .legend(dc.legend().x(20).y(700).itemHeight(13).gap(5))
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
@@ -130,7 +131,7 @@ DcDashboard.prototype.setLineChartDomain = function (dashboardIdentifier, chartI
 };
 
 
-DcDashboard.prototype.createLineChart = function (parent, dimension, group, color, label, valueAccessor) {
+DcDashboard.prototype.createLineChart = function (parent, dimension, group, color, label, valueAccessor, unit) {
     var chart = dc.lineChart(parent)
         .dimension(dimension)
         .group(group, label)
@@ -140,6 +141,10 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
         .valueAccessor(valueAccessor)
         .renderDataPoints({radius: 2, fillOpacity: 0.6, strokeOpacity: 0.8})
         .colors(color);
+
+    if(unit == "bytes"){
+        chart.useRightYAxis(true);
+    }
 
     this.allDashboardGraphs.push(chart);
     return chart;

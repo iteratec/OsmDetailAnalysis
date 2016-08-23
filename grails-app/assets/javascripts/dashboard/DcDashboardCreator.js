@@ -11,7 +11,7 @@ function createDashboard(data, labels, from, to) {
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
     board.setDashboardWidth(+width);
-    console.log(data);
+
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
@@ -145,6 +145,8 @@ function createDashboard(data, labels, from, to) {
             p.connectTimeAvg = p.count ? d3.round((p.connectTimeSum / p.count), 2) : 0;
             p.dnsTimeSum += v['dnsTime_avg'] * v['count'];
             p.dnsTimeAvg = p.count ? d3.round((p.dnsTimeSum / p.count), 2) : 0;
+            p.bytesInSum += v['bytesIn_avg'] * v['count'];
+            p.bytesInAvg = p.count ? d3.round((p.bytesInSum / p.count), 2) : 0;
             return p;
         },
         //remove
@@ -162,6 +164,8 @@ function createDashboard(data, labels, from, to) {
             p.connectTimeAvg = p.count ? d3.round((p.connectTimeSum / p.count), 2) : 0;
             p.dnsTimeSum -= v['dnsTime_avg'] * v['count'];
             p.dnsTimeAvg = p.count ? d3.round((p.dnsTimeSum / p.count), 2) : 0;
+            p.bytesInSum -= v['bytesIn_avg'] * v['count'];
+            p.bytesInAvg = p.count ? d3.round((p.bytesInSum / p.count), 2) : 0;
             return p;
         },
         //init
@@ -179,7 +183,9 @@ function createDashboard(data, labels, from, to) {
                 connectTimeAvg: 0,
                 connectTimeSum: 0,
                 dnsTimeAvg: 0,
-                dnsTimeSum: 0
+                dnsTimeSum: 0,
+                bytesInAvg: 0,
+                bytesInSum: 0
             };
         });
 
@@ -233,6 +239,12 @@ function createDashboard(data, labels, from, to) {
     var dnsTimeGroup_max = reductio().max(function (d) {
         return +d['dnsTime_max']
     })(jobId_Date_Dimension.group());
+    var bytesInGroup_min = reductio().min(function (d) {
+        return +d['bytesIn_min']
+    })(jobId_Date_Dimension.group());
+    var bytesInGroup_max = reductio().max(function (d) {
+        return +d['bytesIn_max']
+    })(jobId_Date_Dimension.group());
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
 
@@ -240,10 +252,10 @@ function createDashboard(data, labels, from, to) {
 
     var colorScale = d3.scale.category20c();
     
-    function createLineChart( jobFilter, labelPostfix, name, valueAccessor) {
+    function createLineChart( jobFilter, labelPostfix, name, valueAccessor, unit) {
         var group = remove_empty_bins(filterJobGroup(jobFilter, currentJobId), valueAccessor);
         var label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + labelPostfix;
-        allGraphsByJobId[currentJobId][name] = board.createLineChart(composite, jobId_Date_Dimension, group, colorScale(label), label, valueAccessor);
+        allGraphsByJobId[currentJobId][name] = board.createLineChart(composite, jobId_Date_Dimension, group, colorScale(label), label, valueAccessor, unit);
     }
 
     for (var j = 0; j < jobs.length; j++) {
@@ -277,6 +289,10 @@ function createDashboard(data, labels, from, to) {
         createLineChart(loadTime_ttfb_avg, " | DNS Time Avg", "dnsTimeAvg", function (d) {
             return d.value.dnsTimeAvg;
         });
+        // avg graph bytesIn
+        createLineChart(loadTime_ttfb_avg, " | Bytes In Avg", "bytesInAvg", function (d) {
+            return d.value.bytesInAvg;
+        }, "bytes");
 
         // min graph loadTime
         createLineChart(loadTimeGroup_min, " | LoadTimeMs Min", "loadTimeMin", minValueAccessor);
@@ -289,7 +305,9 @@ function createDashboard(data, labels, from, to) {
         // min graph connectTime
         createLineChart(connectTimeGroup_min, " | Connect Time Min", "connectTimeMin", minValueAccessor);
         // min graph dnsTime
-        createLineChart(connectTimeGroup_min, " | DNS Time Min", "dnsTimeMin", minValueAccessor);
+        createLineChart(dnsTimeGroup_min, " | DNS Time Min", "dnsTimeMin", minValueAccessor);
+        // min graph bytesIn
+        createLineChart(bytesInGroup_min, " | Bytes In Min", "bytesInMin", minValueAccessor,"bytes");
 
         // max graph loadTime
         createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
@@ -302,7 +320,9 @@ function createDashboard(data, labels, from, to) {
         // max graph ttfb
         createLineChart(connectTimeGroup_max, " | Connect Time Max", "connectTimeMax", maxValueAccessor);
         // max graph dns
-        createLineChart(connectTimeGroup_max, " | DNS Time Max", "dnsTimeMax", maxValueAccessor);
+        createLineChart(dnsTimeGroup_max, " | DNS Time Max", "dnsTimeMax", maxValueAccessor);
+        // max graph bytesIn
+        createLineChart(bytesInGroup_max, " | Bytes In Max", "bytesInMax", maxValueAccessor,"bytes");
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
@@ -359,6 +379,9 @@ function createDashboard(data, labels, from, to) {
             }
             if (document.getElementById("dnsTime").checked) {
                 handleValueTypeCheckbox("dnsTimeAvg","dnsTimeMin", "dnsTimeMax");
+            }
+            if (document.getElementById("bytesIn").checked) {
+                handleValueTypeCheckbox("bytesInAvg","bytesInMin", "bytesInMax");
             }
         }
 

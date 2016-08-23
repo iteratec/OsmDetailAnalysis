@@ -120,6 +120,10 @@
                         <input type="checkbox" name="measurementCheckbox" id="dnsTime">
                         DNS Time
                     </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" name="measurementCheckbox" id="bytesIn">
+                        Bytes In
+                    </label>
                 </div>
 
                 <div>

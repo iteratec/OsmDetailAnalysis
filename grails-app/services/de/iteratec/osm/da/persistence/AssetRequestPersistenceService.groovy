@@ -104,6 +104,9 @@ class AssetRequestPersistenceService {
                                 avg('dnsTime_avg', '\$dnsTime'), //add average sslNegotiationTime
                                 min('dnsTime_min', '\$dnsTime'), //add min sslNegotiationTime
                                 max('dnsTime_max', '\$dnsTime'), //add max sslNegotiationTime
+                                avg('bytesIn_avg', '\$bytesIn'), //add average sslNegotiationTime
+                                min('bytesIn_min', '\$bytesIn'), //add min sslNegotiationTime
+                                max('bytesIn_max', '\$bytesIn'), //add max sslNegotiationTime
                                 sum('count', 1)) //add sum of elements per aggregation
         aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
@@ -131,6 +134,7 @@ class AssetRequestPersistenceService {
                              downloadTimeMs:'\$assets.downloadTimeMs',
                              measuredEvent:'\$measuredEvent',
                              host:'\$assets.host',
+                             bytesIn:'\$assets.bytesIn',
                              page:'\$page'
                             }""")
         return preFilterProjectionDocument
@@ -168,6 +172,9 @@ class AssetRequestPersistenceService {
                             dnsTime_avg:'\$dnsTime_avg',
                             dnsTime_min:'\$dnsTime_min',
                             dnsTime_max:'\$dnsTime_max',
+                            bytesIn_avg:'\$bytesIn_avg',
+                            bytesIn_min:'\$bytesIn_min',
+                            bytesIn_max:'\$bytesIn_max',
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument
