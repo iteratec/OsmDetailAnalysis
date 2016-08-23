@@ -7,4 +7,4 @@ echo "complete osm detail analysis config file gets prepared"
 dockerize -template $OSM_DA_CONFIG_TARGET_LOCATION.j2:$OSM_DA_CONFIG_TARGET_LOCATION
 
 # start application
-java -Dgrails.env=prod -jar $OSM_DA_HOME/OsmDetailAnalysis.war
+java -Dgrails.env=prod -jar $OSM_DA_HOME/OsmDetailAnalysis*.war
