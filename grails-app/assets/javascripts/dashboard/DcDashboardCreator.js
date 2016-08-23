@@ -11,7 +11,7 @@ function createDashboard(data, labels, from, to) {
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
     board.setDashboardWidth(+width);
-
+    console.log(data);
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
@@ -143,6 +143,8 @@ function createDashboard(data, labels, from, to) {
             p.sslTimeAvg = p.count ? d3.round((p.sslTimeSum / p.count), 2) : 0;
             p.connectTimeSum += v['connectTime_avg'] * v['count'];
             p.connectTimeAvg = p.count ? d3.round((p.connectTimeSum / p.count), 2) : 0;
+            p.dnsTimeSum += v['dnsTime_avg'] * v['count'];
+            p.dnsTimeAvg = p.count ? d3.round((p.dnsTimeSum / p.count), 2) : 0;
             return p;
         },
         //remove
@@ -158,6 +160,8 @@ function createDashboard(data, labels, from, to) {
             p.sslTimeAvg = p.count ? d3.round((p.sslTimeSum / p.count), 2) : 0;
             p.connectTimeSum -= v['connectTime_avg'] * v['count'];
             p.connectTimeAvg = p.count ? d3.round((p.connectTimeSum / p.count), 2) : 0;
+            p.dnsTimeSum -= v['dnsTime_avg'] * v['count'];
+            p.dnsTimeAvg = p.count ? d3.round((p.dnsTimeSum / p.count), 2) : 0;
             return p;
         },
         //init
@@ -173,7 +177,9 @@ function createDashboard(data, labels, from, to) {
                 sslTimeAvg: 0,
                 sslTimeSum: 0,
                 connectTimeAvg: 0,
-                connectTimeSum: 0
+                connectTimeSum: 0,
+                dnsTimeAvg: 0,
+                dnsTimeSum: 0
             };
         });
 
@@ -221,6 +227,12 @@ function createDashboard(data, labels, from, to) {
     var connectTimeGroup_max = reductio().max(function (d) {
         return +d['connectTime_max']
     })(jobId_Date_Dimension.group());
+    var dnsTimeGroup_min = reductio().min(function (d) {
+        return +d['dnsTime_min']
+    })(jobId_Date_Dimension.group());
+    var dnsTimeGroup_max = reductio().max(function (d) {
+        return +d['dnsTime_max']
+    })(jobId_Date_Dimension.group());
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
 
@@ -257,9 +269,13 @@ function createDashboard(data, labels, from, to) {
         createLineChart(loadTime_ttfb_avg, " | SSL Time Avg", "sslTimeAvg", function (d) {
             return d.value.sslTimeAvg;
         });
-        // avg graph sslTime
+        // avg graph connectTime
         createLineChart(loadTime_ttfb_avg, " | Connect Time Avg", "connectTimeAvg", function (d) {
             return d.value.connectTimeAvg;
+        });
+        // avg graph dnsTime
+        createLineChart(loadTime_ttfb_avg, " | DNS Time Avg", "dnsTimeAvg", function (d) {
+            return d.value.dnsTimeAvg;
         });
 
         // min graph loadTime
@@ -272,6 +288,8 @@ function createDashboard(data, labels, from, to) {
         createLineChart(sslTimeGroup_min, " | SSL Time Min", "sslTimeMin", minValueAccessor);
         // min graph connectTime
         createLineChart(connectTimeGroup_min, " | Connect Time Min", "connectTimeMin", minValueAccessor);
+        // min graph dnsTime
+        createLineChart(connectTimeGroup_min, " | DNS Time Min", "dnsTimeMin", minValueAccessor);
 
         // max graph loadTime
         createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
@@ -283,6 +301,8 @@ function createDashboard(data, labels, from, to) {
         createLineChart(sslTimeGroup_max, " | SSL Time Max", "sslTimeMax", maxValueAccessor);
         // max graph ttfb
         createLineChart(connectTimeGroup_max, " | Connect Time Max", "connectTimeMax", maxValueAccessor);
+        // max graph dns
+        createLineChart(connectTimeGroup_max, " | DNS Time Max", "dnsTimeMax", maxValueAccessor);
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
@@ -336,6 +356,9 @@ function createDashboard(data, labels, from, to) {
             }
             if (document.getElementById("connectTime").checked) {
                 handleValueTypeCheckbox("connectTimeAvg","connectTimeMin", "connectTimeMax");
+            }
+            if (document.getElementById("dnsTime").checked) {
+                handleValueTypeCheckbox("dnsTimeAvg","dnsTimeMin", "dnsTimeMax");
             }
         }
 

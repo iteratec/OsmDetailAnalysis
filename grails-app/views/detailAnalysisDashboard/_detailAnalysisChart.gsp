@@ -116,6 +116,10 @@
                         <input type="checkbox" name="measurementCheckbox" id="connectTime">
                         Connect Time
                     </label>
+                    <label class="checkbox inline">
+                        <input type="checkbox" name="measurementCheckbox" id="dnsTime">
+                        DNS Time
+                    </label>
                 </div>
 
                 <div>
