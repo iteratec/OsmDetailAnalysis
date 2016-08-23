@@ -106,7 +106,10 @@ class AssetRequestPersistenceService {
                                 max('dnsTime_max', '\$dnsTime'), //add max sslNegotiationTime
                                 avg('bytesIn_avg', '\$bytesIn'), //add average sslNegotiationTime
                                 min('bytesIn_min', '\$bytesIn'), //add min sslNegotiationTime
-                                max('bytesIn_max', '\$bytesIn'), //add max sslNegotiationTime
+                                max('bytesIn_max', '\$bytesIn'), //add max sslNegotiationTime                               
+                                avg('bytesOut_avg', '\$bytesOut'), //add average sslNegotiationTime
+                                min('bytesOut_min', '\$bytesOut'), //add min sslNegotiationTime
+                                max('bytesOut_max', '\$bytesOut'), //add max sslNegotiationTime
                                 sum('count', 1)) //add sum of elements per aggregation
         aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
         return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
@@ -135,6 +138,7 @@ class AssetRequestPersistenceService {
                              measuredEvent:'\$measuredEvent',
                              host:'\$assets.host',
                              bytesIn:'\$assets.bytesIn',
+                             bytesOut:'\$assets.bytesOut',
                              page:'\$page'
                             }""")
         return preFilterProjectionDocument
@@ -175,6 +179,9 @@ class AssetRequestPersistenceService {
                             bytesIn_avg:'\$bytesIn_avg',
                             bytesIn_min:'\$bytesIn_min',
                             bytesIn_max:'\$bytesIn_max',
+                            bytesOut_avg:'\$bytesOut_avg',
+                            bytesOut_min:'\$bytesOut_min',
+                            bytesOut_max:'\$bytesOut_max',
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument

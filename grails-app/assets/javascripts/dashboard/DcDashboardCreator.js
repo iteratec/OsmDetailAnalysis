@@ -11,7 +11,7 @@ function createDashboard(data, labels, from, to) {
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
     board.setDashboardWidth(+width);
-
+    console.log(data);
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
@@ -147,6 +147,8 @@ function createDashboard(data, labels, from, to) {
             p.dnsTimeAvg = p.count ? d3.round((p.dnsTimeSum / p.count), 2) : 0;
             p.bytesInSum += v['bytesIn_avg'] * v['count'];
             p.bytesInAvg = p.count ? d3.round((p.bytesInSum / p.count), 2) : 0;
+            p.bytesOutSum += v['bytesOut_avg'] * v['count'];
+            p.bytesOutAvg = p.count ? d3.round((p.bytesOutSum / p.count), 2) : 0;
             return p;
         },
         //remove
@@ -166,6 +168,8 @@ function createDashboard(data, labels, from, to) {
             p.dnsTimeAvg = p.count ? d3.round((p.dnsTimeSum / p.count), 2) : 0;
             p.bytesInSum -= v['bytesIn_avg'] * v['count'];
             p.bytesInAvg = p.count ? d3.round((p.bytesInSum / p.count), 2) : 0;
+            p.bytesOutSum -= v['bytesOut_avg'] * v['count'];
+            p.bytesOutAvg = p.count ? d3.round((p.bytesOutSum / p.count), 2) : 0;
             return p;
         },
         //init
@@ -185,7 +189,9 @@ function createDashboard(data, labels, from, to) {
                 dnsTimeAvg: 0,
                 dnsTimeSum: 0,
                 bytesInAvg: 0,
-                bytesInSum: 0
+                bytesInSum: 0,
+                bytesOutAvg: 0,
+                bytesOutSum: 0
             };
         });
 
@@ -245,6 +251,12 @@ function createDashboard(data, labels, from, to) {
     var bytesInGroup_max = reductio().max(function (d) {
         return +d['bytesIn_max']
     })(jobId_Date_Dimension.group());
+    var bytesOutGroup_min = reductio().min(function (d) {
+        return +d['bytesOut_min']
+    })(jobId_Date_Dimension.group());
+    var bytesOutGroup_max = reductio().max(function (d) {
+        return +d['bytesOut_max']
+    })(jobId_Date_Dimension.group());
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
 
@@ -293,6 +305,10 @@ function createDashboard(data, labels, from, to) {
         createLineChart(loadTime_ttfb_avg, " | Bytes In Avg", "bytesInAvg", function (d) {
             return d.value.bytesInAvg;
         }, "bytes");
+        // avg graph bytesOut
+        createLineChart(loadTime_ttfb_avg, " | Bytes Out Avg", "bytesOutAvg", function (d) {
+            return d.value.bytesOutAvg;
+        }, "bytes");
 
         // min graph loadTime
         createLineChart(loadTimeGroup_min, " | LoadTimeMs Min", "loadTimeMin", minValueAccessor);
@@ -308,6 +324,8 @@ function createDashboard(data, labels, from, to) {
         createLineChart(dnsTimeGroup_min, " | DNS Time Min", "dnsTimeMin", minValueAccessor);
         // min graph bytesIn
         createLineChart(bytesInGroup_min, " | Bytes In Min", "bytesInMin", minValueAccessor,"bytes");
+        // min graph bytesOut
+        createLineChart(bytesInGroup_min, " | Bytes Out Min", "bytesOutMin", minValueAccessor,"bytes");
 
         // max graph loadTime
         createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
@@ -323,6 +341,8 @@ function createDashboard(data, labels, from, to) {
         createLineChart(dnsTimeGroup_max, " | DNS Time Max", "dnsTimeMax", maxValueAccessor);
         // max graph bytesIn
         createLineChart(bytesInGroup_max, " | Bytes In Max", "bytesInMax", maxValueAccessor,"bytes");
+        // max graph bytesOut
+        createLineChart(bytesOutGroup_max, " | Bytes Out Max", "bytesOutMax", maxValueAccessor,"bytes");
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
@@ -382,6 +402,9 @@ function createDashboard(data, labels, from, to) {
             }
             if (document.getElementById("bytesIn").checked) {
                 handleValueTypeCheckbox("bytesInAvg","bytesInMin", "bytesInMax");
+            }
+            if (document.getElementById("bytesOut").checked) {
+                handleValueTypeCheckbox("bytesOutAvg","bytesOutMin", "bytesOutMax");
             }
         }
 
