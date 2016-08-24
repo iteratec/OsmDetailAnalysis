@@ -1,8 +1,23 @@
 /*
-*= require_tree bower_components/dcjs
+*= require_tree ../bower_components/dcjs
 */
-.fa-gear{
+.fa-gear.dc-chart{
     position:absolute;
     left:50%;
     top:50%;
+}
+.dc-chart .pie-slice {
+    fill: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.dc-chart g.row text {
+    fill: black;
+}
+
+.dashboardContainer {
+    margin: 0 auto;
+    width: 1000px;
 }

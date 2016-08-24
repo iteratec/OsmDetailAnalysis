@@ -7,28 +7,28 @@
 * You're free to add application-wide styles to this file and they'll appear at the top of the
 * compiled file, but it's generally better to create a new file per style scope.
 *
-*= require_tree bower_components/bootstrap/docs
-*= require_tree bower_components/components-font-awesome
-*= require_tree bower_components/dcjs
-*= require bootstrap-custom
-*= require_self
+* require_tree bower_components/bootstrap/docs
+* require_tree bower_components/components-font-awesome
+* require_tree bower_components/dcjs
+* require bootstrap-custom
+* require_self
 */
-.form-group.error label, .fieldcontain.error label {
-    color: #b94a48;
-    font-weight: bold;
-}
-.renderInvisible {
-    display:none;
-}
-.nav .dropdown-toggle .caret {
-    border-top-color: #ffffff;
-    border-bottom-color: #ffffff;
-    margin-top: 8px;
-}
-.nav .dropdown-toggle:hover .caret, .nav .dropdown-toggle:focus .caret {
-    border-top-color: #ffffff;
-    border-bottom-color: #ffffff;
-}
-.btn-group > .btn-small {
-    font-size: 14px;
-}
+/*.form-group.error label, .fieldcontain.error label {*/
+    /*color: #b94a48;*/
+    /*font-weight: bold;*/
+/*}*/
+/*.renderInvisible {*/
+    /*display:none;*/
+/*}*/
+/*.nav .dropdown-toggle .caret {*/
+    /*border-top-color: #ffffff;*/
+    /*border-bottom-color: #ffffff;*/
+    /*margin-top: 8px;*/
+/*}*/
+/*.nav .dropdown-toggle:hover .caret, .nav .dropdown-toggle:focus .caret {*/
+    /*border-top-color: #ffffff;*/
+    /*border-bottom-color: #ffffff;*/
+/*}*/
+/*.btn-group > .btn-small {*/
+    /*font-size: 14px;*/
+/*}*/

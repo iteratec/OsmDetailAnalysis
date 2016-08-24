@@ -1,7 +1,7 @@
 <div id="dcChart">
     %{--Needed for OSM integration--}%
     <link rel="stylesheet" type="text/css" href="${serverBaseUrl}/assets/dashboard/DcDashboard.css">
-    <i id = "loadingIndicator" class="fa  fa-gear fa-spin" style="font-size:60px"></i>
+    <i id = "loadingIndicator" class="fa  fa-gear fa-spin dc-chart" style="font-size:60px"></i>
     <div id = "detailDataContainer" style="display: none;">
         <div>
             <h3>Detail Dashboard</h3>

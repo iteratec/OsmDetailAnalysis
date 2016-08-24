@@ -112,11 +112,11 @@ public class PersistenceCommand extends OsmCommand{
     Long jobId
 
     static constraints = {
-        apiKey(validator: { String currentKey, PersistenceCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
-            else return true
-        })
+//        apiKey(validator: { String currentKey, PersistenceCommand cmd ->
+//            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+//            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+//            else return true
+//        })
         osmUrl(nullable:false)
         wptTestId(nullable:false)
         wptServerBaseUrl(nullable:false)

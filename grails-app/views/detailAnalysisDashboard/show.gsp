@@ -6,25 +6,6 @@
     <meta name="layout" content="kickstart_osm_da"/>
     <title><g:message code="de.iteratec.isocsi.detailAnalysisDashboard"/></title>
 
-    <style>
-    %{--Overwrite dc.min.css--}%
-    .dc-chart .pie-slice {
-        fill: #fff;
-        font-size: 10px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .dc-chart g.row text {
-        fill: black;
-    }
-
-    .dashboardContainer {
-        margin: 0 auto;
-        width: 1000px;
-    }
-
-    </style>
 
 </head>
 
@@ -40,7 +21,7 @@
     <asset:script type="text/javascript">
                 $(document).ready(function () {
             <g:applyCodec encodeAs="none">
-                var ajaxUrl = ${createLink(controller:'detailAnalysisDashboard',action:'getAssetsForDataPoint')};
+                var ajaxUrl = "${serverBaseUrl+createLink(controller:'detailAnalysisDashboard',action:'getAssetsForDataPoint')}";
                 var data = ${graphData};
                 var labels = ${labelAliases};
                 var from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";

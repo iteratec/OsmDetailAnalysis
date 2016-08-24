@@ -152,7 +152,3 @@ clean.delete << file('grails-app/assets/javascripts/bower_components')
 clean.delete << file('grails-app/assets/stylesheets/bower_components')
 clean.delete << file('node_modules')
 clean.delete << file('bower_components')
-bootRun {
-    addResources = false // We can set it to true if we would like to reload src/main/resources
-    jvmArgs = ["-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006"]
-}
