@@ -25,12 +25,14 @@ DcDashboard.prototype.addData = function (data) {
     this.setLineChartDomain('dcChart', 'line-chart', minDate, maxDate);
     this.allData.add(data);
     dc.redrawAll();
+    addOnClickListeners();
 };
 
 DcDashboard.prototype.clearData = function () {
     dc.filterAll();
     this.allData.remove();
     dc.redrawAll();
+    addOnClickListeners();
 };
 
 DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifier, dimension, group, labelAccessor) {
@@ -139,7 +141,7 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
             return d.key[0];
         })
         .valueAccessor(valueAccessor)
-        .renderDataPoints({radius: 2, fillOpacity: 0.6, strokeOpacity: 0.8})
+        .renderDataPoints({radius: 4, fillOpacity: 0.6, strokeOpacity: 0.8})
         .colors(color);
 
     if(unit == "bytes"){

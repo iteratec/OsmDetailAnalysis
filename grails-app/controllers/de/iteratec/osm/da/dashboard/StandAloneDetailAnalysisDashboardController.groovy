@@ -5,6 +5,7 @@ import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.converters.JSON
 import grails.web.mapping.LinkGenerator
+import groovyx.net.http.ContentType
 import org.joda.time.DateTime
 
 class StandAloneDetailAnalysisDashboardController {
@@ -77,6 +78,12 @@ class StandAloneDetailAnalysisDashboardController {
         modelToRender.put('toDateInMillis', toDate.millis)
 
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
+    }
+    def getAssetsForDataPoint(){
+        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(),request.JSON.jobId ,request.JSON.hosts,request.JSON.browsers,request.JSON.mediaTypes,request.JSON.subtypes,request.JSON.jobGroups,request.JSON.pages)
+        response.setContentType(ContentType.JSON.toString())
+        response.status = 200
+        render result
     }
 
     private void fillWithLabelAliases(Map<String, Object> modelToRender, OsmInstance osmInstance) {

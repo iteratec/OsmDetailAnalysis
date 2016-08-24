@@ -6,7 +6,8 @@
 //= require_tree ../bower_components/reductio
 //= require DcDashboard.js
 
-function createDashboard(data, labels, from, to) {
+function createDashboard(data, labels, from, to, ajaxUrlParam) {
+    ajaxUrl =ajaxUrlParam
     if(data[0] == undefined){
         //No data to show, so just stop here
         return;
@@ -15,7 +16,7 @@ function createDashboard(data, labels, from, to) {
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
     board.setDashboardWidth(+width);
-
+    charts = new Object();
     var dataCounts = getDataCounts(data);
     var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
@@ -31,7 +32,7 @@ function createDashboard(data, labels, from, to) {
         var browserLabelAccessor = function (d) {
             return labels['browser'] ? labels['browser'][d.key] : d.key
         };
-        board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
+        charts["browser-chart"] = board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
     }
 
     // MEDIATYPE FILTER
@@ -45,7 +46,7 @@ function createDashboard(data, labels, from, to) {
         var mediaTypeLabelAccessor = function (d) {
             return d.key
         };
-        board.addPieChart('dcChart', 'mediaType-chart', mediaType, mediaTypeGroup, mediaTypeLabelAccessor);
+        charts["mediaType-chart"] = board.addPieChart('dcChart', 'mediaType-chart', mediaType, mediaTypeGroup, mediaTypeLabelAccessor);
     }
 
     // SUBTYPE FILTER
@@ -59,7 +60,7 @@ function createDashboard(data, labels, from, to) {
         var subtypeLabelAccessor = function (d) {
             return d.key
         };
-        board.addPieChart('dcChart', 'subtype-chart', subtype, subtypeGroup, subtypeLabelAccessor);
+        charts["subtype-chart"] = board.addPieChart('dcChart', 'subtype-chart', subtype, subtypeGroup, subtypeLabelAccessor);
     }
 
     // PAGE FILTER
@@ -73,7 +74,7 @@ function createDashboard(data, labels, from, to) {
         var pageLabelAccessor = function (d) {
             return labels['page'] ? labels['page'][d.key] : d.key
         };
-        board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
+        charts["page-chart"] = board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
     }
 
     //JOBGROUP FILTER
@@ -90,7 +91,7 @@ function createDashboard(data, labels, from, to) {
             }
             return labels['jobGroup'] ? labels['jobGroup'][d.key] : "" + d.key
         };
-        board.addPieChart('dcChart', 'jobGroup-chart', jobGroup, jobGroupGroup, jobGroupLabelAccessor)
+        charts["jobGroup-chart"] = board.addPieChart('dcChart', 'jobGroup-chart', jobGroup, jobGroupGroup, jobGroupLabelAccessor)
     }
 
     // MEASURED EVENT FILTER
@@ -107,7 +108,7 @@ function createDashboard(data, labels, from, to) {
             }
             return labels['measuredEvent'] ? labels['measuredEvent'][d.key] : "" + d.key
         };
-        board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
+        charts["measuredEvent-chart"] = board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
     }
 
     // HOST FILTER
@@ -121,10 +122,13 @@ function createDashboard(data, labels, from, to) {
         var hostLabelAccessor = function (d) {
             return d.key
         };
-        board.addRowChart('dcChart', 'host-chart', host, hostGroup, dataCounts['host'], hostLabelAccessor);
+        charts["host-chart"] = board.addRowChart('dcChart', 'host-chart', host, hostGroup, dataCounts['host'], hostLabelAccessor);
     }
 
-
+    var loadingIndicator = document.getElementById("loadingIndicator");
+    loadingIndicator.style.display='none'
+    var detailDataContainer = document.getElementById("detailDataContainer");
+    detailDataContainer.style.display='block'
     // Show count of selected data
     board.addDataCount('dcChart', 'dc-data-count');
 
@@ -416,7 +420,7 @@ function createDashboard(data, labels, from, to) {
 
         board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);
         dc.renderAll();
-
+        addOnClickListeners();
         board.setAnimationTime(700);
     }
 }
@@ -548,4 +552,126 @@ function remove_empty_bins(source_group, valueAccessor) {
             });
         }
     };
+}
+/**
+ * Invokes the renderAll function from dc and reattaches the onClick-listeners to the individual data points
+ */
+function addOnClickListeners(){
+    d3.selectAll("circle").on("click", function (d) {
+        var data = {
+            jobId : [],
+            date : [],
+            hosts : [],
+            browsers : [],
+            mediaTypes : [],
+            subtypes : [],
+            jobGroups : [],
+            pages : []
+        }
+
+        if(d.data.key[0]!=null){
+            data["date"] = d.data.key[0]
+        }
+        if(d.data.key[1]!=null){
+            data["jobId"] = d.data.key[1]
+        }
+        if (charts["host-chart"] != null ){
+            data["hosts"]= (charts["host-chart"].filters())
+        }
+        if (charts["browser-chart"] != null ){
+            data["browsers"] = (charts["browser-chart"].filters())
+        }
+        if (charts["mediaType-chart"] != null ){
+            data["mediaTypes"] = (charts["mediaType-chart"].filters())
+        }
+        if (charts["subtype-chart"] != null ){
+            data["subtypes"] = (charts["subtype-chart"].filters())
+        }
+        if (charts["jobGroup-chart"] != null ){
+            data["jobGroups"] = (charts["jobGroup-chart"].filters())
+        }
+        if (charts["page-chart"] != null ){
+            data["page"] = (charts["page-chart"].filters())
+        }
+        jQuery.ajax({
+            type:"POST",
+            url:ajaxUrl,
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data:JSON.stringify(data),
+            success: function(resp){
+                removeAllRowsFromAssetDetailsTable();
+                resp.forEach(addRowToAssetDetailsTable)
+                ;
+            }
+        })
+
+
+    });
+}
+function removeAllRowsFromAssetDetailsTable() {
+    var table = document.getElementById("assetDetailsTable");
+    while(table.rows.length > 1) {
+        table.deleteRow(1);
+    }
+}
+function addRowToAssetDetailsTable(asset) {
+    var tableContainer = document.getElementById("assetDetailsContainer");
+    tableContainer.style.display='block'
+
+    var table = document.getElementById("assetDetailsTable");
+    var row = table.insertRow(1);
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+    var cell5 = row.insertCell(4);
+    var cell6 = row.insertCell(5);
+    var cell7 = row.insertCell(6);
+    var cell8 = row.insertCell(7);
+    var cell9 = row.insertCell(8);
+    var cell10= row.insertCell(9);
+    var cell11= row.insertCell(10);
+    var cell12= row.insertCell(11);
+    var cell13= row.insertCell(12);
+    var cell14= row.insertCell(13);
+    var cell15= row.insertCell(14);
+    var cell16= row.insertCell(15);
+    var cell17= row.insertCell(16);
+    var cell18= row.insertCell(17);
+    var cell19= row.insertCell(18);
+    var cell20= row.insertCell(19);
+    var cell21= row.insertCell(20);
+    var cell22= row.insertCell(21);
+    var cell23= row.insertCell(22);
+    var cell24= row.insertCell(23);
+    var cell25= row.insertCell(24);
+    var cell26= row.insertCell(25);
+    cell1.innerHTML = asset.bandwidthDown;
+    cell2.innerHTML = asset.bandwidthUp;
+    cell3.innerHTML = asset.browser;
+    cell4.innerHTML = asset.bytesIn;
+    cell5.innerHTML = asset.bytesOut;
+    cell6.innerHTML = asset.connectTime;
+    cell7.innerHTML = asset.downloadTimeMs;
+    cell8.innerHTML = asset.epochTimeStarted;
+    cell9.innerHTML = asset.eventName;
+    cell10.innerHTML = asset.host;
+    cell11.innerHTML = asset.isFirstViewInStep;
+    cell12.innerHTML = asset.jobGroup;
+    cell13.innerHTML = asset.jobId;
+    cell14.innerHTML = asset.latency;
+    cell15.innerHTML = asset.loadTimeMs;
+    cell16.innerHTML = asset.location;
+    cell17.innerHTML = asset.measuredEvent;
+    cell18.innerHTML = asset.mediaType;
+    cell19.innerHTML = asset.packetLoss;
+    cell20.innerHTML = asset.page;
+    cell21.innerHTML = asset.sslTime;
+    cell22.innerHTML = asset.subtype;
+    cell23.innerHTML = asset.timeToFirstByteMs;
+    cell24.innerHTML = asset.urlWithoutParams;
+    cell25.innerHTML = asset.wptBaseUrl;
+    cell26.innerHTML = asset.wptTestId;
+
 }

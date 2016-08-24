@@ -40,13 +40,14 @@
     <asset:script type="text/javascript">
         $(document).ready(function () {
         <g:applyCodec encodeAs="none">
-            var data = ${graphData};
+                var ajaxUrl = "${serverBaseUrl+createLink(controller:'standAloneDetailAnalysisDashboard',action:'getAssetsForDataPoint')}";
+                var data = ${graphData};
                 var labels = ${labelAliases};
                 var from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";
                 var to = "${toDateInMillis}" ? new Date(${toDateInMillis}) : "";
         </g:applyCodec>
 
-        createDashboard(data, labels, from, to);
+        createDashboard(data, labels, from, to,ajaxUrl);
     });
     </asset:script>
 </content>

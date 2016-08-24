@@ -20,6 +20,7 @@ import static com.mongodb.client.model.Filters.*
 class AssetRequestPersistenceService {
 
     WptDetailResultConvertService wptDetailResultConvertService
+    Document preFilterForCompleteAssetRequest
     Document preFilterProjectionDocument
     Document unpackIdProjectionDocument
     MongoClient mongo
@@ -38,6 +39,35 @@ class AssetRequestPersistenceService {
         }
     }
 
+    public String getCompleteAssets(
+            Date timestamp,
+            int jobId,
+            List hosts,
+            List browsers,
+            List mediaTypes,
+            List subtypes,
+            List jobGroups,
+            List pages
+    ) {
+        List aggregateList = []
+        List matchList = []
+        def db = mongo.getDatabase("OsmDetailAnalysis")
+        matchList << eq("epochTimeStarted", timestamp.time / 1000 as Long)
+        matchList << eq("jobId", jobId )
+        //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
+        //We add only maps which are not empty, because the check if something is in a empty map would always fail.
+        if (jobGroups) matchList << Filters.in("jobGroup", jobGroups)
+        if (pages) matchList << Filters.in("page", pages)
+        if (browsers) matchList << Filters.in("browser", browsers)
+        if (hosts) matchList << Filters.in("host", hosts)
+        if (mediaTypes) matchList << Filters.in("mediaType", mediaTypes)
+        if (subtypes) matchList << Filters.in("subtype", subtypes)
+
+        aggregateList << unwind("\$assets") // return one document for each asset in the asset group
+        aggregateList << project(createPreFilterForCompleteAssetRequest()) //filter out unwanted fields and flatten hierarchy
+        aggregateList << match(and(matchList)) //filter out unwanted assets
+        return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
+    }
     public String getRequestAssetsAsJson(
             Date from,
             Date to,
@@ -84,8 +114,8 @@ class AssetRequestPersistenceService {
                                 'browser'         : '\$browser',
                                 'subtype'         : '\$subtype',
                                 'epochTimeStarted': '\$epochTimeStarted',
-                                measuredEvent     : '\$measuredEvent',
-                                host              : '\$host', page: '\$page',] as BasicDBObject, //aggregate the assets by dimension
+                                'measuredEvent'   : '\$measuredEvent',
+                                'host'            : '\$host', page: '\$page',] as BasicDBObject, //aggregate the assets by dimension
                                 avg('loadTimeMs_avg',   '\$loadTimeMs'), //add average load time
                                 min('loadTimeMs_min',   '\$loadTimeMs'), //add min load time
                                 max('loadTimeMs_max',   '\$loadTimeMs'), //add max load time
@@ -142,6 +172,40 @@ class AssetRequestPersistenceService {
                              page:'\$page'
                             }""")
         return preFilterProjectionDocument
+    }
+
+    private Document createPreFilterForCompleteAssetRequest() {
+        if (preFilterForCompleteAssetRequest) return preFilterForCompleteAssetRequest
+        preFilterForCompleteAssetRequest = Document.parse("""
+                            {bandwidthDown:'\$connectivity.bandwidthDown',
+                             bandwidthUp: '\$connectivity.bandwidthUp',
+                             latency: '\$connectivity.latency',
+                             packetLoss: '\$connectivity.packetLoss',
+                             browser:'\$browser',
+                             epochTimeStarted:'\$epochTimeStarted',
+                             eventName:'\$eventName',
+                             isFirstViewInStep:'\$isFirstViewInStep',
+                             jobGroup: '\$jobGroup'
+                             jobId: '\$jobId',
+                             location:'\$location',
+                             measuredEvent:'\$measuredEvent',
+                             mediaType:'\$mediaType',
+                             page:'\$page',
+                             wptBaseUrl:'\$wptBaseUrl',
+                             wptTestId:'\$wptTestId',
+                             bytesIn:'\$assets.bytesIn',
+                             bytesOut:'\$assets.bytesOut',
+                             connectTime: '\$assets.connectTimeMs'
+                             dnsTime:'\$assets.dnsMs',
+                             downloadTimeMs:'\$assets.downloadTimeMs',
+                             host:'\$assets.host',
+                             loadTimeMs:'\$assets.loadTimeMs',
+                             sslTime: '\$assets.sslNegotiationTimeMs'
+                             subtype:'\$assets.subtype',
+                             timeToFirstByteMs:'\$assets.timeToFirstByteMs',
+                             urlWithoutParams: '\$assets.urlWithoutParams'
+                            }""")
+        return preFilterForCompleteAssetRequest
     }
 
     private Document createUnpackIdProjectDocument() {
