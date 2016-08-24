@@ -359,6 +359,17 @@ function createDashboard(data, labels, from, to, ajaxUrlParam) {
 
     // ### END LINE CHARTS
 
+    // ### BEGIN TIME CHART
+    var timeDimension =  board.allData.dimension(function (d) {
+        return d.date;
+    });
+
+    var timeGroup = timeDimension.group().reduceSum(function (d) {
+        return d['count'];
+    });
+    board.addTimeChart('dcChart', 'timeChart', timeDimension, timeGroup, from, to);
+    // ### END TIME CHART
+
     // Add data to dashboard
     var p1 = new Promise(
         function (resolve, reject) {

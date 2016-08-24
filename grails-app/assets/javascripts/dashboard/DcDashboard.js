@@ -116,6 +116,7 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
         .brushOn(false)
         .renderHorizontalGridLines(true)
         .elasticY(true)
+        .elasticX(true)
         .yAxisLabel("ms")
         .legend(dc.legend().x(20).y(700).itemHeight(13).gap(5))
         .x(d3.time.scale().domain([from, to]))
@@ -156,4 +157,36 @@ DcDashboard.prototype.setAnimationTime = function (time) {
     for(var i = 0; i < this.allDashboardGraphs.length; i++) {
         this.allDashboardGraphs[i].transitionDuration(time);
     }
+};
+
+DcDashboard.prototype.getTimeChart = function (dashboardIdentifier, chartIdentifier) {
+    if(!this.timeChart)
+        this.timeChart = dc.barChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
+    return this.timeChart
+};
+
+DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentifier, dimension, group, from, to) {
+    var chart = this.getTimeChart(dashboardIdentifier, chartIdentifier);
+    chart.margins().left = 40;
+    chart
+        .width(this.dashboardWidth)
+        .height(150)
+        .x(d3.time.scale().domain([from, to]))
+        .y(d3.scale.linear().domain([0,25]))
+        // .xUnits(d3.time.months)
+        .gap(5)
+        .elasticX(true)
+        .yAxisLabel("count")
+        .brushOn(true)
+        .dimension(dimension)
+        .group(group)
+        .controlsUseVisibility(true);
+
+    chart.yAxis().ticks(8);
+
+
+
+    dc.renderAll();
+    this.allDashboardGraphs.push(chart);
+    return chart;
 };

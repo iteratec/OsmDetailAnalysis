@@ -101,6 +101,12 @@
         <div>
             <div>
                 <div class="row dashboardContainer">
+
+                    <div class="row">
+                        <div class="span12">
+                            <div id="timeChart"></div>
+                        </div>
+                    </div>
                     <div>
                         <label class="checkbox inline">
                             <input type="checkbox" name="measurementCheckbox" id="loadTimeMs" checked="checked">
