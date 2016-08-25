@@ -124,6 +124,9 @@ task bowerSyncJavascript(type: Sync) {
     include 'bootstrap/docs/assets/js/bootstrap.min.js'
     include 'bootstrap/js/*.js'
     include 'bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'
+    include 'bootstrap-sortable/Scripts/bootstrap-sortable.js'
+    include 'datatables.net/js/jquery.dataTables.min.js'
+//    include 'datatables.net-dt/js/dataTables.dataTables.min.js'
     include 'components-font-awesome/*'
 
     dependsOn bowerInstall
@@ -132,6 +135,7 @@ task bowerSyncJavascript(type: Sync) {
 task bowerSyncStylesheets(type: Sync) {
     from 'bower_components'
     into "grails-app/assets/stylesheets/bower_components"
+    include 'datatables.net-dt/css/jquery.dataTables.min.css'
     include 'dcjs/dc.css'
     include 'bootstrap/docs/assets/css/bootstrap*.css'
     include 'bootstrap/less/*.less'

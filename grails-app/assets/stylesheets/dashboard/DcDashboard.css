@@ -1,5 +1,6 @@
 /*
 *= require_tree ../bower_components/dcjs
+*= require_tree ../bower_components/datatables.net-dt
 */
 .fa-gear.dc-chart{
     position:absolute;

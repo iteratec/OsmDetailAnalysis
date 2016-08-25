@@ -169,8 +169,9 @@
 
  <br>
 
-    <div id = "assetDetailsContainer" style="display: none;">
-        <table  class="table table-condensed" id="assetDetailsTable" >
+
+    <div class="container" id = "assetDetailsContainer" style="display: none;">
+        <table   class="table table-hover" cellspacing="0" width="100%" id="assetDetailsTable" >
             <thead>
                 <tr>
                     <th>bandwidthDown</th>
@@ -201,6 +202,9 @@
                     <th>wptTestId</th>
                 </tr>
             </thead>
+            <tbody>
+
+            </tbody>
         </table>
     </div>
     </g:if>

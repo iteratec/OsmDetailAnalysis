@@ -1,5 +1,7 @@
 //= require_tree ../bower_components/jquery
 //= require_tree ../bower_components/jquery-ui
+//= require_tree ../bower_components/datatables.net
+//= require_tree ../bower_components/datatables.net-dt
 //= require_tree ../bower_components/crossfilter2
 //= require_tree ../bower_components/d3
 //= require_tree ../bower_components/dcjs
@@ -613,6 +615,7 @@ function addOnClickListeners(){
             success: function(resp){
                 removeAllRowsFromAssetDetailsTable();
                 resp.forEach(addRowToAssetDetailsTable)
+                $('#assetDetailsTable').DataTable({paging:"true"});
                 ;
             }
         })
@@ -630,8 +633,8 @@ function addRowToAssetDetailsTable(asset) {
     var tableContainer = document.getElementById("assetDetailsContainer");
     tableContainer.style.display='block'
 
-    var table = document.getElementById("assetDetailsTable");
-    var row = table.insertRow(1);
+    var table = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
+    var row = table.insertRow(0);
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
@@ -684,5 +687,6 @@ function addRowToAssetDetailsTable(asset) {
     cell24.innerHTML = asset.urlWithoutParams;
     cell25.innerHTML = asset.wptBaseUrl;
     cell26.innerHTML = asset.wptTestId;
+
 
 }
