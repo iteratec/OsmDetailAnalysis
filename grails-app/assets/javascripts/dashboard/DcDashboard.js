@@ -122,9 +122,8 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
         .compose([]);
-
+    chart.yAxisPadding("5%");
     dc.renderAll();
-
     this.allDashboardGraphs.push(chart);
     return chart;
 };
@@ -172,10 +171,10 @@ DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentif
         .width(this.dashboardWidth)
         .height(150)
         .x(d3.time.scale().domain([from, to]))
-        .y(d3.scale.linear().domain([0,25]))
         // .xUnits(d3.time.months)
         .gap(5)
         .elasticX(true)
+        .elasticY(true)
         .yAxisLabel("count")
         .brushOn(true)
         .dimension(dimension)
@@ -183,6 +182,7 @@ DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentif
         .controlsUseVisibility(true);
 
     chart.yAxis().ticks(8);
+    chart.yAxisPadding("5%");
 
 
 
