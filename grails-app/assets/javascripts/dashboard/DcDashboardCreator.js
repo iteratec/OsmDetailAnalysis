@@ -8,7 +8,8 @@
 //= require_tree ../bower_components/reductio
 //= require DcDashboard.js
 
-function createDashboard(data, labels, from, to, ajaxUrlParam) {
+function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
+    labels = labelsParam
     ajaxUrl =ajaxUrlParam
     if(data[0] == undefined){
         //No data to show, so just stop here
@@ -446,7 +447,7 @@ function createDashboard(data, labels, from, to, ajaxUrlParam) {
  * @param labels
  */
 function showUniqueValues(dataCounts, data, labels) {
-    var uniqueValues = {};
+    uniqueValues = {};
 
     for (var key in dataCounts) {
         if (dataCounts[key] <= 1) {
@@ -574,37 +575,37 @@ function addOnClickListeners(){
         var data = {
             jobId : [],
             date : [],
-            hosts : [],
-            browsers : [],
-            mediaTypes : [],
-            subtypes : [],
-            jobGroups : [],
-            pages : []
-        }
+            host : [],
+            browser : [],
+            mediaType : [],
+            subtype : [],
+            jobGroup : [],
+            page : []
+        };
 
         if(d.data.key[0]!=null){
-            data["date"] = d.data.key[0]
+            data["date"] = d.data.key[0];
         }
         if(d.data.key[1]!=null){
-            data["jobId"] = d.data.key[1]
+            data["jobId"] = d.data.key[1];
         }
         if (charts["host-chart"] != null ){
-            data["hosts"]= (charts["host-chart"].filters())
+            data["host"]= (charts["host-chart"].filters());
         }
         if (charts["browser-chart"] != null ){
-            data["browsers"] = (charts["browser-chart"].filters())
+            data["browser"] = (charts["browser-chart"].filters());
         }
         if (charts["mediaType-chart"] != null ){
-            data["mediaTypes"] = (charts["mediaType-chart"].filters())
+            data["mediaType"] = (charts["mediaType-chart"].filters());
         }
         if (charts["subtype-chart"] != null ){
-            data["subtypes"] = (charts["subtype-chart"].filters())
+            data["subtype"] = (charts["subtype-chart"].filters());
         }
         if (charts["jobGroup-chart"] != null ){
-            data["jobGroups"] = (charts["jobGroup-chart"].filters())
+            data["jobGroup"] = (charts["jobGroup-chart"].filters());
         }
         if (charts["page-chart"] != null ){
-            data["page"] = (charts["page-chart"].filters())
+            data["page"] = (charts["page-chart"].filters());
         }
         jQuery.ajax({
             type:"POST",
@@ -614,79 +615,120 @@ function addOnClickListeners(){
             data:JSON.stringify(data),
             success: function(resp){
                 removeAllRowsFromAssetDetailsTable();
-                resp.forEach(addRowToAssetDetailsTable)
-                $('#assetDetailsTable').DataTable({paging:"true"});
-                ;
+                fillPreFilteredTable(data)
+                fillDataInAssetTable(resp,data);
+
             }
-        })
+        });
 
 
     });
 }
+function fillPreFilteredTable(data){
+    addRowToPreFilteredTable("subtype",data["subtype"])
+    addRowToPreFilteredTable("page",data["page"])
+    addRowToPreFilteredTable("mediaType",data["mediaType"])
+    addRowToPreFilteredTable("jobId",[data["jobId"]])
+    addRowToPreFilteredTable("jobGroup",data["jobGroup"])
+    addRowToPreFilteredTable("host",data["host"])
+    addRowToPreFilteredTable("date",[data["date"]])
+    addRowToPreFilteredTable("browser",data["browser"])
+}
+function addRowToPreFilteredTable(key,data){
+    var preFilteredTable = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
+    var value = "";
+    if(data.length == 1 ) value = data[0];
+    else if(key in uniqueValues) value = uniqueValues[key];
+    if (value != "") {
+        var row = preFilteredTable.insertRow(0);
+        var cellKey = row.insertCell(0);
+        cellKey.innerHTML = key;
+        var cellValue = row.insertCell(1);
+        cellValue.innerHTML = getLable(key,value)
+    }
+}
+
+function getLable(key,value){
+    var result = value;
+    if (key in labels && value in labels[key])
+        result = labels[key][value];
+    return result
+}
+
 function removeAllRowsFromAssetDetailsTable() {
-    var table = document.getElementById("assetDetailsTable");
-    while(table.rows.length > 1) {
-        table.deleteRow(1);
+    if(typeof assetDataTable != 'undefined') {
+        assetDataTable.clear();
+        assetDataTable.destroy();
+    }
+    var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
+    if (tableHead.rows.length > 0){
+        tableHead.deleteRow(0);
+    }
+    var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
+    while(tableBody.rows.length > 0) {
+        tableBody.deleteRow(0);
+    }
+    var preFilterTableBody = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
+    while(preFilterTableBody.rows.length > 0) {
+        preFilterTableBody.deleteRow(0);
     }
 }
 function addRowToAssetDetailsTable(asset) {
-    var tableContainer = document.getElementById("assetDetailsContainer");
-    tableContainer.style.display='block'
 
     var table = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
     var row = table.insertRow(0);
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    var cell3 = row.insertCell(2);
-    var cell4 = row.insertCell(3);
-    var cell5 = row.insertCell(4);
-    var cell6 = row.insertCell(5);
-    var cell7 = row.insertCell(6);
-    var cell8 = row.insertCell(7);
-    var cell9 = row.insertCell(8);
-    var cell10= row.insertCell(9);
-    var cell11= row.insertCell(10);
-    var cell12= row.insertCell(11);
-    var cell13= row.insertCell(12);
-    var cell14= row.insertCell(13);
-    var cell15= row.insertCell(14);
-    var cell16= row.insertCell(15);
-    var cell17= row.insertCell(16);
-    var cell18= row.insertCell(17);
-    var cell19= row.insertCell(18);
-    var cell20= row.insertCell(19);
-    var cell21= row.insertCell(20);
-    var cell22= row.insertCell(21);
-    var cell23= row.insertCell(22);
-    var cell24= row.insertCell(23);
-    var cell25= row.insertCell(24);
-    var cell26= row.insertCell(25);
-    cell1.innerHTML = asset.bandwidthDown;
-    cell2.innerHTML = asset.bandwidthUp;
-    cell3.innerHTML = asset.browser;
-    cell4.innerHTML = asset.bytesIn;
-    cell5.innerHTML = asset.bytesOut;
-    cell6.innerHTML = asset.connectTime;
-    cell7.innerHTML = asset.downloadTimeMs;
-    cell8.innerHTML = asset.epochTimeStarted;
-    cell9.innerHTML = asset.eventName;
-    cell10.innerHTML = asset.host;
-    cell11.innerHTML = asset.isFirstViewInStep;
-    cell12.innerHTML = asset.jobGroup;
-    cell13.innerHTML = asset.jobId;
-    cell14.innerHTML = asset.latency;
-    cell15.innerHTML = asset.loadTimeMs;
-    cell16.innerHTML = asset.location;
-    cell17.innerHTML = asset.measuredEvent;
-    cell18.innerHTML = asset.mediaType;
-    cell19.innerHTML = asset.packetLoss;
-    cell20.innerHTML = asset.page;
-    cell21.innerHTML = asset.sslTime;
-    cell22.innerHTML = asset.subtype;
-    cell23.innerHTML = asset.timeToFirstByteMs;
-    cell24.innerHTML = asset.urlWithoutParams;
-    cell25.innerHTML = asset.wptBaseUrl;
-    cell26.innerHTML = asset.wptTestId;
+    asset.sort(function(a, b) {
+        return parseFloat(a) - parseFloat(b);
+    });
+    for(var k in asset) {
+        console.log(k, asset[k]);
+        var cell1 = row.insertCell(0);
+    }
+
+}
+
+function fillDataInAssetTable(resp, requestData){
+
+
+    var tableContainer = document.getElementById("assetDetailsContainer");
+    tableContainer.style.display='block';
+    var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
+    var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
+    var columnsMapping =[]
+    for(var k in resp[0]) {
+        if(k == "_id") continue; //filter out mongodb id
+        if(k in uniqueValues) continue; // filter out params that are unique in the preselection e.g. if all measurements were done with chrome
+        //filter out the values selected in the charts
+        if(k == "host" && requestData["host"].length ==1) continue;
+        if(k == "epochTimeStarted") continue;
+        if(k == "browser" && requestData["browser"].length ==1) continue;
+        if(k == "mediaType" && requestData["mediaType"].length ==1) continue;
+        if(k == "subtype" && requestData["subtype"].length ==1) continue;
+        if(k == "jobGroup" && requestData["jobGroup"].length ==1) continue;
+        if(k == "page" && requestData["page"].length ==1) continue;
+        columnsMapping.push(k);
+    }
+    columnsMapping.sort();
+    var headRow =  tableHead.insertRow(0);
+    columnsMapping.forEach(function (d, i) {
+        var cell = headRow.insertCell(i);
+        cell.innerHTML = d;
+    });
+    resp.forEach(function (asset) {
+        var row = tableBody.insertRow(0);
+        var cells = {};
+        var i = 0;
+        for(var k in columnsMapping) {
+            cells[i] = row.insertCell(i++);
+        }
+        for(var k in asset) {
+            if(columnsMapping.indexOf(k) != -1)
+                cells[columnsMapping.indexOf(k)].innerHTML = getLable(k,asset[k])
+        }
+    });
+    assetDataTable = $('#assetDetailsTable').DataTable({
+        paging: "true",
+    });
 
 
 }

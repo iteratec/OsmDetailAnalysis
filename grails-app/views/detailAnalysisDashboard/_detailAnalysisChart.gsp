@@ -171,41 +171,23 @@
 
 
     <div class="container" id = "assetDetailsContainer" style="display: none;">
-        <table   class="table table-hover" cellspacing="0" width="100%" id="assetDetailsTable" >
-            <thead>
-                <tr>
-                    <th>bandwidthDown</th>
-                    <th>bandwidthUp</th>
-                    <th>browser</th>
-                    <th>bytesIn</th>
-                    <th>bytesOut</th>
-                    <th>connectTime</th>
-                    <th>downloadTimeMs</th>
-                    <th>epochTimeStarted</th>
-                    <th>eventName</th>
-                    <th>host</th>
-                    <th>isFirstViewInStep</th>
-                    <th>jobGroup</th>
-                    <th>jobId</th>
-                    <th>latency</th>
-                    <th>loadTimeMs</th>
-                    <th>location</th>
-                    <th>measuredEvent</th>
-                    <th>mediaType</th>
-                    <th>packetLoss</th>
-                    <th>page</th>
-                    <th>sslTime</th>
-                    <th>subtype</th>
-                    <th>timeToFirstByteMs</th>
-                    <th>urlWithoutParams</th>
-                    <th>wptBaseUrl</th>
-                    <th>wptTestId</th>
-                </tr>
-            </thead>
-            <tbody>
 
-            </tbody>
+        <table   class="table table-hover" cellspacing="0" width="100%" id="assetDetailsTable" >
+            <thead></thead>
+            <tbody></tbody>
         </table>
+        <br>
+        <h3>Preselected Values</h3>
+        <table   class="table table-hover" cellspacing="0" width="100%" id="preFilterTable" >
+            <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
     </div>
     </g:if>
 </div>

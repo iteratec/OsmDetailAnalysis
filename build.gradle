@@ -145,8 +145,15 @@ task bowerSyncStylesheets(type: Sync) {
     dependsOn bowerInstall
 }
 
+task bowerSyncImages(type: Sync) {
+    from 'bower_components'
+    into "grails-app/assets/images/bower_components"
+    include 'datatables.net-dt/images/*.png'
+    dependsOn bowerInstall
+}
+
 task bowerPackages() {
-    dependsOn bowerSyncJavascript, bowerSyncStylesheets
+    dependsOn bowerSyncJavascript, bowerSyncStylesheets, bowerSyncImages
 }
 
 processResources.dependsOn bowerPackages
