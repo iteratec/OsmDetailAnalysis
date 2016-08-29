@@ -1,203 +1,188 @@
 <div id="dcChart">
     %{--Needed for OSM integration--}%
     <link rel="stylesheet" type="text/css" href="${serverBaseUrl}/assets/dashboard/DcDashboard.css">
-    <i id="loadingIndicator" class="fa  fa-gear fa-spin dc-chart" style="font-size:60px"></i>
-<div id="detailDataContainer" style="display: none;">
-<div class="container">
-    <h3>Detail Dashboard</h3>
     <g:if test="${graphData != "[]"}">
-        <div class="detailDashboardContainer">
-            <div class="row" align="center">
-                <div class="span2 dc-chartContainer">
-                    <div>
-                        <span><strong>By MediaType</strong></span>
+        <i id="loadingIndicator" class="fa  fa-gear fa-spin dc-chart" style="font-size:60px"></i>
+    </g:if>
+    <div id="detailDataContainer" class="container">
+        <h3>Detail Dashboard</h3>
+        <g:if test="${graphData != "[]"}">
+            <div class="detailDashboardContainer">
+                <div class="row" align="center">
+                    <div class="span2 dc-chartContainer">
+                        <div>
+                            <span><strong>By MediaType</strong></span>
+                        </div>
+
+                        <div class="pieChartDiv" id="mediaType-chart"></div>
                     </div>
 
-                    <div class="pieChartDiv" id="mediaType-chart"></div>
-                </div>
+                    <div class="span2 dc-chartContainer">
+                        <div>
+                            <span><strong>By Subtype</strong></span>
+                        </div>
 
-                <div class="span2 dc-chartContainer" >
-                    <div>
-                        <span><strong>By Subtype</strong></span>
+                        <div class="pieChartDiv" id="subtype-chart"></div>
                     </div>
 
-                    <div class="pieChartDiv" id="subtype-chart"></div>
-                </div>
+                    <div class="span2 dc-chartContainer">
+                        <div>
+                            <span><strong>By Browser</strong></span>
+                        </div>
 
-                <div class="span2 dc-chartContainer" >
-                    <div>
-                        <span><strong>By Browser</strong></span>
+                        <div class="pieChartDiv" id="browser-chart"></div>
                     </div>
 
-                    <div class="pieChartDiv" id="browser-chart"></div>
-                </div>
+                    <div class="span2 dc-chartContainer">
+                        <div>
+                            <span><strong>By Page</strong></span>
+                        </div>
 
-                <div class="span2 dc-chartContainer" >
-                    <div>
-                        <span><strong>By Page</strong></span>
+                        <div class="pieChartDiv" id="page-chart"></div>
+
                     </div>
-
-                    <div class="pieChartDiv" id="page-chart"></div>
-
                 </div>
-            </div>
 
-            <div class="row" align="center">
-                <div class="span2 dc-chartContainer" >
-                    <div>
-                        <span><strong>By Job Group</strong></span>
+                <div class="row" align="center">
+                    <div class="span2 dc-chartContainer">
+                        <div>
+                            <span><strong>By Job Group</strong></span>
+                        </div>
+
+                        <div class="pieChartDiv" id="jobGroup-chart"></div>
+
                     </div>
-
-                    <div class="pieChartDiv" id="jobGroup-chart"></div>
-
                 </div>
-            </div>
 
-            <div class="row rowChartContainer">
-                <div class="span12 dc-chartContainer">
-                    <div>
-                        <span><strong>By Measured Event</strong></span>
-                    </div>
-
-                    <div id="measuredEvent-chart"></div>
-                </div>
-            </div>
-
-            <div class="row rowChartContainer">
-                <div class="span12 dc-chartContainer">
-                    <div>
-                        <span><strong>By Host</strong></span>
-                    </div>
-
-                    <div id="host-chart"></div>
-                </div>
-            </div>
-        </div>
-        </div>
-        <div>
-            <div class="row dashboardContainer">
-                <div class="row">
+                <div class="row rowChartContainer">
                     <div class="span12 dc-chartContainer">
-                        <div id="dc-data-count"/>
+                        <div>
+                            <span><strong>By Measured Event</strong></span>
+                        </div>
+
+                        <div id="measuredEvent-chart"></div>
+                    </div>
+                </div>
+
+                <div class="row rowChartContainer">
+                    <div class="span12 dc-chartContainer">
+                        <div>
+                            <span><strong>By Host</strong></span>
+                        </div>
+
+                        <div id="host-chart"></div>
                     </div>
                 </div>
             </div>
-        </div>
-        <br>
 
-        <div>
             <div>
                 <div class="row dashboardContainer">
-
                     <div class="row">
-                        <div class="span12">
-                            <div class="dc-chartContainer" id="timeChart"></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="loadTimeMs" checked="checked">
-                            Load Time
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="ttfb">
-                            Time to first byte
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="downloadTime">
-                            Download Time
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="sslTime">
-                            SSL Negotiation Time
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="connectTime">
-                            Connect Time
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="dnsTime">
-                            DNS Time
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="bytesIn">
-                            Bytes In
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="bytesOut">
-                            Bytes Out
-                        </label>
-                    </div>
-
-                    <div>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="avg" checked="checked">
-                            Avg
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="min">
-                            Min
-                        </label>
-                        <label class="checkbox inline">
-                            <input type="checkbox" name="measurementCheckbox" id="max">
-                            Max
-                        </label>
-                    </div>
-
-                    <div class="row" style="min-height: 700px; overflow-y: visible">
-                        <div class="span12">
-                            <div class="dc-chartContainer" id="line-chart"/>
+                        <div class="span12 dc-chartContainer">
+                            <div id="dc-data-count"/>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
+            <br>
 
-        <br>
+            <div>
+                <div>
+                    <div class="row dashboardContainer">
+
+                        <div class="row">
+                            <div class="span12">
+                                <div class="dc-chartContainer" id="timeChart"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="loadTimeMs" checked="checked">
+                                Load Time
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="ttfb">
+                                Time to first byte
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="downloadTime">
+                                Download Time
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="sslTime">
+                                SSL Negotiation Time
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="connectTime">
+                                Connect Time
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="dnsTime">
+                                DNS Time
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="bytesIn">
+                                Bytes In
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="bytesOut">
+                                Bytes Out
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="avg" checked="checked">
+                                Avg
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="min">
+                                Min
+                            </label>
+                            <label class="checkbox inline">
+                                <input type="checkbox" name="measurementCheckbox" id="max">
+                                Max
+                            </label>
+                        </div>
+
+                        <div class="row" style="min-height: 700px; overflow-y: visible">
+                            <div class="span12">
+                                <div class="dc-chartContainer" id="line-chart"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br>
 
 
-        <div class="container" id="assetDetailsContainer" style="display: none;">
-            <table class="table table-hover" cellspacing="0" width="100%" id="assetDetailsTable">
-                <thead>
-                <tr>
-                    <th>bandwidthDown</th>
-                    <th>bandwidthUp</th>
-                    <th>browser</th>
-                    <th>bytesIn</th>
-                    <th>bytesOut</th>
-                    <th>connectTime</th>
-                    <th>downloadTimeMs</th>
-                    <th>epochTimeStarted</th>
-                    <th>eventName</th>
-                    <th>host</th>
-                    <th>isFirstViewInStep</th>
-                    <th>jobGroup</th>
-                    <th>jobId</th>
-                    <th>latency</th>
-                    <th>loadTimeMs</th>
-                    <th>location</th>
-                    <th>measuredEvent</th>
-                    <th>mediaType</th>
-                    <th>packetLoss</th>
-                    <th>page</th>
-                    <th>sslTime</th>
-                    <th>subtype</th>
-                    <th>timeToFirstByteMs</th>
-                    <th>urlWithoutParams</th>
-                    <th>wptBaseUrl</th>
-                    <th>wptTestId</th>
-                </tr>
-                </thead>
-                <tbody>
+            <div class="container" id="assetDetailsContainer" style="display: none;">
 
-                </tbody>
-            </table>
-        </div>
-    </g:if>
-    <g:else>
-        There was no data available for the selected timeframe and filter.
-    </g:else>
+                <table class="table table-hover" cellspacing="0" width="100%" id="assetDetailsTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+                <br>
 
+                <h3>Preselected Values</h3>
+                <table class="table table-hover" cellspacing="0" width="100%" id="preFilterTable">
+                    <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+        </g:if>
+        <g:else>
+            <div>
+                There was no data available for the selected timeframe and filter.
+            </div>
+        </g:else>
+    </div>
 </div>
