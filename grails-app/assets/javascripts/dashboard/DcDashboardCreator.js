@@ -576,10 +576,12 @@ function remove_empty_bins(source_group, valueAccessor) {
     };
 }
 /**
- * Invokes the renderAll function from dc and reattaches the onClick-listeners to the individual data points
+ * Attaches the onClick-listeners to the individual data points
  */
 function addOnClickListeners() {
     d3.selectAll("circle").on("click", function (d) {
+        console.log(d)
+
         // all data points unhighlighted
         d3.selectAll("circle")
             .style("fill", null)

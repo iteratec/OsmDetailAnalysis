@@ -45,10 +45,14 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
         .label(labelAccessor)
         .renderLabel(true)
         .transitionDuration(500)
+        .on("postRedraw", function () {
+            addOnClickListeners();
+        })
         .colors(d3.scale.category20c())
         .colorAccessor(function (d, i) {
             return d.key;
         });
+
 
     dc.renderAll();
 
@@ -64,7 +68,7 @@ DcDashboard.prototype.addDataCount = function (dashboardIdentifier, chartIdentif
         .group(this.allData.groupAll())
         .html({
             some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
-            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();\'\'>Reset All</a>',
+            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();  addOnClickListeners();\'\'>Reset All</a>',
             all: 'All selected out of <strong>%total-count</strong> records. Please click on the graph to apply filters.'
         });
 
@@ -79,6 +83,9 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
     chart
         .width(this.dashboardWidth)
         .height(30 * dataCount + 50)
+        .on("postRedraw", function () {
+            addOnClickListeners();
+        })
         .fixedBarHeight(25)
         .x(d3.scale.linear())
         .elasticX(true)
