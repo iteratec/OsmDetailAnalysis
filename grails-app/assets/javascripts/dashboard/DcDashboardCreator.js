@@ -19,7 +19,6 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     board.setDashboardWidth(+width);
     charts = new Object();
     var dataCounts = getDataCounts(data);
-    var jobs = getJobs(data);
     showUniqueValues(dataCounts, data, labels);
 
     // BROWSER FILTER
@@ -135,11 +134,11 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     board.addDataCount('dcChart', 'dc-data-count');
 
     // ### BEGIN LINE CHARTS
-    var jobId_Date_Dimension = board.allData.dimension(function (d) {
-        return [d.date, d.jobId];
+    var date_Dimension = board.allData.dimension(function (d) {
+        return d.date;
     });
 
-    var loadTime_ttfb_avg = jobId_Date_Dimension.group().reduce(
+    var loadTime_ttfb_avg = date_Dimension.group().reduce(
         //add
         function (p, v) {
             p.count += v['count'];
@@ -221,142 +220,136 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
 
     var loadTimeGroup_min = reductio().min(function (d) {
         return +d['loadTimeMs_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var loadTimeGroup_max = reductio().max(function (d) {
         return +d['loadTimeMs_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var ttfbGroup_min = reductio().min(function (d) {
         return +d['ttfb_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var ttfbGroup_max = reductio().max(function (d) {
         return +d['ttfb_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var downloadTimeGroup_min = reductio().min(function (d) {
         return +d['downloadTime_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var downloadTimeGroup_max = reductio().max(function (d) {
         return +d['downloadTime_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var sslTimeGroup_min = reductio().min(function (d) {
         return +d['sslTime_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var sslTimeGroup_max = reductio().max(function (d) {
         return +d['sslTime_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var connectTimeGroup_min = reductio().min(function (d) {
         return +d['connectTime_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var connectTimeGroup_max = reductio().max(function (d) {
         return +d['connectTime_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var dnsTimeGroup_min = reductio().min(function (d) {
         return +d['dnsTime_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var dnsTimeGroup_max = reductio().max(function (d) {
         return +d['dnsTime_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var bytesInGroup_min = reductio().min(function (d) {
         return +d['bytesIn_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var bytesInGroup_max = reductio().max(function (d) {
         return +d['bytesIn_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var bytesOutGroup_min = reductio().min(function (d) {
         return +d['bytesOut_min']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
     var bytesOutGroup_max = reductio().max(function (d) {
         return +d['bytesOut_max']
-    })(jobId_Date_Dimension.group());
+    })(date_Dimension.group());
 
     var composite = board.getCompositeChart('dcChart', 'line-chart');
 
-    var allGraphsByJobId = {};
+    var allGraphs = {};
 
-    var colorScale = d3.scale.category20c();
+    var colorScale = d3.scale.category20b();
 
-    function createLineChart(jobFilter, labelPostfix, name, valueAccessor, unit) {
-        var group = remove_empty_bins(filterJobGroup(jobFilter, currentJobId), valueAccessor);
-        var label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + labelPostfix;
-        allGraphsByJobId[currentJobId][name] = board.createLineChart(composite, jobId_Date_Dimension, group, colorScale(label), label, valueAccessor, unit);
+    function createLineChart(jobFilter, label, name, valueAccessor, unit) {
+        var group = remove_empty_bins(jobFilter, valueAccessor);
+        allGraphs[name] = board.createLineChart(composite, date_Dimension, group, colorScale(label), label, valueAccessor, unit);
     }
 
-    for (var j = 0; j < jobs.length; j++) {
-        var currentJobId = jobs[j];
-        allGraphsByJobId[currentJobId] = {};
+    // avg graph loadTime
+    createLineChart(loadTime_ttfb_avg, "LoadTimeMs Avg", "loadTimeAvg", function (d) {
+        return d.value.loadTimeAvg;
+    });
 
-        // avg graph loadTime
-        createLineChart(loadTime_ttfb_avg, " | LoadTimeMs Avg", "loadTimeAvg", function (d) {
-            return d.value.loadTimeAvg;
-        });
+    // avg graph ttfb
+    createLineChart(loadTime_ttfb_avg, "TTFB Avg", "ttfbAvg", function (d) {
+        return d.value.ttfbAvg;
+    });
 
-        // avg graph ttfb
-        createLineChart(loadTime_ttfb_avg, " | TTFB Avg", "ttfbAvg", function (d) {
-            return d.value.ttfbAvg;
-        });
+    // avg graph downloadTime
+    createLineChart(loadTime_ttfb_avg, "Download Time Avg", "downloadTimeAvg", function (d) {
+        return d.value.downloadTimeAvg;
+    });
 
-        // avg graph downloadTime
-        createLineChart(loadTime_ttfb_avg, " | Download Time Avg", "downloadTimeAvg", function (d) {
-            return d.value.downloadTimeAvg;
-        });
+    // avg graph sslTime
+    createLineChart(loadTime_ttfb_avg, "SSL Time Avg", "sslTimeAvg", function (d) {
+        return d.value.sslTimeAvg;
+    });
+    // avg graph connectTime
+    createLineChart(loadTime_ttfb_avg, "Connect Time Avg", "connectTimeAvg", function (d) {
+        return d.value.connectTimeAvg;
+    });
+    // avg graph dnsTime
+    createLineChart(loadTime_ttfb_avg, "DNS Time Avg", "dnsTimeAvg", function (d) {
+        return d.value.dnsTimeAvg;
+    });
+    // avg graph bytesIn
+    createLineChart(loadTime_ttfb_avg, "Bytes In Avg", "bytesInAvg", function (d) {
+        return d.value.bytesInAvg;
+    }, "bytes");
+    // avg graph bytesOut
+    createLineChart(loadTime_ttfb_avg, "Bytes Out Avg", "bytesOutAvg", function (d) {
+        return d.value.bytesOutAvg;
+    }, "bytes");
 
-        // avg graph sslTime
-        createLineChart(loadTime_ttfb_avg, " | SSL Time Avg", "sslTimeAvg", function (d) {
-            return d.value.sslTimeAvg;
-        });
-        // avg graph connectTime
-        createLineChart(loadTime_ttfb_avg, " | Connect Time Avg", "connectTimeAvg", function (d) {
-            return d.value.connectTimeAvg;
-        });
-        // avg graph dnsTime
-        createLineChart(loadTime_ttfb_avg, " | DNS Time Avg", "dnsTimeAvg", function (d) {
-            return d.value.dnsTimeAvg;
-        });
-        // avg graph bytesIn
-        createLineChart(loadTime_ttfb_avg, " | Bytes In Avg", "bytesInAvg", function (d) {
-            return d.value.bytesInAvg;
-        }, "bytes");
-        // avg graph bytesOut
-        createLineChart(loadTime_ttfb_avg, " | Bytes Out Avg", "bytesOutAvg", function (d) {
-            return d.value.bytesOutAvg;
-        }, "bytes");
+    // min graph loadTime
+    createLineChart(loadTimeGroup_min, "LoadTimeMs Min", "loadTimeMin", minValueAccessor);
+    // min graph ttfb
+    createLineChart(ttfbGroup_min, "TTFB Min", "ttfbMin", minValueAccessor);
+    // min graph downloadTime
+    createLineChart(downloadTimeGroup_min, "Download Time Min", "downloadTimeMin", minValueAccessor);
+    // min graph sslTime
+    createLineChart(sslTimeGroup_min, "SSL Time Min", "sslTimeMin", minValueAccessor);
+    // min graph connectTime
+    createLineChart(connectTimeGroup_min, "Connect Time Min", "connectTimeMin", minValueAccessor);
+    // min graph dnsTime
+    createLineChart(dnsTimeGroup_min, "DNS Time Min", "dnsTimeMin", minValueAccessor);
+    // min graph bytesIn
+    createLineChart(bytesInGroup_min, "Bytes In Min", "bytesInMin", minValueAccessor, "bytes");
+    // min graph bytesOut
+    createLineChart(bytesInGroup_min, "Bytes Out Min", "bytesOutMin", minValueAccessor, "bytes");
 
-        // min graph loadTime
-        createLineChart(loadTimeGroup_min, " | LoadTimeMs Min", "loadTimeMin", minValueAccessor);
-        // min graph ttfb
-        createLineChart(ttfbGroup_min, " | TTFB Min", "ttfbMin", minValueAccessor);
-        // min graph downloadTime
-        createLineChart(downloadTimeGroup_min, " | Download Time Min", "downloadTimeMin", minValueAccessor);
-        // min graph sslTime
-        createLineChart(sslTimeGroup_min, " | SSL Time Min", "sslTimeMin", minValueAccessor);
-        // min graph connectTime
-        createLineChart(connectTimeGroup_min, " | Connect Time Min", "connectTimeMin", minValueAccessor);
-        // min graph dnsTime
-        createLineChart(dnsTimeGroup_min, " | DNS Time Min", "dnsTimeMin", minValueAccessor);
-        // min graph bytesIn
-        createLineChart(bytesInGroup_min, " | Bytes In Min", "bytesInMin", minValueAccessor, "bytes");
-        // min graph bytesOut
-        createLineChart(bytesInGroup_min, " | Bytes Out Min", "bytesOutMin", minValueAccessor, "bytes");
+    // max graph loadTime
+    createLineChart(loadTimeGroup_max, "LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
+    // max graph ttfb
+    createLineChart(ttfbGroup_max, "TTFB Max", "ttfbMax", maxValueAccessor);
+    // max graph ttfb
+    createLineChart(downloadTimeGroup_max, "Download Time Max", "downloadTimeMax", maxValueAccessor);
+    // max graph ttfb
+    createLineChart(sslTimeGroup_max, "SSL Time Max", "sslTimeMax", maxValueAccessor);
+    // max graph ttfb
+    createLineChart(connectTimeGroup_max, "Connect Time Max", "connectTimeMax", maxValueAccessor);
+    // max graph dns
+    createLineChart(dnsTimeGroup_max, "DNS Time Max", "dnsTimeMax", maxValueAccessor);
+    // max graph bytesIn
+    createLineChart(bytesInGroup_max, "Bytes In Max", "bytesInMax", maxValueAccessor, "bytes");
+    // max graph bytesOut
+    createLineChart(bytesOutGroup_max, "Bytes Out Max", "bytesOutMax", maxValueAccessor, "bytes");
 
-        // max graph loadTime
-        createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
-        // max graph ttfb
-        createLineChart(ttfbGroup_max, " | TTFB Max", "ttfbMax", maxValueAccessor);
-        // max graph ttfb
-        createLineChart(downloadTimeGroup_max, " | Download Time Max", "downloadTimeMax", maxValueAccessor);
-        // max graph ttfb
-        createLineChart(sslTimeGroup_max, " | SSL Time Max", "sslTimeMax", maxValueAccessor);
-        // max graph ttfb
-        createLineChart(connectTimeGroup_max, " | Connect Time Max", "connectTimeMax", maxValueAccessor);
-        // max graph dns
-        createLineChart(dnsTimeGroup_max, " | DNS Time Max", "dnsTimeMax", maxValueAccessor);
-        // max graph bytesIn
-        createLineChart(bytesInGroup_max, " | Bytes In Max", "bytesInMax", maxValueAccessor, "bytes");
-        // max graph bytesOut
-        createLineChart(bytesOutGroup_max, " | Bytes Out Max", "bytesOutMax", maxValueAccessor, "bytes");
-    }
-
-    // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
-    board.addCompositeChart('dcChart', 'line-chart', from, to, jobs.length * 6);
+    // 24 = [loadTime, ttfb, ..., bytesIn]*[avg,min,max]
+    board.addCompositeChart('dcChart', 'line-chart', from, to, 24);
     redrawCompositeChart();
 
     // ### END LINE CHARTS
@@ -394,39 +387,36 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
 
         function handleValueTypeCheckbox(avgName, minName, maxName) {
             if (showAvg)
-                visibleGraphs.push(jobGraphs[avgName]);
+                visibleGraphs.push(allGraphs[avgName]);
             if (showMin)
-                visibleGraphs.push(jobGraphs[minName]);
+                visibleGraphs.push(allGraphs[minName]);
             if (showMax)
-                visibleGraphs.push(jobGraphs[maxName]);
+                visibleGraphs.push(allGraphs[maxName]);
         }
 
-        for (var j = 0; j < jobs.length; j++) {
-            var jobGraphs = allGraphsByJobId[jobs[j]];
-            if (document.getElementById("loadTimeMs").checked) {
-                handleValueTypeCheckbox("loadTimeAvg", "loadTimeMin", "loadTimeMax");
-            }
-            if (document.getElementById("ttfb").checked) {
-                handleValueTypeCheckbox("ttfbAvg", "ttfbMin", "ttfbMax");
-            }
-            if (document.getElementById("downloadTime").checked) {
-                handleValueTypeCheckbox("downloadTimeAvg", "downloadTimeMin", "downloadTimeMax");
-            }
-            if (document.getElementById("sslTime").checked) {
-                handleValueTypeCheckbox("sslTimeAvg", "sslTimeMin", "sslTimeMax");
-            }
-            if (document.getElementById("connectTime").checked) {
-                handleValueTypeCheckbox("connectTimeAvg", "connectTimeMin", "connectTimeMax");
-            }
-            if (document.getElementById("dnsTime").checked) {
-                handleValueTypeCheckbox("dnsTimeAvg", "dnsTimeMin", "dnsTimeMax");
-            }
-            if (document.getElementById("bytesIn").checked) {
-                handleValueTypeCheckbox("bytesInAvg", "bytesInMin", "bytesInMax");
-            }
-            if (document.getElementById("bytesOut").checked) {
-                handleValueTypeCheckbox("bytesOutAvg", "bytesOutMin", "bytesOutMax");
-            }
+        if (document.getElementById("loadTimeMs").checked) {
+            handleValueTypeCheckbox("loadTimeAvg", "loadTimeMin", "loadTimeMax");
+        }
+        if (document.getElementById("ttfb").checked) {
+            handleValueTypeCheckbox("ttfbAvg", "ttfbMin", "ttfbMax");
+        }
+        if (document.getElementById("downloadTime").checked) {
+            handleValueTypeCheckbox("downloadTimeAvg", "downloadTimeMin", "downloadTimeMax");
+        }
+        if (document.getElementById("sslTime").checked) {
+            handleValueTypeCheckbox("sslTimeAvg", "sslTimeMin", "sslTimeMax");
+        }
+        if (document.getElementById("connectTime").checked) {
+            handleValueTypeCheckbox("connectTimeAvg", "connectTimeMin", "connectTimeMax");
+        }
+        if (document.getElementById("dnsTime").checked) {
+            handleValueTypeCheckbox("dnsTimeAvg", "dnsTimeMin", "dnsTimeMax");
+        }
+        if (document.getElementById("bytesIn").checked) {
+            handleValueTypeCheckbox("bytesInAvg", "bytesInMin", "bytesInMax");
+        }
+        if (document.getElementById("bytesOut").checked) {
+            handleValueTypeCheckbox("bytesOutAvg", "bytesOutMin", "bytesOutMax");
         }
 
 
@@ -518,47 +508,6 @@ function getDataCounts(data) {
 }
 
 /**
- * Returns a list of unique jobs
- * @param data
- * @returns {Array}
- */
-function getJobs(data) {
-    var result = [];
-    for (var i = 0; i < data.length; i++) {
-        var currentJob = data[i]['jobId'];
-        if (result.indexOf(currentJob) < 0) {
-            result.push(currentJob);
-        }
-    }
-    return result;
-}
-
-/**
- * A fake group which contains only data for the given job group
- * @see https://github.com/dc-js/dc.js/wiki/FAQ#fake-groups
- * @param source_group
- * @param jobId
- * @returns {{all: all, top: top}}
- */
-function filterJobGroup(source_group, jobId) {
-    function jobIdFilter(d) {
-        return d.key[1] == jobId;
-    }
-
-    return {
-        all: function () {
-            return source_group.all().filter(jobIdFilter);
-        }
-        ,
-        top: function (n) {
-            return source_group.top(Infinity)
-                .filter(jobIdFilter)
-                .slice(0, n);
-        }
-    };
-}
-
-/**
  * Creates a new fake group which contains only existing data points
  * @see https://github.com/dc-js/dc.js/wiki/FAQ#fake-groups
  * @param source_group
@@ -593,7 +542,6 @@ function addOnClickListeners() {
             .style("opacity", 1);
 
         var data = {
-            jobId: [],
             date: [],
             host: [],
             browser: [],
@@ -603,11 +551,8 @@ function addOnClickListeners() {
             page: []
         };
 
-        if (d.data.key[0] != null) {
-            data["date"] = d.data.key[0];
-        }
-        if (d.data.key[1] != null) {
-            data["jobId"] = d.data.key[1];
+        if (d.data.key != null) {
+            data["date"] = d.data.key;
         }
         if (charts["host-chart"] != null) {
             data["host"] = (charts["host-chart"].filters());
@@ -648,7 +593,6 @@ function fillPreFilteredTable(data) {
     addRowToPreFilteredTable("subtype", data["subtype"]);
     addRowToPreFilteredTable("page", data["page"]);
     addRowToPreFilteredTable("mediaType", data["mediaType"]);
-    addRowToPreFilteredTable("jobId", [data["jobId"]]);
     addRowToPreFilteredTable("jobGroup", data["jobGroup"]);
     addRowToPreFilteredTable("host", data["host"]);
     addRowToPreFilteredTable("date", [data["date"]]);

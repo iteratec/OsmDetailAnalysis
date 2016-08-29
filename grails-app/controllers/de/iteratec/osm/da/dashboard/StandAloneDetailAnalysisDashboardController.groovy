@@ -80,7 +80,7 @@ class StandAloneDetailAnalysisDashboardController {
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
     }
     def getAssetsForDataPoint(){
-        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(),request.JSON.jobId ,request.JSON.host,request.JSON.browser,request.JSON.mediaType,request.JSON.subtype,request.JSON.jobGroup,request.JSON.page)
+        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(),request.JSON.hosts,request.JSON.browsers,request.JSON.mediaTypes,request.JSON.subtypes,request.JSON.jobGroups,request.JSON.pages)
         response.setContentType(ContentType.JSON.toString())
         response.status = 200
         render result
@@ -90,7 +90,6 @@ class StandAloneDetailAnalysisDashboardController {
         def labelAliases = [:]
 
         labelAliases['browser'] = mappingService.getBrowserMappings(osmInstance)
-        labelAliases['job'] = mappingService.getJobMappings(osmInstance)
         labelAliases['page'] = mappingService.getPageMappings(osmInstance)
         labelAliases['measuredEvent'] = mappingService.getMeasuredEventMappings(osmInstance)
         labelAliases['jobGroup'] = mappingService.getJobGroupMappings(osmInstance)

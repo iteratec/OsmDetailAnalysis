@@ -145,11 +145,12 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
         .dimension(dimension)
         .group(group, label)
         .keyAccessor(function (d) {
-            return d.key[0];
+            return d.key;
         })
         .valueAccessor(valueAccessor)
         .renderDataPoints({radius: 4, fillOpacity: 0.6, strokeOpacity: 0.8})
-        .colors(color);
+        .colors(color)
+        .elasticY(true);
 
     if(unit == "bytes"){
         chart.useRightYAxis(true);

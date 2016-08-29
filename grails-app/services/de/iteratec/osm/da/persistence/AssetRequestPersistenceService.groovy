@@ -41,7 +41,6 @@ class AssetRequestPersistenceService {
 
     public String getCompleteAssets(
             Date timestamp,
-            int jobId,
             List hosts,
             List browsers,
             List mediaTypes,
@@ -53,7 +52,6 @@ class AssetRequestPersistenceService {
         List matchList = []
         def db = mongo.getDatabase("OsmDetailAnalysis")
         matchList << eq("epochTimeStarted", timestamp.time / 1000 as Long)
-        matchList << eq("jobId", jobId )
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
         if (jobGroups) matchList << Filters.in("jobGroup", jobGroups)
@@ -108,8 +106,7 @@ class AssetRequestPersistenceService {
         aggregateList << match(and(matchList)) //filter out unwanted assets
         aggregateList << unwind("\$assets") // return one document for each asset in the asset group
         aggregateList << project(createPreFilterProjectDocument()) //filter out unwanted fields and flatten hierarchy
-        aggregateList << group(['jobId'           : '\$jobId',
-                                'jobGroup'        : '\$jobGroup',
+        aggregateList << group(['jobGroup'        : '\$jobGroup',
                                 'mediaType'       : '\$mediaType',
                                 'browser'         : '\$browser',
                                 'subtype'         : '\$subtype',
@@ -155,7 +152,6 @@ class AssetRequestPersistenceService {
         preFilterProjectionDocument = Document.parse("""
                             {browser:'\$browser',
                              epochTimeStarted:'\$epochTimeStarted',
-                             jobId: '\$jobId',
                              jobGroup: '\$jobGroup'
                              mediaType:'\$mediaType',
                              subtype:'\$assets.subtype',
@@ -186,7 +182,6 @@ class AssetRequestPersistenceService {
                              eventName:'\$eventName',
                              isFirstViewInStep:'\$isFirstViewInStep',
                              jobGroup: '\$jobGroup'
-                             jobId: '\$jobId',
                              location:'\$location',
                              measuredEvent:'\$measuredEvent',
                              mediaType:'\$mediaType',
@@ -213,7 +208,6 @@ class AssetRequestPersistenceService {
         unpackIdProjectionDocument = Document.parse("""
                             {
                             _id:0
-                            jobId:'\$_id.jobId',
                             jobGroup:'\$_id.jobGroup',
                             mediaType:'\$_id.mediaType',
                             browser:'\$_id.browser',

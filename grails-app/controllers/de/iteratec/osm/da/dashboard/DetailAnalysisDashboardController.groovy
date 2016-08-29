@@ -34,7 +34,6 @@ import java.util.zip.GZIPOutputStream
 class DetailAnalysisDashboardController {
 
     public static final String DATE_TIME_FORMAT_STRING = 'dd.MM.yyyy'
-    public final static int MONDAY_WEEKSTART = 1
 
     AssetRequestPersistenceService assetRequestPersistenceService
     MappingService mappingService
@@ -59,7 +58,7 @@ class DetailAnalysisDashboardController {
         modelToRender
     }
     def getAssetsForDataPoint(){
-        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(),request.JSON.jobId ,request.JSON.host,request.JSON.browser,request.JSON.mediaType,request.JSON.subtype,request.JSON.jobGroup,request.JSON.page)
+        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.hosts,request.JSON.browsers,request.JSON.mediaTypes,request.JSON.subtypes,request.JSON.jobGroups,request.JSON.pages)
         response.setContentType(ContentType.JSON.toString())
         response.status = 200
         render result
@@ -117,7 +116,6 @@ class DetailAnalysisDashboardController {
         def labelAliases = [:]
 
         labelAliases['browser'] = mappingService.getBrowserMappings(osmInstance)
-        labelAliases['job'] = mappingService.getJobMappings(osmInstance)
         labelAliases['page'] = mappingService.getPageMappings(osmInstance)
         labelAliases['measuredEvent'] = mappingService.getMeasuredEventMappings(osmInstance)
         labelAliases['jobGroup'] = mappingService.getJobGroupMappings(osmInstance)
