@@ -1,5 +1,3 @@
-//= require_tree ../bower_components/jquery
-//= require_tree ../bower_components/jquery-ui
 //= require_tree ../bower_components/datatables.net
 //= require_tree ../bower_components/datatables.net-dt
 //= require_tree ../bower_components/crossfilter2
@@ -580,7 +578,6 @@ function remove_empty_bins(source_group, valueAccessor) {
  */
 function addOnClickListeners() {
     d3.selectAll("circle").on("click", function (d) {
-        console.log(d)
 
         // all data points unhighlighted
         d3.selectAll("circle")
@@ -696,19 +693,7 @@ function removeAllRowsFromAssetDetailsTable() {
         preFilterTableBody.deleteRow(0);
     }
 }
-function addRowToAssetDetailsTable(asset) {
 
-    var table = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
-    var row = table.insertRow(0);
-    asset.sort(function (a, b) {
-        return parseFloat(a) - parseFloat(b);
-    });
-    for (var k in asset) {
-        console.log(k, asset[k]);
-        var cell1 = row.insertCell(0);
-    }
-
-}
 
 function fillDataInAssetTable(resp, requestData) {
 
@@ -755,3 +740,5 @@ function fillDataInAssetTable(resp, requestData) {
 
 
 }
+// Data is set in the detailAnalysis/show.gsp
+createDashboard(OsmDetailMicroService.data, OsmDetailMicroService.labels, OsmDetailMicroService.from, OsmDetailMicroService.to, OsmDetailMicroService.ajaxUrl);

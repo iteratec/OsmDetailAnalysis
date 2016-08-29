@@ -17,19 +17,18 @@
 </g:if>
 
 <content tag="include.bottom">
-    <asset:script type="text/javascript" src="${serverBaseUrl}/assets/dashboard/DcDashboardCreator.js"></asset:script>
     <asset:script type="text/javascript">
-                $(document).ready(function () {
-            <g:applyCodec encodeAs="none">
-                var ajaxUrl = "${serverBaseUrl+createLink(controller:'detailAnalysisDashboard',action:'getAssetsForDataPoint')}";
-                var data = ${graphData};
-                var labels = ${labelAliases};
-                var from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";
-                var to = "${toDateInMillis}" ? new Date(${toDateInMillis}) : "";
-            </g:applyCodec>
-
-            createDashboard(data, labels, from, to, ajaxUrl);
-        });
+        var OsmDetailMicroService = OsmDetailMicroService || {};
+        var OpenSpeedMonitor = OpenSpeedMonitor || {};
+        OpenSpeedMonitor.postLoadUrls = OpenSpeedMonitor.postLoadUrls || [];
+        OpenSpeedMonitor.postLoadUrls.push("${serverBaseUrl}/assets/dashboard/DcDashboardCreator.js");
+        <g:applyCodec encodeAs="none">
+            OsmDetailMicroService.ajaxUrl = "${serverBaseUrl+createLink(controller:'standAloneDetailAnalysisDashboard',action:'getAssetsForDataPoint')}";
+            OsmDetailMicroService.data = ${graphData};
+            OsmDetailMicroService.labels = ${labelAliases};
+            OsmDetailMicroService.from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";
+            OsmDetailMicroService.to = "${toDateInMillis}" ? new Date(${toDateInMillis}) : "";
+        </g:applyCodec>
     </asset:script>
 </content>
 
