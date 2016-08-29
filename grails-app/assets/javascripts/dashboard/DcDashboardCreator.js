@@ -9,12 +9,12 @@
 //= require DcDashboard.js
 
 function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
-    labels = labelsParam
-    ajaxUrl =ajaxUrlParam
-    if(data[0] == undefined){
+    labels = labelsParam;
+    ajaxUrl = ajaxUrlParam;
+    if (data[0] == undefined) {
         //No data to show, so just stop here
         return;
-    } 
+    }
     board = new DcDashboard();
     // Set dashboard width same as div width
     var width = $(".dashboardContainer").css("width").replace("px", "");
@@ -81,7 +81,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     }
 
     //JOBGROUP FILTER
-    if (dataCounts['jobGroup'] > 1){
+    if (dataCounts['jobGroup'] > 1) {
         var jobGroup = board.allData.dimension(function (d) {
             return "" + d['jobGroup']
         });
@@ -129,9 +129,10 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     }
 
     var loadingIndicator = document.getElementById("loadingIndicator");
-    loadingIndicator.style.display='none'
+    loadingIndicator.style.display = 'none';
     var detailDataContainer = document.getElementById("detailDataContainer");
-    detailDataContainer.style.display='block'
+    detailDataContainer.style.display = 'block';
+
     // Show count of selected data
     board.addDataCount('dcChart', 'dc-data-count');
 
@@ -274,8 +275,8 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     var allGraphsByJobId = {};
 
     var colorScale = d3.scale.category20c();
-    
-    function createLineChart( jobFilter, labelPostfix, name, valueAccessor, unit) {
+
+    function createLineChart(jobFilter, labelPostfix, name, valueAccessor, unit) {
         var group = remove_empty_bins(filterJobGroup(jobFilter, currentJobId), valueAccessor);
         var label = (labels['job'] ? labels['job'][currentJobId] : currentJobId) + labelPostfix;
         allGraphsByJobId[currentJobId][name] = board.createLineChart(composite, jobId_Date_Dimension, group, colorScale(label), label, valueAccessor, unit);
@@ -286,12 +287,12 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         allGraphsByJobId[currentJobId] = {};
 
         // avg graph loadTime
-       createLineChart(loadTime_ttfb_avg, " | LoadTimeMs Avg", "loadTimeAvg", function (d) {
+        createLineChart(loadTime_ttfb_avg, " | LoadTimeMs Avg", "loadTimeAvg", function (d) {
             return d.value.loadTimeAvg;
         });
 
         // avg graph ttfb
-        createLineChart(loadTime_ttfb_avg, " | TTFB Avg","ttfbAvg", function (d) {
+        createLineChart(loadTime_ttfb_avg, " | TTFB Avg", "ttfbAvg", function (d) {
             return d.value.ttfbAvg;
         });
 
@@ -334,9 +335,9 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         // min graph dnsTime
         createLineChart(dnsTimeGroup_min, " | DNS Time Min", "dnsTimeMin", minValueAccessor);
         // min graph bytesIn
-        createLineChart(bytesInGroup_min, " | Bytes In Min", "bytesInMin", minValueAccessor,"bytes");
+        createLineChart(bytesInGroup_min, " | Bytes In Min", "bytesInMin", minValueAccessor, "bytes");
         // min graph bytesOut
-        createLineChart(bytesInGroup_min, " | Bytes Out Min", "bytesOutMin", minValueAccessor,"bytes");
+        createLineChart(bytesInGroup_min, " | Bytes Out Min", "bytesOutMin", minValueAccessor, "bytes");
 
         // max graph loadTime
         createLineChart(loadTimeGroup_max, " | LoadTimeMs Max", "loadTimeMax", maxValueAccessor);
@@ -351,9 +352,9 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         // max graph dns
         createLineChart(dnsTimeGroup_max, " | DNS Time Max", "dnsTimeMax", maxValueAccessor);
         // max graph bytesIn
-        createLineChart(bytesInGroup_max, " | Bytes In Max", "bytesInMax", maxValueAccessor,"bytes");
+        createLineChart(bytesInGroup_max, " | Bytes In Max", "bytesInMax", maxValueAccessor, "bytes");
         // max graph bytesOut
-        createLineChart(bytesOutGroup_max, " | Bytes Out Max", "bytesOutMax", maxValueAccessor,"bytes");
+        createLineChart(bytesOutGroup_max, " | Bytes Out Max", "bytesOutMax", maxValueAccessor, "bytes");
     }
 
     // jobs.length * 6 = [loadTime, ttfb]*[avg,min,max]*[jobId]
@@ -363,7 +364,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     // ### END LINE CHARTS
 
     // ### BEGIN TIME CHART
-    var timeDimension =  board.allData.dimension(function (d) {
+    var timeDimension = board.allData.dimension(function (d) {
         return d.date;
     });
 
@@ -393,7 +394,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         var showMin = document.getElementById("min").checked;
         var visibleGraphs = [];
 
-        function handleValueTypeCheckbox(avgName,minName,maxName) {
+        function handleValueTypeCheckbox(avgName, minName, maxName) {
             if (showAvg)
                 visibleGraphs.push(jobGraphs[avgName]);
             if (showMin)
@@ -401,35 +402,34 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             if (showMax)
                 visibleGraphs.push(jobGraphs[maxName]);
         }
-        
+
         for (var j = 0; j < jobs.length; j++) {
             var jobGraphs = allGraphsByJobId[jobs[j]];
             if (document.getElementById("loadTimeMs").checked) {
                 handleValueTypeCheckbox("loadTimeAvg", "loadTimeMin", "loadTimeMax");
             }
             if (document.getElementById("ttfb").checked) {
-                handleValueTypeCheckbox("ttfbAvg","ttfbMin", "ttfbMax");
+                handleValueTypeCheckbox("ttfbAvg", "ttfbMin", "ttfbMax");
             }
             if (document.getElementById("downloadTime").checked) {
-                handleValueTypeCheckbox("downloadTimeAvg","downloadTimeMin", "downloadTimeMax");
+                handleValueTypeCheckbox("downloadTimeAvg", "downloadTimeMin", "downloadTimeMax");
             }
             if (document.getElementById("sslTime").checked) {
-                handleValueTypeCheckbox("sslTimeAvg","sslTimeMin", "sslTimeMax");
+                handleValueTypeCheckbox("sslTimeAvg", "sslTimeMin", "sslTimeMax");
             }
             if (document.getElementById("connectTime").checked) {
-                handleValueTypeCheckbox("connectTimeAvg","connectTimeMin", "connectTimeMax");
+                handleValueTypeCheckbox("connectTimeAvg", "connectTimeMin", "connectTimeMax");
             }
             if (document.getElementById("dnsTime").checked) {
-                handleValueTypeCheckbox("dnsTimeAvg","dnsTimeMin", "dnsTimeMax");
+                handleValueTypeCheckbox("dnsTimeAvg", "dnsTimeMin", "dnsTimeMax");
             }
             if (document.getElementById("bytesIn").checked) {
-                handleValueTypeCheckbox("bytesInAvg","bytesInMin", "bytesInMax");
+                handleValueTypeCheckbox("bytesInAvg", "bytesInMin", "bytesInMax");
             }
             if (document.getElementById("bytesOut").checked) {
-                handleValueTypeCheckbox("bytesOutAvg","bytesOutMin", "bytesOutMax");
+                handleValueTypeCheckbox("bytesOutAvg", "bytesOutMin", "bytesOutMax");
             }
         }
-
 
 
         board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);
@@ -473,7 +473,15 @@ function showUniqueValues(dataCounts, data, labels) {
 function getDataCounts(data) {
     var result = {};
 
-    var uniqueMap = {'browser': [], 'mediaType': [], 'subtype': [], 'host': [], 'page': [], 'measuredEvent': [], 'jobGroup': []};
+    var uniqueMap = {
+        'browser': [],
+        'mediaType': [],
+        'subtype': [],
+        'host': [],
+        'page': [],
+        'measuredEvent': [],
+        'jobGroup': []
+    };
     for (var i = 0; i < data.length; i++) {
         var datum = data[i];
 
@@ -570,53 +578,66 @@ function remove_empty_bins(source_group, valueAccessor) {
 /**
  * Invokes the renderAll function from dc and reattaches the onClick-listeners to the individual data points
  */
-function addOnClickListeners(){
+function addOnClickListeners() {
     d3.selectAll("circle").on("click", function (d) {
+        // all data points unhighlighted
+        d3.selectAll("circle")
+            .style("fill", null)
+            .style("stroke", null)
+            .style("stroke-width", null)
+            .style("opacity", 0.6);
+        // highlight clicked data point
+        d3.select(this)
+            .style("fill", "red")
+            .style("stroke", "black")
+            .style("stroke-width", 2)
+            .style("opacity", 1);
+
         var data = {
-            jobId : [],
-            date : [],
-            host : [],
-            browser : [],
-            mediaType : [],
-            subtype : [],
-            jobGroup : [],
-            page : []
+            jobId: [],
+            date: [],
+            host: [],
+            browser: [],
+            mediaType: [],
+            subtype: [],
+            jobGroup: [],
+            page: []
         };
 
-        if(d.data.key[0]!=null){
+        if (d.data.key[0] != null) {
             data["date"] = d.data.key[0];
         }
-        if(d.data.key[1]!=null){
+        if (d.data.key[1] != null) {
             data["jobId"] = d.data.key[1];
         }
-        if (charts["host-chart"] != null ){
-            data["host"]= (charts["host-chart"].filters());
+        if (charts["host-chart"] != null) {
+            data["host"] = (charts["host-chart"].filters());
         }
-        if (charts["browser-chart"] != null ){
+        if (charts["browser-chart"] != null) {
             data["browser"] = (charts["browser-chart"].filters());
         }
-        if (charts["mediaType-chart"] != null ){
+        if (charts["mediaType-chart"] != null) {
             data["mediaType"] = (charts["mediaType-chart"].filters());
         }
-        if (charts["subtype-chart"] != null ){
+        if (charts["subtype-chart"] != null) {
             data["subtype"] = (charts["subtype-chart"].filters());
         }
-        if (charts["jobGroup-chart"] != null ){
+        if (charts["jobGroup-chart"] != null) {
             data["jobGroup"] = (charts["jobGroup-chart"].filters());
         }
-        if (charts["page-chart"] != null ){
+        if (charts["page-chart"] != null) {
             data["page"] = (charts["page-chart"].filters());
         }
         jQuery.ajax({
-            type:"POST",
-            url:ajaxUrl,
+            type: "POST",
+            url: ajaxUrl,
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            data:JSON.stringify(data),
-            success: function(resp){
+            data: JSON.stringify(data),
+            success: function (resp) {
                 removeAllRowsFromAssetDetailsTable();
-                fillPreFilteredTable(data)
-                fillDataInAssetTable(resp,data);
+                fillPreFilteredTable(data);
+                fillDataInAssetTable(resp, data);
 
             }
         });
@@ -624,31 +645,31 @@ function addOnClickListeners(){
 
     });
 }
-function fillPreFilteredTable(data){
-    addRowToPreFilteredTable("subtype",data["subtype"])
-    addRowToPreFilteredTable("page",data["page"])
-    addRowToPreFilteredTable("mediaType",data["mediaType"])
-    addRowToPreFilteredTable("jobId",[data["jobId"]])
-    addRowToPreFilteredTable("jobGroup",data["jobGroup"])
-    addRowToPreFilteredTable("host",data["host"])
-    addRowToPreFilteredTable("date",[data["date"]])
-    addRowToPreFilteredTable("browser",data["browser"])
+function fillPreFilteredTable(data) {
+    addRowToPreFilteredTable("subtype", data["subtype"]);
+    addRowToPreFilteredTable("page", data["page"]);
+    addRowToPreFilteredTable("mediaType", data["mediaType"]);
+    addRowToPreFilteredTable("jobId", [data["jobId"]]);
+    addRowToPreFilteredTable("jobGroup", data["jobGroup"]);
+    addRowToPreFilteredTable("host", data["host"]);
+    addRowToPreFilteredTable("date", [data["date"]]);
+    addRowToPreFilteredTable("browser", data["browser"]);
 }
-function addRowToPreFilteredTable(key,data){
+function addRowToPreFilteredTable(key, data) {
     var preFilteredTable = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
     var value = "";
-    if(data.length == 1 ) value = data[0];
-    else if(key in uniqueValues) value = uniqueValues[key];
+    if (data.length == 1) value = data[0];
+    else if (key in uniqueValues) value = uniqueValues[key];
     if (value != "") {
         var row = preFilteredTable.insertRow(0);
         var cellKey = row.insertCell(0);
         cellKey.innerHTML = key;
         var cellValue = row.insertCell(1);
-        cellValue.innerHTML = getLable(key,value)
+        cellValue.innerHTML = getLable(key, value)
     }
 }
 
-function getLable(key,value){
+function getLable(key, value) {
     var result = value;
     if (key in labels && value in labels[key])
         result = labels[key][value];
@@ -656,20 +677,20 @@ function getLable(key,value){
 }
 
 function removeAllRowsFromAssetDetailsTable() {
-    if(typeof assetDataTable != 'undefined') {
+    if (typeof assetDataTable != 'undefined') {
         assetDataTable.clear();
         assetDataTable.destroy();
     }
     var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
-    if (tableHead.rows.length > 0){
+    if (tableHead.rows.length > 0) {
         tableHead.deleteRow(0);
     }
     var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
-    while(tableBody.rows.length > 0) {
+    while (tableBody.rows.length > 0) {
         tableBody.deleteRow(0);
     }
     var preFilterTableBody = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
-    while(preFilterTableBody.rows.length > 0) {
+    while (preFilterTableBody.rows.length > 0) {
         preFilterTableBody.deleteRow(0);
     }
 }
@@ -677,39 +698,39 @@ function addRowToAssetDetailsTable(asset) {
 
     var table = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
     var row = table.insertRow(0);
-    asset.sort(function(a, b) {
+    asset.sort(function (a, b) {
         return parseFloat(a) - parseFloat(b);
     });
-    for(var k in asset) {
+    for (var k in asset) {
         console.log(k, asset[k]);
         var cell1 = row.insertCell(0);
     }
 
 }
 
-function fillDataInAssetTable(resp, requestData){
+function fillDataInAssetTable(resp, requestData) {
 
 
     var tableContainer = document.getElementById("assetDetailsContainer");
-    tableContainer.style.display='block';
+    tableContainer.style.display = 'block';
     var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
     var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
-    var columnsMapping =[]
-    for(var k in resp[0]) {
-        if(k == "_id") continue; //filter out mongodb id
-        if(k in uniqueValues) continue; // filter out params that are unique in the preselection e.g. if all measurements were done with chrome
+    var columnsMapping = [];
+    for (var k in resp[0]) {
+        if (k == "_id") continue; //filter out mongodb id
+        if (k in uniqueValues) continue; // filter out params that are unique in the preselection e.g. if all measurements were done with chrome
         //filter out the values selected in the charts
-        if(k == "host" && requestData["host"].length ==1) continue;
-        if(k == "epochTimeStarted") continue;
-        if(k == "browser" && requestData["browser"].length ==1) continue;
-        if(k == "mediaType" && requestData["mediaType"].length ==1) continue;
-        if(k == "subtype" && requestData["subtype"].length ==1) continue;
-        if(k == "jobGroup" && requestData["jobGroup"].length ==1) continue;
-        if(k == "page" && requestData["page"].length ==1) continue;
+        if (k == "host" && requestData["host"].length == 1) continue;
+        if (k == "epochTimeStarted") continue;
+        if (k == "browser" && requestData["browser"].length == 1) continue;
+        if (k == "mediaType" && requestData["mediaType"].length == 1) continue;
+        if (k == "subtype" && requestData["subtype"].length == 1) continue;
+        if (k == "jobGroup" && requestData["jobGroup"].length == 1) continue;
+        if (k == "page" && requestData["page"].length == 1) continue;
         columnsMapping.push(k);
     }
     columnsMapping.sort();
-    var headRow =  tableHead.insertRow(0);
+    var headRow = tableHead.insertRow(0);
     columnsMapping.forEach(function (d, i) {
         var cell = headRow.insertCell(i);
         cell.innerHTML = d;
@@ -718,16 +739,16 @@ function fillDataInAssetTable(resp, requestData){
         var row = tableBody.insertRow(0);
         var cells = {};
         var i = 0;
-        for(var k in columnsMapping) {
+        for (var k in columnsMapping) {
             cells[i] = row.insertCell(i++);
         }
-        for(var k in asset) {
-            if(columnsMapping.indexOf(k) != -1)
-                cells[columnsMapping.indexOf(k)].innerHTML = getLable(k,asset[k])
+        for (var k in asset) {
+            if (columnsMapping.indexOf(k) != -1)
+                cells[columnsMapping.indexOf(k)].innerHTML = getLable(k, asset[k])
         }
     });
     assetDataTable = $('#assetDetailsTable').DataTable({
-        paging: "true",
+        paging: "true"
     });
 
 
