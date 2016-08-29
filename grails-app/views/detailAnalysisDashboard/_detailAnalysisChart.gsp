@@ -4,7 +4,7 @@
     <g:if test="${graphData != "[]"}">
         <i id="loadingIndicator" class="fa  fa-gear fa-spin dc-chart" style="font-size:60px"></i>
     </g:if>
-    <div id="detailDataContainer" class="container">
+    <div id="detailDataContainer" class="container" style="display: none;">
         <h3>Detail Dashboard</h3>
         <g:if test="${graphData != "[]"}">
             <div class="detailDashboardContainer">
