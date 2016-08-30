@@ -6,6 +6,7 @@
     </g:if>
     <div id="detailDataContainer" class="container" style="display: none;">
         <h3>Detail Dashboard</h3>
+        <h4>${new java.text.SimpleDateFormat().format(from)} - ${new java.text.SimpleDateFormat().format(to)}</h4>
         <g:if test="${graphData != "[]"}">
             <div class="detailDashboardContainer">
                 <div class="row" align="center">
