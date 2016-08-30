@@ -1,5 +1,6 @@
-package de.iteratec.osm.da.cors;
+package de.iteratec.osm.da.cors
 
+import de.iteratec.osm.da.instances.OsmInstance;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Priority;
@@ -31,9 +32,11 @@ public class CorsFilter extends OncePerRequestFilter {
             resp.addHeader("Access-Control-Max-Age", "3600");
         }
 
-        resp.addHeader("Access-Control-Allow-Origin", origin == null ? "*" : origin);
-        resp.addHeader("Access-Control-Allow-Credentials", "true");
-
+        def corrsepondingOsmInstance =  OsmInstance.findByUrl(origin)
+        if(corrsepondingOsmInstance) {
+            resp.addHeader("Access-Control-Allow-Origin",  origin);
+            resp.addHeader("Access-Control-Allow-Credentials", "true");
+        }
         if (!options) chain.doFilter(req, resp);
     }
 }
