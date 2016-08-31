@@ -94,28 +94,27 @@ class WptDetailResultDownloadService {
      * @param wptVersion
      */
     public void addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority) {
-        wptTestIds.each {String wptTestId ->
-            //if we find at least one FetchJobs we can just ignore this add. Otherwise we must also check for an AssetRequestGroup
-            //TODO im sure we can just make one query and if any of the given wptTestIds is in the database, instead of one query for each id.
-            //After that we can subtract this sets and only iterate over this result.
-            def existingFetchJob = FetchJob.findByWptBaseURLAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)
-            if(!existingFetchJob){
-                //If we find at least one AssetRequestGroup with the same parameters we know that this Job was already executed
-                def existingAssetRequestGroup = AssetRequestGroup.findByWptBaseUrlAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)
-                if(!existingAssetRequestGroup){
-                    //We can safely add the job to the queue
-                    FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                            wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
-                    synchronized (queue) {
-                        if (queue.size() < queueMaximumInMemory) {
-                            queue.offer(fetchJob)
-                        }
-                    }
-                } else{
-                    log.info("WPTResult $wptTestId from $wptBaseUrl is already persisted and will be skipped")
+
+        //Filter all ids which are already present as FetchJob
+        List<String> existing = FetchJob.findAllByWptBaseURLAndOsmInstanceAndWptTestIdInList(wptBaseUrl, osmInstance, wptTestIds)*.wptTestId
+        List<String> remaining = wptTestIds - existing
+        if(existing) {
+            log.info("The following WPTResults from $wptBaseUrl are already in queue: \n $existing")
+        }
+        //Filter all ids which are already present as Result
+        existing  = AssetRequestGroup.findAllByWptBaseUrlAndOsmInstanceAndWptTestIdInList(wptBaseUrl, osmInstance, remaining)*.wptTestId
+        remaining = remaining - existing
+        if(existing) {
+            log.info("The following WPTResults from $wptBaseUrl are already persisted: \n $existing")
+        }
+
+        remaining.each {String wptTestId ->
+            FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+                    wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
+            synchronized (queue) {
+                if (queue.size() < queueMaximumInMemory) {
+                    queue.offer(fetchJob)
                 }
-            } else {
-                log.info("WPTResult $wptTestId from $wptBaseUrl is already in queue")
             }
         }
     }
