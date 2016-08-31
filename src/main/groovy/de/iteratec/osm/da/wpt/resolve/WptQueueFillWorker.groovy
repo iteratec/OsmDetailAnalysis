@@ -59,6 +59,8 @@ class WptQueueFillWorker implements Runnable {
             def c = FetchJob.createCriteria()
             List<FetchJob> jobsToAdd = c.list(max: maximumAmount) {
                 and {
+                    order('priority','desc')
+                    order('created','asc')
                     not {
                         'in'("id", idsToIgnore)
                     }
