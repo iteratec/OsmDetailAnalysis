@@ -1,7 +1,6 @@
 package de.iteratec.osm.da.api
 
-import de.iteratec.osm.da.dashboard.DetailAnalysisDashboardCommand
-import de.iteratec.osm.da.dashboard.DetailAnalysisDashboardController
+import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
@@ -46,7 +45,7 @@ class RestApiController {
             sendSimpleResponseAsStream(400,"WPT Version ${command.wptVersion} is not valid")
             return
         }
-        wptDetailResultDownloadService.addToQueue(osmInstanceId,command.jobId, command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion)
+        wptDetailResultDownloadService.addNewFetchJobToQueue(osmInstanceId,command.jobId, command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion, Priority.Normal)
         sendSimpleResponseAsStream(200,"Added to queue")
     }
 

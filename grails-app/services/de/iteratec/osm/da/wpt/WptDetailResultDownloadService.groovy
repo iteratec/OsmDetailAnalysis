@@ -1,6 +1,7 @@
 package de.iteratec.osm.da.wpt
 
 import de.iteratec.osm.da.asset.AssetRequestGroup
+import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
@@ -13,6 +14,7 @@ import javax.persistence.criteria.Fetch
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.PriorityBlockingQueue
 
 /**
  * This service handles the downloading of the detail data from WPT.
@@ -47,7 +49,7 @@ class WptDetailResultDownloadService {
      * This List will cache FetchJobs and will be used from WptQueueDownloadWorker to get new Jobs to fetch.
      * WptQueueFillWorker will fill this queue from the database in background.
      */
-    final ConcurrentLinkedQueue<FetchJob> queue = new ConcurrentLinkedQueue<>()
+    final PriorityBlockingQueue<FetchJob> queue = new PriorityBlockingQueue<>(queueMaximumInMemory, Collections.reverseOrder())
     /**
      * Every worker will take a FetchJob from the queue. If this happens we have to note that in this list,
      * so the WptFillQueFillWorker will know that this FetchJob is still in progress and should't be added to queue again.
@@ -91,25 +93,36 @@ class WptDetailResultDownloadService {
      * @param wptTestId
      * @param wptVersion
      */
-    public synchronized void addToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion) {
+    public void addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority) {
         wptTestIds.each {String wptTestId ->
             //if we find at least one FetchJobs we can just ignore this add. Otherwise we must also check for an AssetRequestGroup
+            //TODO im sure we can just make one query and if any of the given wptTestIds is in the database, instead of one query for each id.
+            //After that we can subtract this sets and only iterate over this result.
             def existingFetchJob = FetchJob.findByWptBaseURLAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)
             if(!existingFetchJob){
                 //If we find at least one AssetRequestGroup with the same parameters we know that this Job was already executed
                 def existingAssetRequestGroup = AssetRequestGroup.findByWptBaseUrlAndWptTestIdAndOsmInstance(wptBaseUrl,wptTestId, osmInstance)
                 if(!existingAssetRequestGroup){
                     //We can safely add the job to the queue
-                    FetchJob fetchJob = new FetchJob(osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+                    FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
                             wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
                     synchronized (queue) {
                         if (queue.size() < queueMaximumInMemory) {
                             queue.offer(fetchJob)
                         }
                     }
+                } else{
+                    log.info("WPTResult $wptTestId from $wptBaseUrl is already persisted and will be skipped")
                 }
+            } else {
+                log.info("WPTResult $wptTestId from $wptBaseUrl is already in queue")
             }
         }
+    }
+
+    public void addExistingFetchJobToQueue(List<FetchJob> jobsToAdd){
+        jobsToAdd.each {queue.put(it)}
+        log.info("Added ${jobsToAdd.size()} jobs to queue")
     }
 
     /**
@@ -134,11 +147,12 @@ class WptDetailResultDownloadService {
         inProgress.remove(job)
     }
     /**
-     * Retrievs a job from the qeue and adds it to progress
+     * Retrievs a job from the qeue and adds it to progress.
+     * This method will block until there is a job in queue to return.
      * @return
      */
     public synchronized FetchJob getNextJob() {
-        FetchJob currentJob = queue.poll()
+        FetchJob currentJob = queue.take()
         if (currentJob) inProgress << currentJob
         return currentJob
     }

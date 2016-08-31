@@ -52,11 +52,8 @@ class WptDownloadWorker implements Runnable{
     void run() {
         sleep(10000) //wait for the application to fully start.
         while (service.workerShouldRun){
-            while (!service.queue.isEmpty()) {
-                fetch()
-            }
-            log.debug(this.toString() + " still active, will wait $threshold ms")
-            sleep(threshold)//To reduce overhead we just wait 2 second and recheck, if the queue is still empty
+            log.debug(this.toString() + " is ready for new work")
+            fetch()
         }
     }
 
@@ -88,7 +85,7 @@ class WptDownloadWorker implements Runnable{
     void handleResult(WptDetailResult result, FetchJob currentJob){
         if(result){
             service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
-            log.debug(this.toString() + "FetchJob $currentJob.id finished, start deleting ")
+            log.debug(this.toString() + " FetchJob $currentJob.id finished, start deleting ")
             service.deleteJob(currentJob)
         } else {
             service.markJobAsFailed(currentJob)

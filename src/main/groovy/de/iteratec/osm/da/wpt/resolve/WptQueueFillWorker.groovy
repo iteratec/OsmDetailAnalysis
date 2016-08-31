@@ -36,12 +36,13 @@ class WptQueueFillWorker implements Runnable {
     /**
      * Tries to find FetchJobs in Database and adds them to the queue.
      * FetchJobs which are already in the queue won't be added.
+     * This will only fill the queue if it is atleast half empty, to prevent non-stopping queries against the database.
      */
     void fillQueue(){
         if (service.queue.size() < (service.queueMaximumInMemory / 2 as int)) {
             Set<FetchJob> jobsInMemory = collectJobsInMemory()
             log.debug("Jobs in cached queue and in progress: ${jobsInMemory.size()}")
-            int maxToAdd = service.queueMaximumInMemory - service.queue.size()
+            int maxToAdd = service.queueMaximumInMemory - service.queue.size() - 1 // -1 because there could be a running job added
             loadJobsFromDatabase(maxToAdd, jobsInMemory*.id as List<Integer>, service.maxTryCount)
         }
     }
@@ -65,9 +66,7 @@ class WptQueueFillWorker implements Runnable {
                 }
             }
             if(jobsToAdd?.size()>0){
-                service.queue.addAll(jobsToAdd)
-                log.info("Added ${jobsToAdd.size()} jobs to queue")
-
+                service.addExistingFetchJobToQueue(jobsToAdd)
             }
         }
     }
