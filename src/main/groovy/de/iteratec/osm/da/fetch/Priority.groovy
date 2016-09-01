@@ -17,7 +17,7 @@ enum Priority {
 
     @Override
     String toString() {
-        return value
+        return "${name()}($value)"
     }
 
 }

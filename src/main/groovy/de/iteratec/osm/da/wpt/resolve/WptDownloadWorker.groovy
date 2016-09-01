@@ -23,12 +23,6 @@ class WptDownloadWorker implements Runnable{
     private static final log = LogFactory.getLog(this)
 
     WptDetailResultDownloadService service
-    /**
-     * If the normalPriorityQueue is empty we will this thresold ms until we recheck the normalPriorityQueue.
-     * Note that if the normalPriorityQueue is never empty, we will never use this threshold
-     */
-    int threshold = 2000
-
 
     WptDownloadWorker(WptDetailResultDownloadService service) {
         this.service = service

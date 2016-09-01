@@ -29,6 +29,10 @@ class FetchJob implements Comparable{
         this.priority = p.value
     }
 
+    void setPriority(int p){
+        this.priority = p
+    }
+
 
     @Override
     public String toString() {

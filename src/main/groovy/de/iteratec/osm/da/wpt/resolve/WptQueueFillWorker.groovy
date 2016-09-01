@@ -15,9 +15,9 @@ class WptQueueFillWorker implements Runnable {
     private static final log = LogFactory.getLog(this)
 
     /**
-     * Amount of time in ms to wait, after the normalPriorityQueue was filled.
+     * Amount of time in ms to wait, after the queues were filled.
      */
-    int threshhold = 5000
+    int threshold = 5000
 
 
     WptQueueFillWorker(WptDetailResultDownloadService service) {
@@ -27,10 +27,10 @@ class WptQueueFillWorker implements Runnable {
 
     @Override
     void run() {
-        sleep(threshhold * 2) // wait for application to start
+        sleep(threshold * 2) // wait for application to start
         while (service.workerShouldRun) {
-            fillQueue()
-            sleep(threshhold)
+            fillQueues()
+            sleep(threshold)
         }
     }
 
@@ -39,12 +39,14 @@ class WptQueueFillWorker implements Runnable {
      * FetchJobs which are already in the normalPriorityQueue won't be added.
      * This will only fill the normalPriorityQueue if it is atleast half empty, to prevent non-stopping queries against the database.
      */
-    void fillQueue(){
-        if (service.queueHashMap[Priority.Normal].size() < (service.queueMaximumInMemory / 2 as int)) {
-            Set<FetchJob> jobsInMemory = collectJobsInMemory()
-            log.debug("Jobs in cached normalPriorityQueue and in progress: ${jobsInMemory.size()}")
-            int maxToAdd = service.queueMaximumInMemory - service.queueHashMap[Priority.Normal].size() - 1 // -1 because there could be a running job added
-            loadJobsFromDatabase(maxToAdd, jobsInMemory*.id as List<Integer>, service.maxTryCount)
+    void fillQueues(){
+        service.getAvailablePriorities().each {
+            if (service.getJobCountInQueueByPriority(it) < (service.getQueueMaximumInMemory() / 2 as int)) {
+                Set<FetchJob> jobsInMemory = collectJobsInMemory(it)
+                log.debug("Jobs in cached $it queue and in progress: ${jobsInMemory.size()}")
+                int maxToAdd = service.getQueueMaximumInMemory() - service.getJobCountInQueueByPriority(it) - 1 // -1 because there could be a running job added
+                loadJobsFromDatabase(maxToAdd, jobsInMemory*.id as List<Integer>, service.getMaxTryCount(), it)
+            }
         }
     }
 
@@ -54,13 +56,14 @@ class WptQueueFillWorker implements Runnable {
      * @param maximumAmount
      * @param idsToIgnore
      * @param maximumTries amount which should be succeed from FetchJobs
+     * @param priority the priority which should be loaded
      */
-    void loadJobsFromDatabase(int maximumAmount, List<Integer> idsToIgnore, int maximumTries){
+    void loadJobsFromDatabase(int maximumAmount, List<Integer> idsToIgnore, int maximumTries, Priority priority){
         FetchJob.withNewSession {
             def c = FetchJob.createCriteria()
             List<FetchJob> jobsToAdd = c.list(max: maximumAmount) {
                 and {
-                    order('priority','desc')
+                    eq('priority',priority.value)
                     order('created','asc')
                     not {
                         'in'("id", idsToIgnore)
@@ -69,19 +72,19 @@ class WptQueueFillWorker implements Runnable {
                 }
             }
             if(jobsToAdd?.size()>0){
-                service.addExistingFetchJobToQueue(jobsToAdd)
+                service.addExistingFetchJobToQueue(jobsToAdd, priority)
             }
         }
     }
     /**
-     * Checks whichs jobs are either in normalPriorityQueue or in progress and combines them in one list.
+     * Checks which jobs are either in normalPriorityQueue or in progress and combines them in one list.
      * @return a List of all FetchJobs in normalPriorityQueue or in progress
      */
-    Set<FetchJob> collectJobsInMemory(){
+    Set<FetchJob> collectJobsInMemory(Priority priority){
         Set<FetchJob> alreadyLoaded = []
         synchronized (service.inProgress) {
             alreadyLoaded.addAll(service.inProgress)
-            alreadyLoaded.addAll(service.queueHashMap[Priority.Normal])
+            alreadyLoaded.addAll(service.queueHashMap[priority])
         }
         return alreadyLoaded
     }

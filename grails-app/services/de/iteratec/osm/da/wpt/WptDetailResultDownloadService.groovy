@@ -13,11 +13,12 @@ import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.PriorityBlockingQueue
+import java.util.concurrent.TimeUnit
 
 /**
  * This service handles the downloading of the detail data from WPT.
- * The downloading will be queued and therefore eventually persisted. The normalPriorityQueue will be persisted.
- * All downloaded data will be passed to the persistense service and therefore will be persisted.
+ * The downloading will be queued and therefore eventually persisted. The queue will be persisted.
+ * All downloaded data will be passed to the persistence service and therefore will be persisted.
  */
 class WptDetailResultDownloadService {
 
@@ -36,9 +37,9 @@ class WptDetailResultDownloadService {
      */
     int maxTryCount = 3
     /**
-     * Maximum FetchJob which should be cached in normalPriorityQueue.
+     * Maximum FetchJob which should be cached in each queue.
      */
-    int queueMaximumInMemory = 100
+    int queueMaximumInMemory = 50
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
@@ -50,16 +51,13 @@ class WptDetailResultDownloadService {
     final HashMap<Priority, PriorityBlockingQueue<FetchJob>> queueHashMap = [(Priority.Low):createQueue(),
                                                                              (Priority.Normal):createQueue(),
                                                                              (Priority.High):createQueue()]
-    final PriorityBlockingQueue<FetchJob> normalPriorityQueue = createQueue()
-
-
     /**
      * Every worker will take a FetchJob from the normalPriorityQueue. If this happens we have to note that in this list,
-     * so the WptFillQueFillWorker will know that this FetchJob is still in progress and should't be added to normalPriorityQueue again.
+     * so the WptFillQueFillWorker will know that this FetchJob is still in progress and should't be added to the queues again.
      */
     final HashSet<FetchJob> inProgress = []
     /**
-     * This pool is used for multiple WptDownloadWorker to download WPTResults. We add one additional Thread to fill the normalPriorityQueue.
+     * This pool is used for multiple WptDownloadWorker to download WPTResults. We add one additional Thread to fill the queues.
      */
     ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1)
 
@@ -118,17 +116,22 @@ class WptDetailResultDownloadService {
         remaining.each {String wptTestId ->
             FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
                     wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
-            synchronized (queueHashMap[Priority.Normal]) {
-                if (queueHashMap[Priority.Normal].size() < queueMaximumInMemory) {
-                    queueHashMap[Priority.Normal].offer(fetchJob)
-                }
+            addToQueue(fetchJob, priority)
+
+        }
+    }
+
+    private void addToQueue(FetchJob fetchJob, Priority priority){
+        synchronized (queueHashMap[priority]) {
+            if (queueHashMap[priority].size() < queueMaximumInMemory) {
+                queueHashMap[priority].offer(fetchJob)
             }
         }
     }
 
-    public void addExistingFetchJobToQueue(List<FetchJob> jobsToAdd){
-        jobsToAdd.each {queueHashMap[Priority.Normal].put(it)}
-        log.info("Added ${jobsToAdd.size()} jobs to normalPriorityQueue")
+    public void addExistingFetchJobToQueue(List<FetchJob> jobsToAdd, Priority priority){
+        jobsToAdd.each {queueHashMap[priority].put(it)}
+        log.info("Added ${jobsToAdd.size()} jobs to $priority queue")
     }
 
     /**
@@ -153,14 +156,27 @@ class WptDetailResultDownloadService {
         inProgress.remove(job)
     }
     /**
-     * Retrievs a job from the qeue and adds it to progress.
-     * This method will block until there is a job in normalPriorityQueue to return.
+     * Retrieves a job from the queue and adds it to progress.
+     * This method will block until there is a job available to return.
      * @return
      */
     public synchronized FetchJob getNextJob() {
-        FetchJob currentJob = queueHashMap[Priority.Normal].take()
-        if (currentJob) inProgress << currentJob
+        FetchJob currentJob = null
+        while(!currentJob){
+            currentJob = queueHashMap[Priority.High].poll(2, TimeUnit.SECONDS)
+            if(!currentJob) currentJob = queueHashMap[Priority.Normal].poll(500, TimeUnit.MILLISECONDS)
+            if(!currentJob) currentJob = queueHashMap[Priority.Low].poll(500, TimeUnit.MILLISECONDS)
+        }
+        inProgress << currentJob
         return currentJob
+    }
+
+    public List<Priority> getAvailablePriorities(){
+        return queueHashMap.keySet().collect()
+    }
+
+    public int getJobCountInQueueByPriority(Priority priority){
+        return queueHashMap[priority].size()
     }
 
     /**
