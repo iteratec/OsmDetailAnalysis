@@ -24,8 +24,8 @@ class WptDownloadWorker implements Runnable{
 
     WptDetailResultDownloadService service
     /**
-     * If the queue is empty we will this thresold ms until we recheck the queue.
-     * Note that if the queue is never empty, we will never use this threshold
+     * If the normalPriorityQueue is empty we will this thresold ms until we recheck the normalPriorityQueue.
+     * Note that if the normalPriorityQueue is never empty, we will never use this threshold
      */
     int threshold = 2000
 
@@ -58,8 +58,8 @@ class WptDownloadWorker implements Runnable{
     }
 
     /**
-     * Tries to fetch the WptDetailResult of a FetchJob. If this succeed the Job will be removed from the queue and will be deleted.
-     * Otherwise it will be just removed from queue and will be marked as failed.
+     * Tries to fetch the WptDetailResult of a FetchJob. If this succeed the Job will be removed from the normalPriorityQueue and will be deleted.
+     * Otherwise it will be just removed from normalPriorityQueue and will be marked as failed.
      */
     void fetch(){
         FetchJob currentJob

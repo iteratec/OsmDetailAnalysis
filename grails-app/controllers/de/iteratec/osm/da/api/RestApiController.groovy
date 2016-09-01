@@ -46,7 +46,7 @@ class RestApiController {
             return
         }
         wptDetailResultDownloadService.addNewFetchJobToQueue(osmInstanceId,command.jobId, command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion, Priority.Normal)
-        sendSimpleResponseAsStream(200,"Added to queue")
+        sendSimpleResponseAsStream(200,"Added to normalPriorityQueue")
     }
 
     /**

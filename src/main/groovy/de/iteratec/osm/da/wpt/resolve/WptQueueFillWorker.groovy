@@ -1,12 +1,13 @@
 package de.iteratec.osm.da.wpt.resolve
 
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import org.apache.commons.logging.LogFactory
 
 /**
  * Worker for WptDetailResultDownloadService.
- * Fills the queue if it reaches a given point
+ * Fills the normalPriorityQueue if it reaches a given point
  */
 class WptQueueFillWorker implements Runnable {
 
@@ -14,7 +15,7 @@ class WptQueueFillWorker implements Runnable {
     private static final log = LogFactory.getLog(this)
 
     /**
-     * Amount of time in ms to wait, after the queue was filled.
+     * Amount of time in ms to wait, after the normalPriorityQueue was filled.
      */
     int threshhold = 5000
 
@@ -34,15 +35,15 @@ class WptQueueFillWorker implements Runnable {
     }
 
     /**
-     * Tries to find FetchJobs in Database and adds them to the queue.
-     * FetchJobs which are already in the queue won't be added.
-     * This will only fill the queue if it is atleast half empty, to prevent non-stopping queries against the database.
+     * Tries to find FetchJobs in Database and adds them to the normalPriorityQueue.
+     * FetchJobs which are already in the normalPriorityQueue won't be added.
+     * This will only fill the normalPriorityQueue if it is atleast half empty, to prevent non-stopping queries against the database.
      */
     void fillQueue(){
-        if (service.queue.size() < (service.queueMaximumInMemory / 2 as int)) {
+        if (service.queueHashMap[Priority.Normal].size() < (service.queueMaximumInMemory / 2 as int)) {
             Set<FetchJob> jobsInMemory = collectJobsInMemory()
-            log.debug("Jobs in cached queue and in progress: ${jobsInMemory.size()}")
-            int maxToAdd = service.queueMaximumInMemory - service.queue.size() - 1 // -1 because there could be a running job added
+            log.debug("Jobs in cached normalPriorityQueue and in progress: ${jobsInMemory.size()}")
+            int maxToAdd = service.queueMaximumInMemory - service.queueHashMap[Priority.Normal].size() - 1 // -1 because there could be a running job added
             loadJobsFromDatabase(maxToAdd, jobsInMemory*.id as List<Integer>, service.maxTryCount)
         }
     }
@@ -73,14 +74,14 @@ class WptQueueFillWorker implements Runnable {
         }
     }
     /**
-     * Checks whichs jobs are either in queue or in progress and combines them in one list.
-     * @return a List of all FetchJobs in queue or in progress
+     * Checks whichs jobs are either in normalPriorityQueue or in progress and combines them in one list.
+     * @return a List of all FetchJobs in normalPriorityQueue or in progress
      */
     Set<FetchJob> collectJobsInMemory(){
         Set<FetchJob> alreadyLoaded = []
         synchronized (service.inProgress) {
             alreadyLoaded.addAll(service.inProgress)
-            alreadyLoaded.addAll(service.queue)
+            alreadyLoaded.addAll(service.queueHashMap[Priority.Normal])
         }
         return alreadyLoaded
     }
