@@ -110,6 +110,21 @@ class DetailAnalysisDashboardController {
         modelToRender.put('toDateInMillis', toDate.millis)
 
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
+        fillWithI18N(modelToRender)
+    }
+
+    private void fillWithI18N(Map<String, Object> modelToRender) {
+        Map<String, String> i18n = [:]
+
+        i18n.put("allValuesEqual", message(code: 'de.iteratec.osm.da.allValuesEqual', default: 'For all values applies: '))
+        i18n.put("outOf", message(code: 'de.iteratec.osm.da.outOf', default: 'out of'))
+        i18n.put("selected", message(code: 'de.iteratec.osm.da.selected', default: 'selected'))
+        i18n.put("records", message(code: 'de.iteratec.osm.da.records', default: 'records'))
+        i18n.put("resetAll", message(code: 'de.iteratec.osm.da.resetAll', default: 'Reset All'))
+        i18n.put("all", message(code: 'de.iteratec.osm.da.all', default: 'all'))
+        i18n.put("applyFilters", message(code: 'de.iteratec.osm.da.applyFilters', default: 'Please click on the graph to apply filters.'))
+
+        modelToRender.put('i18n', i18n as JSON)
     }
 
     private void fillWithLabelAliases(Map<String, Object> modelToRender, OsmInstance osmInstance) {

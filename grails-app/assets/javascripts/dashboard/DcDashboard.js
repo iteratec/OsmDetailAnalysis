@@ -67,9 +67,9 @@ DcDashboard.prototype.addDataCount = function (dashboardIdentifier, chartIdentif
         .dimension(this.allData)
         .group(this.allData.groupAll())
         .html({
-            some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
-            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();  addOnClickListeners();\'\'>Reset All</a>',
-            all: 'All selected out of <strong>%total-count</strong> records. Please click on the graph to apply filters.'
+            some: '<strong>%filter-count </strong>' + OsmDetailMicroService.i18n.outOf + '<strong> %total-count </strong>' + OsmDetailMicroService.i18n.records + " " + OsmDetailMicroService.i18n.selected +
+            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();  addOnClickListeners();\'\'>' + OsmDetailMicroService.i18n.resetAll + '</a>',
+            all: OsmDetailMicroService.i18n.all + '<strong> %total-count </strong>' + OsmDetailMicroService.i18n.records + " " + OsmDetailMicroService.i18n.selected + '. ' + OsmDetailMicroService.i18n.applyFilters
         });
 
     dc.renderAll();

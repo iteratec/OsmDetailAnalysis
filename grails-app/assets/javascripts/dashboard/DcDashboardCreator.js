@@ -448,9 +448,10 @@ function showUniqueValues(dataCounts, data, labels) {
     if (Object.keys(uniqueValues).length >= 0) {
         for (var key in uniqueValues) {
             var label = labels[key] ? labels[key][uniqueValues[key]] : uniqueValues[key];
-            var summary = "for all values " + key + " is " + label;
+            var summary = OsmDetailMicroService.i18n.allValuesEqual;
+            summary += "<br/>" + key + ": " + label;
 
-            document.getElementById(key + "-chart").innerHTML = summary.toLowerCase()
+            document.getElementById(key + "-chart").innerHTML = summary
         }
     }
 }
@@ -686,5 +687,6 @@ function fillDataInAssetTable(resp, requestData) {
 
 
 }
+
 // Data is set in the detailAnalysis/show.gsp
 createDashboard(OsmDetailMicroService.data, OsmDetailMicroService.labels, OsmDetailMicroService.from, OsmDetailMicroService.to, OsmDetailMicroService.ajaxUrl);

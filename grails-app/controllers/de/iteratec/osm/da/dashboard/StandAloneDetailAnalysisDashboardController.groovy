@@ -23,7 +23,7 @@ class StandAloneDetailAnalysisDashboardController {
             return
         }
         Map<String, Object> modelToRender = [:]
-        modelToRender.put("serverBaseUrl",grailsLinkGenerator.serverBaseURL)
+        modelToRender.put("serverBaseUrl", grailsLinkGenerator.serverBaseURL)
 
         cmd.copyRequestDataToViewModelMap(modelToRender)
 
@@ -78,9 +78,11 @@ class StandAloneDetailAnalysisDashboardController {
         modelToRender.put('toDateInMillis', toDate.millis)
 
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
+        fillWithI18N(modelToRender)
     }
-    def getAssetsForDataPoint(){
-        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(),request.JSON.hosts,request.JSON.browsers,request.JSON.mediaTypes,request.JSON.subtypes,request.JSON.jobGroups,request.JSON.pages)
+
+    def getAssetsForDataPoint() {
+        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.hosts, request.JSON.browsers, request.JSON.mediaTypes, request.JSON.subtypes, request.JSON.jobGroups, request.JSON.pages)
         response.setContentType(ContentType.JSON.toString())
         response.status = 200
         render result
@@ -98,6 +100,21 @@ class StandAloneDetailAnalysisDashboardController {
 
         modelToRender.put('labelAliases', labelAliases)
     }
+
+    private void fillWithI18N(Map<String, Object> modelToRender) {
+        Map<String, String> i18n = [:]
+
+        i18n.put("allValuesEqual", message(code: 'de.iteratec.osm.da.allValuesEqual', default: 'For all values applies: '))
+        i18n.put("outOf", message(code: 'de.iteratec.osm.da.outOf', default: 'out of'))
+        i18n.put("selected", message(code: 'de.iteratec.osm.da.selected', default: 'selected'))
+        i18n.put("records", message(code: 'de.iteratec.osm.da.records', default: 'records'))
+        i18n.put("resetAll", message(code: 'de.iteratec.osm.da.resetAll', default: 'Reset All'))
+        i18n.put("all", message(code: 'de.iteratec.osm.da.all', default: 'all'))
+        i18n.put("applyFilters", message(code: 'de.iteratec.osm.da.applyFilters', default: 'Please click on the graph to apply filters.'))
+
+        modelToRender.put('i18n', i18n as JSON)
+    }
+
     private void sendSimpleResponseAsStream(Integer httpStatus, String message) {
         response.setContentType('text/plain;charset=UTF-8')
         response.status = httpStatus
