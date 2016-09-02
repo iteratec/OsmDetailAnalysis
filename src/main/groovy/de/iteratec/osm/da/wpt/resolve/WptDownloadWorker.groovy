@@ -60,14 +60,13 @@ class WptDownloadWorker implements Runnable{
         try {
             currentJob = service.getNextJob()
             if (currentJob) {
-                log.debug(this.toString() + "found job and start: " + currentJob.id)
+                log.debug(this.toString() + " found job and start: " + currentJob.id)
                 WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
                 handleResult(result, currentJob)
             }
         } catch (Exception e) {
             service.markJobAsFailed(currentJob)
-            log.error(this.toString() +" encountered an error, job with id ${currentJob?.id} will be skipped. New try count: ${currentJob?.tryCount}\n"+e)
-            e.printStackTrace()
+            log.error("Job with id ${currentJob?.id} encountert an error. New try count: ${currentJob?.tryCount}\n Message: $e")
         }
     }
     /**
