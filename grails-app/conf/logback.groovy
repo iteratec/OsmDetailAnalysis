@@ -117,7 +117,7 @@ if (Environment.getCurrent() == Environment.PRODUCTION && targetDir) {
     logger("org.grails.orm.hibernate", ERROR,["asyncOsmAppenderDetails"])
     logger("org.hibernate.SQL", ERROR,["asyncOsmAppenderDetails"])
     logger("org.hibernate.transaction", ERROR,["asyncOsmAppenderDetails"])
-    root(INFO, appenders)
+    root(DEBUG, appenders)
 }
 
 if (Environment.isDevelopmentMode() && targetDir) {
@@ -211,7 +211,12 @@ if (Environment.isDevelopmentMode() && targetDir) {
     logger("org.grails.orm.hibernate", ERROR,["asyncOsmAppenderDetails"])
     logger("org.hibernate.SQL", ERROR,["asyncOsmAppenderDetails"])
     logger("org.hibernate.transaction", ERROR,["asyncOsmAppenderDetails"])
-    root(INFO, appenders)
+    logger("org.grails.datastore.mapping.core.DatastoreUtils", ERROR,["asyncOsmAppenderDetails"])
+    logger("org.mongodb.driver.protocol.command", ERROR,["asyncOsmAppenderDetails"])
+    logger("org.grails.datastore.mapping.transactions.DatastoreTransactionManager", ERROR,["asyncOsmAppenderDetails"])
+    logger("org.grails.spring.beans.factory.OptimizedAutowireCapableBeanFactory", ERROR,["asyncOsmAppenderDetails"])
+    logger("org.apache.http", ERROR,["asyncOsmAppenderDetails"])
+    root(DEBUG, appenders)
 }
 if (Environment.getCurrent() == Environment.TEST && targetDir) {
     appender('CONSOLE', ConsoleAppender) {
