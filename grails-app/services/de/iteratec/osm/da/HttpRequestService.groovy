@@ -66,6 +66,17 @@ class HttpRequestService {
         return response.data
     }
 
+    def postCallback(String callbackUrl, int countAssets, int loadedAssets,int callBackId,String osmUrl, int failureCount){
+        osmUrl = osmUrl.endsWith("/")?osmUrl:osmUrl+"/"
+        RESTClient client = getRestClient(osmUrl)
+
+        def response = client.post(
+            path: callbackUrl,
+            query: [countAssets: countAssets, loadedAssets: loadedAssets,callBackId:callBackId,failureCount:failureCount],
+            contentType: ContentType.URLENC
+        )
+        return response
+    }
     String addTrailingSlashIfMissing(String url){
         return url.endsWith('/') ? url : url+'/'
     }

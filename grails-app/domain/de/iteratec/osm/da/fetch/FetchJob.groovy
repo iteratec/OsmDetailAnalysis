@@ -21,8 +21,11 @@ class FetchJob implements Comparable{
     int tryCount
     long lastTryEpochTime
     int priority
+    FetchBatch fetchBatch = null
+
 
     static constraints = {
+        fetchBatch nullable:true
     }
 
     void setPriority(Priority p){

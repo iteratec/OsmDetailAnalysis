@@ -1,6 +1,7 @@
 package de.iteratec.osm.da.wpt
 
 import de.iteratec.osm.da.asset.AssetRequestGroup
+import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
@@ -97,9 +98,10 @@ class WptDetailResultDownloadService {
      * @param wptBaseUrl
      * @param wptTestId
      * @param wptVersion
+     * @param fetchBatch
      */
-    public void addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority) {
-
+    public int addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority, FetchBatch fetchBatch = null) {
+        int numberOfNewFetchJobs = 0
         //Filter all ids which are already present as FetchJob
         List<String> existing = FetchJob.findAllByWptBaseURLAndOsmInstanceAndWptTestIdInList(wptBaseUrl, osmInstance, wptTestIds)*.wptTestId
         List<String> remaining = wptTestIds - existing
@@ -115,10 +117,12 @@ class WptDetailResultDownloadService {
 
         remaining.each {String wptTestId ->
             FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                    wptTestId: wptTestId, wptVersion: wptVersion).save(flush: true, failOnError: true)
+                    wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch:fetchBatch).save(flush: true, failOnError: true)
             addToQueue(fetchJob, priority)
+            numberOfNewFetchJobs++
 
         }
+        return numberOfNewFetchJobs
     }
 
     private void addToQueue(FetchJob fetchJob, Priority priority){
@@ -140,10 +144,16 @@ class WptDetailResultDownloadService {
      */
     public void markJobAsFailed(FetchJob job){
         if(job){
-            job.tryCount++
-            job.lastTryEpochTime = new Date().getTime()/1000
-            job.save(flush:true)
-            inProgress.remove(job)
+            job.withNewSession {
+                job.tryCount++
+                if (job.fetchBatch && job.tryCount >= maxTryCount) {
+                    job.fetchBatch.addFailure(job)
+                    job.fetchBatch = null
+                }
+                job.lastTryEpochTime = new Date().getTime() / 1000
+                job.save(flush: true)
+                inProgress.remove(job)
+            }
         }
     }
 
@@ -156,8 +166,7 @@ class WptDetailResultDownloadService {
         inProgress.remove(job)
     }
     /**
-     * Retrieves a job from the queue and adds it to progress.
-     * This method will block until there is a job available to return.
+     * Retrievs a job from the qeue and adds it to progress
      * @return
      */
     public synchronized FetchJob getNextJob() {

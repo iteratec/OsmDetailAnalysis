@@ -52,7 +52,7 @@ class WptDownloadWorker implements Runnable{
     }
 
     /**
-     * Tries to fetch the WptDetailResult of a FetchJob. If this succeed the Job will be removed from the normalPriorityQueue and will be deleted.
+     * Tries to fetch the WptDetailResult of a FetchJob. If this succeeds the Job will be removed from the normalPriorityQueue and will be deleted.
      * Otherwise it will be just removed from normalPriorityQueue and will be marked as failed.
      */
     void fetch(){

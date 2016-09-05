@@ -1,11 +1,13 @@
 package de.iteratec.osm.da.api
 
+import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import de.iteratec.osm.da.mapping.MappingService
+import grails.converters.JSON
 import grails.validation.Validateable
 
 
@@ -48,6 +50,33 @@ class RestApiController {
         wptDetailResultDownloadService.addNewFetchJobToQueue(osmInstanceId,command.jobId, command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion, Priority.Normal)
         sendSimpleResponseAsStream(200,"Added to normalPriorityQueue")
     }
+    def persistAssetsBatchJob(PersistenceBatchCommand command){
+        log.debug("Got a new PersitenceBatchCommand")
+        if (command.hasErrors()) {
+            StringWriter sw = new StringWriter()
+            command.errors.getFieldErrors().each { fieldError ->
+                sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
+            }
+            sendSimpleResponseAsStream(400, sw.toString())
+            return
+        }
+
+        Long osmInstanceId = mappingService.getOSMInstanceId(command.osmUrl)
+        if(!osmInstanceId){
+            sendSimpleResponseAsStream(400, "Osm with URL ${command.osmUrl} isn't registered")
+            return
+        }
+        FetchBatch fetchBatch = new FetchBatch(callbackUrl:command.callbackUrl,osmUrl:command.osmUrl,callBackId:command.callbackJobId)
+        int numberOfFetchJobs = 0
+        command.persistanceJobList.each{
+            numberOfFetchJobs+=wptDetailResultDownloadService.addNewFetchJobToQueue(osmInstanceId,it.jobId, it.jobGroupId,it.wptServerBaseUrl,[it.wptTestId], it.wptVersion,Priority.Normal, fetchBatch)
+        }
+        fetchBatch.countFetchJobs = numberOfFetchJobs
+        fetchBatch.queuingDone = true
+        fetchBatch.save(flush:true)
+        log.debug("Queued ${numberOfFetchJobs} FetchJobs.")
+        sendObjectAsJSON(numberOfFetchJobs,false)
+    }
 
     /**
      *
@@ -87,7 +116,28 @@ class RestApiController {
         sendSimpleResponseAsStream(200,"Url updated to $command.newOsmUrl")
     }
 
-
+    /**
+     * <p>
+     * Sends the object rendered as JSON. All public getters are used to
+     * render the result. This call should be placed as last statement, the
+     * return statement, of an action.
+     * </p>
+     *
+     * @param objectToSend
+     *         The object to render end to be sent to the client,
+     *         not <code>null</code>.
+     * @param usePrettyPrintingFormat
+     *         Set to <code>true</code> if the JSON should be "pretty
+     *         formated" (easy to read but larger file).
+     * @return Always <code>null</code>.
+     * @throws NullPointerException
+     *         if {@code objectToSend} is <code>null</code>.
+     */
+    private void sendObjectAsJSON(Object objectToSend, boolean usePrettyPrintingFormat) {
+        JSON converter = new JSON(target: objectToSend)
+        converter.setPrettyPrint(usePrettyPrintingFormat)
+        render converter
+    }
 }
 
 public class OsmCommand implements Validateable{
@@ -111,11 +161,11 @@ public class PersistenceCommand extends OsmCommand{
     Long jobId
 
     static constraints = {
-//        apiKey(validator: { String currentKey, PersistenceCommand cmd ->
-//            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-//            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
-//            else return true
-//        })
+        apiKey(validator: { String currentKey, PersistenceCommand cmd ->
+            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            else return true
+        })
         osmUrl(nullable:false)
         wptTestId(nullable:false)
         wptServerBaseUrl(nullable:false)
@@ -136,6 +186,22 @@ public class PersistenceCommand extends OsmCommand{
                 ", jobId=" + jobId +
                 '}';
     }
+}
+public class PersistenceBatchCommand extends OsmCommand{
+    String callbackUrl
+    String callbackJobId
+    List persistanceJobList
+
+    static constraints = {
+        apiKey(validator: { String currentKey, PersistenceBatchCommand cmd ->
+            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            else return true
+        })
+        osmUrl(nullable:false)
+        callbackUrl nullable: false
+    }
+
 }
 
 public class UrlUpdateCommand extends OsmCommand{
