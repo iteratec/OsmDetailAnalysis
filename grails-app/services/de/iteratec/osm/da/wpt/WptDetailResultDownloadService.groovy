@@ -98,27 +98,17 @@ class WptDetailResultDownloadService {
      * @param wptBaseUrl
      * @param wptTestId
      * @param wptVersion
+     * @param priority
      * @param fetchBatch
      */
     public int addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority, FetchBatch fetchBatch = null) {
         int numberOfNewFetchJobs = 0
-        //Filter all ids which are already present as FetchJob
-        List<String> existing = FetchJob.findAllByWptBaseURLAndOsmInstanceAndWptTestIdInList(wptBaseUrl, osmInstance, wptTestIds)*.wptTestId
-        List<String> remaining = wptTestIds - existing
-        if(existing) {
-            log.info("The following WPTResults from $wptBaseUrl are already in normalPriorityQueue: \n $existing")
-        }
-        //Filter all ids which are already present as Result
-        existing  = AssetRequestGroup.findAllByWptBaseUrlAndOsmInstanceAndWptTestIdInList(wptBaseUrl, osmInstance, remaining)*.wptTestId
-        remaining = remaining - existing
-        if(existing) {
-            log.info("The following WPTResults from $wptBaseUrl are already persisted: \n $existing")
-        }
 
-        remaining.each {String wptTestId ->
+
+        wptTestIds.each {String wptTestId ->
             FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
                     wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch:fetchBatch).save(flush: true, failOnError: true)
-            addToQueue(fetchJob, priority)
+//            addToQueue(fetchJob, priority)
             numberOfNewFetchJobs++
 
         }
@@ -134,6 +124,7 @@ class WptDetailResultDownloadService {
     }
 
     public void addExistingFetchJobToQueue(List<FetchJob> jobsToAdd, Priority priority){
+
         jobsToAdd.each {queueHashMap[priority].put(it)}
         log.info("Added ${jobsToAdd.size()} jobs to $priority queue")
     }

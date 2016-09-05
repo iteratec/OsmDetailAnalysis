@@ -8,7 +8,7 @@ import javax.persistence.criteria.Fetch
 
 class CallbackJob {
     static triggers = {
-      simple repeatInterval: 3000l // execute job once in 30 seconds
+      simple repeatInterval: 30000l // execute job once in 30 seconds
     }
 
     HttpRequestService httpRequestService
@@ -22,10 +22,6 @@ class CallbackJob {
                     int loadedAssets = countAssets - fetchBatch.fetchJobs.size()
                     def callbackUrl = fetchBatch.callbackUrl
                     def failureCount = fetchBatch.failureList.size()
-//                    int timeSinceStart = (new Date().time - fetchBatch.creationDate.time) / 1000
-//                    int timeLeft = timeSinceStart * countAssets / (loadedAssets>0 ? loadedAssets:1) - timeSinceStart
-//                    def result = countAssets > 0 ? 100 * loadedAssets / countAssets : -1
-//                    def estimatedEndDate = new DateTime().plusSeconds(timeLeft).toDate()
                     if(fetchBatch.lastValue == loadedAssets){
                         if((new DateTime().minusMinutes(15).millis - fetchBatch.lastUpdate.time) > 0){ // after 15 min without any update, the FetchBatch has failed and can be closed
                             println(new DateTime().minusMinutes(1).millis - fetchBatch.lastUpdate.time)

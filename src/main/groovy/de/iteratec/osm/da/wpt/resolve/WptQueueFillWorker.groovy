@@ -72,6 +72,10 @@ class WptQueueFillWorker implements Runnable {
                 }
             }
             if(jobsToAdd?.size()>0){
+                jobsToAdd.each { FetchJob fetchJob ->
+                    List<FetchJob> jobs = FetchJob.findAllByWptBaseURLAndWptTestId(fetchJob.wptBaseURL,fetchJob.wptTestId)
+                    if(jobs.size() > 1) service.deleteJob(fetchJob) // It's not necessary to download the assets twice
+                }
                 service.addExistingFetchJobToQueue(jobsToAdd, priority)
             }
         }
