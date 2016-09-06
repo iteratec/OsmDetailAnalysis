@@ -10,4 +10,4 @@ grails:
             osm:
                 da:
                     initialApiKey:
-                    initialOsmUrl: http://localhost:8080
+                    initialOsmUrl: '{{ default .Env.INITIAL_OSM_URL "http://localhost:8080" }}'
