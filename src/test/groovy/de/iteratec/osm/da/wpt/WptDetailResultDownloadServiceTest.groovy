@@ -15,7 +15,6 @@ import java.time.Instant
 
 @TestFor(WptDetailResultDownloadService)
 @Mock([FetchJob, AssetRequestGroup])
-@Ignore
 class WptDetailResultDownloadServiceTest extends Specification {
 
 
@@ -24,9 +23,17 @@ class WptDetailResultDownloadServiceTest extends Specification {
         service.disableWorker()
 
         when: "We add three jobs, ech with a own priority"
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["abc"], "2.19", Priority.Normal)
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["abcd"], "2.19", Priority.High)
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["abcde"], "2.19", Priority.Low)
+        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "abc", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
+
+        fetchJob = new FetchJob(priority: Priority.High, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "abcd", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.High)
+
+        fetchJob =new FetchJob(priority: Priority.Low, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "abcde", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Low)
 
         then: "We should first get the highest priority, then the normal and in the end the lowest"
         service.getNextJob().priority == Priority.High.value
@@ -48,9 +55,30 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test if the right list sizes are returned"() {
         given:"For each priority we add some jobs"
         service.disableWorker()
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["a",], "2.19", Priority.Low)
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["b", "c"], "2.19", Priority.Normal)
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["d", "e", "f"], "2.19", Priority.High)
+        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
+
+        fetchJob = new FetchJob(priority: Priority.High, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "b", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.High)
+
+        fetchJob =new FetchJob(priority: Priority.Low, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "c", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Low)
+
+        fetchJob = new FetchJob(priority: Priority.High, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "ab", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.High)
+
+        fetchJob =new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "ac", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
+
+        fetchJob = new FetchJob(priority: Priority.High, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "bab", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.High)
+
 
         expect: "There should be the amount returned, which we previously added"
         service.getJobCountInQueueByPriority(priority) == size
@@ -65,7 +93,14 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that by deleting a result, the result will also be removed from progress "(){
         given: "We add jobs to the queue and safe the amount of current jobs in progress"
         service.disableWorker()
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["b", "c"], "2.19", Priority.Normal)
+        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
+
+        fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "b", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
+
         FetchJob job = service.getNextJob()
         int inProgress = service.getInProgress().size()
 
@@ -76,10 +111,13 @@ class WptDetailResultDownloadServiceTest extends Specification {
         service.getInProgress().size() == inProgress-1
         !service.getInProgress().contains(job)
     }
+
     def "Test that we will receive a low priority job if there is no higher priority"(){
         given:"We add just a low priority job"
         service.disableWorker()
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["a",], "2.19", Priority.Low)
+        def fetchJob = new FetchJob(priority: Priority.Low, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Low)
 
         when: "We try to get the next job"
         FetchJob job = service.getNextJob()
@@ -91,7 +129,9 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that we will receive a normal priority job if there is no higher priority"(){
         given:"We add just a normal priority job"
         service.disableWorker()
-        service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["a",], "2.19", Priority.Normal)
+        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
+        service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
 
         when: "We try to get the next job"
         FetchJob job = service.getNextJob()
@@ -103,15 +143,17 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that getNextJob will only return, if there is a job available"(){
         given: "We disable the worker to run, so they won't 'steal' our jobs"
         service.disableWorker()
-        when: "We add a timer, which will run in 3 seconds"
-        new Timer().runAfter(3000){
-            service.addNewFetchJobToQueue(1, 1, 1, "http://iteratec.de", ["abc"], "2.19", Priority.Normal)
+        when: "We add a timer, which will run in 5 seconds"
+        new Timer().runAfter(5000){
+            def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+                    wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
+            service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
         }
 
-        then: "We should get the job after minimum of 3 seconds"
+        then: "We should get the job after minimum of 5 seconds"
         Instant before = Instant.now()
         service.getNextJob()
-        Duration.between(before, Instant.now()).getSeconds() >= 2
+        Duration.between(before, Instant.now()).getSeconds() >= 5
     }
 
 
