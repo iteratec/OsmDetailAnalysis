@@ -5,6 +5,7 @@ import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.fetch.Priority
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -14,6 +15,7 @@ import java.time.Instant
 
 @TestFor(WptDetailResultDownloadService)
 @Mock([FetchJob, AssetRequestGroup])
+@Ignore
 class WptDetailResultDownloadServiceTest extends Specification {
 
 
