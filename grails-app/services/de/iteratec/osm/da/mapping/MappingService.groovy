@@ -58,9 +58,13 @@ class MappingService {
             if(missingNames.size()>0) domainsToUpdate."$domain" = missingNames
         }
         if(domainsToUpdate.size() > 0 ){
-            def updates = getNameUpdate(domainsToUpdate, instance)
-            updates."target".each{String domain, Map<Long,String> value->
-                updateMapping(instance, OsmDomain.valueOf(domain), value)
+            try {
+                def updates = getNameUpdate(domainsToUpdate, instance)
+                updates."target".each { String domain, Map<Long, String> value ->
+                    updateMapping(instance, OsmDomain.valueOf(domain), value)
+                }
+            } catch (ConnectException e){
+                log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
             }
             //TODO check if something is missing
         }

@@ -30,7 +30,7 @@ class RestApiInterceptor {
 
     public RestApiInterceptor(){
         match(controller: "restApi", action: ~/securedViaApiKey.*/)
-        match(controller: "detailAnalysisDashboard", action: ~/.*/)
+//        match(controller: "detailAnalysisDashboard", action: ~/.*/)
 
     }
 

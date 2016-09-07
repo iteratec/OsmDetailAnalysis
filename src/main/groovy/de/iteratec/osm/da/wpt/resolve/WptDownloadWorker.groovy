@@ -23,12 +23,6 @@ class WptDownloadWorker implements Runnable{
     private static final log = LogFactory.getLog(this)
 
     WptDetailResultDownloadService service
-    /**
-     * If the queue is empty we will this thresold ms until we recheck the queue.
-     * Note that if the queue is never empty, we will never use this threshold
-     */
-    int threshold = 2000
-
 
     WptDownloadWorker(WptDetailResultDownloadService service) {
         this.service = service
@@ -52,31 +46,27 @@ class WptDownloadWorker implements Runnable{
     void run() {
         sleep(10000) //wait for the application to fully start.
         while (service.workerShouldRun){
-            while (!service.queue.isEmpty()) {
-                fetch()
-            }
-            log.debug(this.toString() + " still active, will wait $threshold ms")
-            sleep(threshold)//To reduce overhead we just wait 2 second and recheck, if the queue is still empty
+            log.debug(this.toString() + " is ready for new work")
+            fetch()
         }
     }
 
     /**
-     * Tries to fetch the WptDetailResult of a FetchJob. If this succeed the Job will be removed from the queue and will be deleted.
-     * Otherwise it will be just removed from queue and will be marked as failed.
+     * Tries to fetch the WptDetailResult of a FetchJob. If this succeeds the Job will be removed from the normalPriorityQueue and will be deleted.
+     * Otherwise it will be just removed from normalPriorityQueue and will be marked as failed.
      */
     void fetch(){
         FetchJob currentJob
         try {
             currentJob = service.getNextJob()
             if (currentJob) {
-                log.debug(this.toString() + "found job and start: " + currentJob.id)
+                log.debug(this.toString() + " found job and start: " + currentJob.id)
                 WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
                 handleResult(result, currentJob)
             }
         } catch (Exception e) {
             service.markJobAsFailed(currentJob)
-            log.error(this.toString() +" encountered an error, job with id ${currentJob?.id} will be skipped. New try count: ${currentJob?.tryCount}\n"+e)
-            e.printStackTrace()
+            log.error("Job with id ${currentJob?.id} encountert an error. New try count: ${currentJob?.tryCount}\n Message: $e")
         }
     }
     /**
@@ -88,7 +78,7 @@ class WptDownloadWorker implements Runnable{
     void handleResult(WptDetailResult result, FetchJob currentJob){
         if(result){
             service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
-            log.debug(this.toString() + "FetchJob $currentJob.id finished, start deleting ")
+            log.debug(this.toString() + " FetchJob $currentJob.id finished, start deleting ")
             service.deleteJob(currentJob)
         } else {
             service.markJobAsFailed(currentJob)

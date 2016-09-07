@@ -21,7 +21,7 @@ class WptDetailResultConvertServiceTest extends Specification {
     def "test amount of asset groups resulting from a WPTDetailResult"(){
         given:
         OsmInstance instance = new TestDataUtil().createOsmInstance().save()
-        FetchJob fetchJob = new FetchJob(osmInstance: instance.id,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], jobGroupId: 1)
+        FetchJob fetchJob = new FetchJob(osmInstance: instance.id,wptBaseURL: "http://wptTest.openspeedmonitor.org", wptTestId: ["163648_BD_4"], wptVersion:"2.19", jobGroupId: 1)
         def result = TestDataUtil.createResultWith2Runs(fetchJob)
         when:
         def list = service.convertWPTDetailResultToAssetGroups(result,fetchJob)

@@ -1,0 +1,41 @@
+/*
+*= require_tree ../bower_components/dcjs
+*= require_tree ../bower_components/datatables.net-dt
+*/
+.fa-gear.dc-chart{
+    position:absolute;
+    left:50%;
+    top:50%;
+}
+.dc-chart .pie-slice {
+    fill: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.dc-chart g.row text {
+    fill: black;
+}
+
+.dc-chartContainer {
+    margin: 15px 30px;
+}
+
+.dashboardContainer {
+    margin: 0 auto;
+    width: 1000px;
+}
+
+table.dataTable thead .sorting { background: url('/assets/bower_components/datatables.net-dt/images/sort_both.png') no-repeat center right; }
+table.dataTable thead .sorting_asc { background: url('/assets/bower_components/datatables.net-dt/images/sort_asc.png') no-repeat center right; }
+table.dataTable thead .sorting_desc { background: url('/assets/bower_components/datatables.net-dt/images/sort_desc.png') no-repeat center right; }
+
+table.dataTable thead .sorting_asc_disabled { background: url('/assets/bower_components/datatables.net-dt/images/sort_asc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_components/datatables.net-dt/images/sort_desc_disabled.png') no-repeat center right; }
+
+.rowChartContainer {
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}

@@ -25,5 +25,6 @@ class UrlMappings {
             controller = "RestApi"
             action = [GET: "securedViaApiKeyUpdateOsmUrl"]
         }
+        "/restApi/persistAssetsBatchJob" (controller: "RestApi", action: "persistAssetsBatchJob", parseRequest: true)
     }
 }

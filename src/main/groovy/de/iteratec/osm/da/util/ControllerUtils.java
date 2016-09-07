@@ -47,7 +47,7 @@ public class ControllerUtils {
 
 	/**
 	 * <p>
-	 * Checks weather the current request is to be treated as an empty request.
+	 * Checks whether the current request is to be treated as an empty request.
 	 * Even request that contain some "grails magic keys" or language selector
 	 * but no context specific parameters should be treated as empty. Empty
 	 * means that the request is somewhat like the first request to the page

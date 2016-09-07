@@ -25,12 +25,14 @@ DcDashboard.prototype.addData = function (data) {
     this.setLineChartDomain('dcChart', 'line-chart', minDate, maxDate);
     this.allData.add(data);
     dc.redrawAll();
+    addOnClickListeners();
 };
 
 DcDashboard.prototype.clearData = function () {
     dc.filterAll();
     this.allData.remove();
     dc.redrawAll();
+    addOnClickListeners();
 };
 
 DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifier, dimension, group, labelAccessor) {
@@ -43,10 +45,14 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
         .label(labelAccessor)
         .renderLabel(true)
         .transitionDuration(500)
+        .on("postRedraw", function () {
+            addOnClickListeners();
+        })
         .colors(d3.scale.category20c())
         .colorAccessor(function (d, i) {
             return d.key;
         });
+
 
     dc.renderAll();
 
@@ -61,9 +67,9 @@ DcDashboard.prototype.addDataCount = function (dashboardIdentifier, chartIdentif
         .dimension(this.allData)
         .group(this.allData.groupAll())
         .html({
-            some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
-            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();\'\'>Reset All</a>',
-            all: 'All selected out of <strong>%total-count</strong> records. Please click on the graph to apply filters.'
+            some: '<strong>%filter-count </strong>' + OsmDetailMicroService.i18n.outOf + '<strong> %total-count </strong>' + OsmDetailMicroService.i18n.records + " " + OsmDetailMicroService.i18n.selected +
+            ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();  addOnClickListeners();\'\'>' + OsmDetailMicroService.i18n.resetAll + '</a>',
+            all: OsmDetailMicroService.i18n.all + '<strong> %total-count </strong>' + OsmDetailMicroService.i18n.records + " " + OsmDetailMicroService.i18n.selected + '. ' + OsmDetailMicroService.i18n.applyFilters
         });
 
     dc.renderAll();
@@ -77,6 +83,9 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
     chart
         .width(this.dashboardWidth)
         .height(30 * dataCount + 50)
+        .on("postRedraw", function () {
+            addOnClickListeners();
+        })
         .fixedBarHeight(25)
         .x(d3.scale.linear())
         .elasticX(true)
@@ -114,13 +123,14 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
         .brushOn(false)
         .renderHorizontalGridLines(true)
         .elasticY(true)
+        .elasticX(true)
+        .yAxisLabel("ms")
         .legend(dc.legend().x(20).y(700).itemHeight(13).gap(5))
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
         .compose([]);
-
+    chart.yAxisPadding("5%");
     dc.renderAll();
-
     this.allDashboardGraphs.push(chart);
     return chart;
 };
@@ -130,16 +140,21 @@ DcDashboard.prototype.setLineChartDomain = function (dashboardIdentifier, chartI
 };
 
 
-DcDashboard.prototype.createLineChart = function (parent, dimension, group, color, label, valueAccessor) {
+DcDashboard.prototype.createLineChart = function (parent, dimension, group, color, label, valueAccessor, unit) {
     var chart = dc.lineChart(parent)
         .dimension(dimension)
         .group(group, label)
         .keyAccessor(function (d) {
-            return d.key[0];
+            return d.key;
         })
         .valueAccessor(valueAccessor)
-        .renderDataPoints({radius: 2, fillOpacity: 0.6, strokeOpacity: 0.8})
-        .colors(color);
+        .renderDataPoints({radius: 4, fillOpacity: 0.6, strokeOpacity: 0.8})
+        .colors(color)
+        .elasticY(true);
+
+    if(unit == "bytes"){
+        chart.useRightYAxis(true);
+    }
 
     this.allDashboardGraphs.push(chart);
     return chart;
@@ -149,4 +164,37 @@ DcDashboard.prototype.setAnimationTime = function (time) {
     for(var i = 0; i < this.allDashboardGraphs.length; i++) {
         this.allDashboardGraphs[i].transitionDuration(time);
     }
+};
+
+DcDashboard.prototype.getTimeChart = function (dashboardIdentifier, chartIdentifier) {
+    if(!this.timeChart)
+        this.timeChart = dc.barChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
+    return this.timeChart
+};
+
+DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentifier, dimension, group, from, to) {
+    var chart = this.getTimeChart(dashboardIdentifier, chartIdentifier);
+    chart.margins().left = 40;
+    chart
+        .width(this.dashboardWidth)
+        .height(150)
+        .x(d3.time.scale().domain([from, to]))
+        // .xUnits(d3.time.months)
+        .gap(5)
+        .elasticX(true)
+        .elasticY(true)
+        .yAxisLabel("count")
+        .brushOn(true)
+        .dimension(dimension)
+        .group(group)
+        .controlsUseVisibility(true);
+
+    chart.yAxis().ticks(8);
+    chart.yAxisPadding("5%");
+
+
+
+    dc.renderAll();
+    this.allDashboardGraphs.push(chart);
+    return chart;
 };
