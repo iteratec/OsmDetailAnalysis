@@ -1,15 +1,21 @@
 package de.iteratec.osm.da.mapping
 
 import de.iteratec.osm.da.HttpRequestService
+import de.iteratec.osm.da.TestDataUtil
 import de.iteratec.osm.da.instances.OsmInstance
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import groovy.mock.interceptor.StubFor
+import org.junit.Rule
+import software.betamax.junit.Betamax
+import software.betamax.junit.RecorderRule
 import spock.lang.Specification
 
 @TestFor(MappingService)
 @Mock([OsmInstance])
 class MappingServiceTest extends Specification {
+
+    @Rule public RecorderRule recorder = TestDataUtil.getDefaultBetamaxRecorder()
 
     def "Test update of one mapping"() {
         given:
@@ -17,7 +23,7 @@ class MappingServiceTest extends Specification {
         OsmInstance instance = createInstance()
 
         when:
-        service.updateMapping(instance,OsmDomain.Browser,[1L:browser])
+        service.updateMapping(instance,new MappingUpdate(domain: OsmDomain.Browser,update:[1L:browser]))
 
         then:
         instance.getMapping(OsmDomain.Browser).mapping."1" == browser
@@ -32,7 +38,7 @@ class MappingServiceTest extends Specification {
         def jobGroupClone = instance.getMapping(OsmDomain.JobGroup).mapping.clone()
 
         when:
-        service.updateMapping(instance,OsmDomain.Browser,[:])
+        service.updateMapping(instance,new MappingUpdate(domain: OsmDomain.Browser,update: [:]))
 
         then:
         instance.getMapping(OsmDomain.Browser).mapping == browserClone
@@ -67,7 +73,7 @@ class MappingServiceTest extends Specification {
         createInstance()
 
         when:
-        def id = service.getOSMInstanceId("http://test.openspeedmonitor.org")
+        def id = service.getOSMInstanceId("http://localhost:8080")
 
         then:
         id > -1
@@ -212,8 +218,51 @@ class MappingServiceTest extends Specification {
         browserMappings["2"] == "Job 2"
     }
 
+    @Betamax(tape="mappingUpdateOneDomain")
+    def "Test get IdUpdate with one domain"(){
+        given:
+        service.httpRequestService = new HttpRequestService()
+        TestDataUtil.mockHttpRequestServiceToUseBetamax(service.httpRequestService)
+        Map<String,List<Long>> neededUpdates = ["${OsmDomain.Job}":[1],
+                                                "${OsmDomain.Job}":[2]]
+        OsmInstance instance = createInstance()
+
+        when:
+        List<MappingUpdate> update = service.getIdUpdate(neededUpdates, instance)
+
+        then: "There should be 2 updates for the Job Domain"
+        update != null
+        update.size() == 1
+        update[0].domain == OsmDomain.Job
+        update[0].updateCount() == 2
+    }
+
+    @Betamax(tape="mappingUpdateMultipleDomains")
+    def "Test get IdUpdate with multiple domain"(){
+        given:
+        service.httpRequestService = new HttpRequestService()
+        TestDataUtil.mockHttpRequestServiceToUseBetamax(service.httpRequestService)
+        Map<String,List<Long>> neededUpdates = ["${OsmDomain.Job}":[1],
+                                                "${OsmDomain.Job}":[2],
+                                                "${OsmDomain.JobGroup}":[1],
+                                                "${OsmDomain.JobGroup}":[2]]
+        OsmInstance instance = createInstance()
+
+        when:
+        def update = service.getIdUpdate(neededUpdates, instance)
+
+        then: "There should be an update for each domain, as long as the osm got them"
+        update != null
+        update.size() == 2
+        update[0].domain == OsmDomain.Job
+        update[0].updateCount() == 2
+
+        update[1].domain == OsmDomain.JobGroup
+        update[1].updateCount() == 2
+    }
+
     private createInstance = { ->
-        def instance = new OsmInstance(name: "TestInstance", url: "http://test.openspeedmonitor.org")
+        def instance = new OsmInstance(name: "TestInstance", url: "http://localhost:8080")
         instance.browserMapping.mapping."1" = "FF"
         instance.browserMapping.mapping."2" = "Chrome"
         instance.locationMapping.mapping."1" = "Location"

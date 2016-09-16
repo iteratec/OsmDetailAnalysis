@@ -10,9 +10,15 @@ class MappingUpdate{
     Map<Long,String> update
 
     public static List<MappingUpdate> createMappingList(def json){
+        List<MappingUpdate> updates = []
         json."target".each{String domain, Map<Long,String> value->
-            createMapping(domain, value)
+            updates << createMapping(domain, value)
         }
+        return updates
+    }
+
+    public int updateCount(){
+        return update.size()
     }
 
     public static MappingUpdate createMapping(String domain, Map<Long,String> value){
