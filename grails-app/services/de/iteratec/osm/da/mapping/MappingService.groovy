@@ -17,9 +17,9 @@ class MappingService {
      * @param domain
      * @param toUpdate Mappings which should be updated
      */
-    void updateMapping(OsmInstance instance, OsmDomain domain, Map<Long, String> toUpdate){
-        toUpdate?.each {key,value ->
-            instance.getMapping(domain).mapping."$key" = value
+    void updateMapping(OsmInstance instance, MappingUpdate mappingUpdate){
+        mappingUpdate?.each {key,value ->
+            instance.getMapping(mappingUpdate.domain).mapping."$key" = value
         }
         instance.save(flush:true, failOnError:true)
     }
@@ -37,9 +37,10 @@ class MappingService {
             if(missingIds.size()>0) domainsToUpdate."$domain" = missingIds
         }
         if(domainsToUpdate.size() > 0 ){
-            def updates = getIdUpdate(domainsToUpdate, instance)
-            updates."target".each{String domain, Map<Long,String> value->
-                updateMapping(instance, OsmDomain.valueOf(domain), value)
+            List<MappingUpdate> updates = getIdUpdate(domainsToUpdate, instance)
+
+            updates.each{
+                updateMapping(instance, it)
             }
             //TODO check if something is missing
         }
@@ -59,9 +60,9 @@ class MappingService {
         }
         if(domainsToUpdate.size() > 0 ){
             try {
-                def updates = getNameUpdate(domainsToUpdate, instance)
-                updates."target".each { String domain, Map<Long, String> value ->
-                    updateMapping(instance, OsmDomain.valueOf(domain), value)
+                List<MappingUpdate> updates = getNameUpdate(domainsToUpdate, instance)
+                updates.each {
+                    updateMapping(instance, it)
                 }
             } catch (ConnectException e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
@@ -77,8 +78,9 @@ class MappingService {
      * @param instance The osm instance which should be updated
      * @return A map with the answer from the osm instance
      */
-    private def getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
-        return httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/namesForIds/", idsToUpdate)
+    private List<MappingUpdate> getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
+        def updateJson = httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/namesForIds/", idsToUpdate)
+        return MappingUpdate.createMappingList(updateJson)
     }
 
     /**
@@ -88,7 +90,8 @@ class MappingService {
      * @return A map with the answer from the osm instance
      */
     private def getNameUpdate(Map<String, List<String>> namesToUpdate, OsmInstance instance){
-        return httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/idsForNames/", namesToUpdate)
+        def jsonResult = httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/idsForNames/", namesToUpdate)
+        return MappingUpdate.createMappingList(jsonResult)
     }
     Long getOSMInstanceId(String url){
         return OsmInstance.findByUrl(url)?.id

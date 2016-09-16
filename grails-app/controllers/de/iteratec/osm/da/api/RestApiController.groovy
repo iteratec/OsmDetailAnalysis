@@ -2,6 +2,7 @@ package de.iteratec.osm.da.api
 
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.Priority
+import de.iteratec.osm.da.mapping.MappingUpdate
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
@@ -94,10 +95,10 @@ class RestApiController {
             return
         }
         OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
-        if(command.Browser) mappingService.updateMapping(instance,OsmDomain.Browser, command.Browser)
-        if(command.JobGroup) mappingService.updateMapping(instance,OsmDomain.JobGroup, command.JobGroup)
-        if(command.Location) mappingService.updateMapping(instance,OsmDomain.Location, command.Location)
-        if(command.MeasuredEvent) mappingService.updateMapping(instance,OsmDomain.MeasuredEvent, command.MeasuredEvent)
+        if(command.Browser) mappingService.updateMapping(instance,new MappingUpdate(domain: OsmDomain.Browser, update: command.Browser))
+        if(command.JobGroup) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.JobGroup, update: command.JobGroup))
+        if(command.Location) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.Location, update: command.Location))
+        if(command.MeasuredEvent) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.MeasuredEvent, update: command.MeasuredEvent))
         sendSimpleResponseAsStream(200,"Mapping was updated")
 
     }
