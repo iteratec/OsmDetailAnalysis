@@ -77,23 +77,38 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         List<Request> requests = []
         requestMap?.each {
             Request request = new Request()
-            request.bytesIn = it.bytesIn as int
-            request.bytesOut = it.bytesOut as int
-            request.indexWithinStep = it.index as int
-            request.ttfbMs = it.ttfb_ms as int
-            request.loadStart = it.load_start as int
-            request.loadEnd = it.load_end as int
-            request.loadMs = it.load_ms as int
+            request.bytesIn = convertIntValue(it.bytesIn)
+            request.bytesOut = convertIntValue(it.bytesOut)
+            request.indexWithinStep = convertIntValue(it.index)
+            request.ttfbMs = convertIntValue(it.ttfb_ms) 
+            request.loadStart = convertIntValue(it.load_start) 
+            request.loadEnd = convertIntValue(it.load_end) 
+            request.loadMs = convertIntValue(it.load_ms) 
             request.host = it.host
             request.url = it.url
-            request.sslNegotiationTimeMs = it.ssl_ms as int
-            request.connectTimeMs = it.connect_ms as int
-            request.downloadMs = it.download_ms
+            request.sslNegotiationTimeMs = convertIntValue(it.ssl_ms) 
+            request.connectTimeMs = convertIntValue(it.connect_ms) 
+            request.downloadMs = convertIntValue(it.download_ms) 
             request.contentType = it.contentType
-            request.dnsTimeMs = it.dns_ms as int
+            request.dnsTimeMs = convertIntValue(it.dns_ms)
             requests << request
         }
         return requests
+    }
+
+    /**
+     * Cast a String to an int, if this object is not already an int.
+     * This method ist used, because the wpt results are inconsistent and sometimes the numbers
+     * are string and sometimes they are ints.
+     * @param value
+     * @return
+     */
+    private static int convertIntValue(def value){
+        if(value instanceof Integer) return value
+        if(value instanceof String){
+            return value as int
+        }
+        return -1
     }
 
     @Override
