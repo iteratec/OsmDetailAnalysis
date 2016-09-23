@@ -23,7 +23,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
         service.disableWorker()
 
         when: "We add three jobs, ech with a own priority"
-        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+        FetchJob fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
                 wptTestId: "abc", wptVersion: "2.19").save(flush: true, failOnError: true)
         service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
 
@@ -55,7 +55,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test if the right list sizes are returned"() {
         given:"For each priority we add some jobs"
         service.disableWorker()
-        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+        FetchJob fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
                 wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
         service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
 
@@ -93,7 +93,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that by deleting a result, the result will also be removed from progress "(){
         given: "We add jobs to the queue and safe the amount of current jobs in progress"
         service.disableWorker()
-        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+        FetchJob fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
                 wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
         service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
 
@@ -115,7 +115,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that we will receive a low priority job if there is no higher priority"(){
         given:"We add just a low priority job"
         service.disableWorker()
-        def fetchJob = new FetchJob(priority: Priority.Low, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+        FetchJob fetchJob = new FetchJob(priority: Priority.Low, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
                 wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
         service.addExistingFetchJobToQueue([fetchJob],Priority.Low)
 
@@ -129,7 +129,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that we will receive a normal priority job if there is no higher priority"(){
         given:"We add just a normal priority job"
         service.disableWorker()
-        def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+        FetchJob fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
                 wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
         service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
 
@@ -145,7 +145,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
         service.disableWorker()
         when: "We add a timer, which will run in 5 seconds"
         new Timer().runAfter(5000){
-            def fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
+            FetchJob fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",
                     wptTestId: "a", wptVersion: "2.19").save(flush: true, failOnError: true)
             service.addExistingFetchJobToQueue([fetchJob],Priority.Normal)
         }

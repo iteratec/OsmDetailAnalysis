@@ -17,6 +17,21 @@ class Step {
     int loadTime
     int fullyLoaded
 
+    public boolean hasMetaValues(){
+        return run > -1 &&
+                stepNumber > -1 &&
+                url &&
+                eventName &&
+                epochTimeStarted > -1 &&
+                domTime > -1 &&
+                loadTime > -1 &&
+                fullyLoaded > -1
+    }
+
+    public boolean hasRequests(){
+        return requests?requests.size()>0:false
+    }
+
 
     @Override
     public String toString() {

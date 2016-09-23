@@ -1,11 +1,10 @@
 package de.iteratec.osm.da.wpt.resolve
 
+import de.iteratec.osm.da.fetch.FailedFetchJob
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import org.apache.commons.logging.LogFactory
-
-import javax.persistence.criteria.Fetch
 
 /**
  * A runnable which can be used to resolve FetchJobs in background.
@@ -77,8 +76,13 @@ class WptDownloadWorker implements Runnable{
      */
     void handleResult(WptDetailResult result, FetchJob currentJob){
         if(result){
-            service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
-            log.debug(this.toString() + " FetchJob $currentJob.id finished, start deleting ")
+            FailedFetchJob failedFetchJob = service.failedFetchJobService.markJobAsFailedIfNeeded(result, currentJob)
+            if(failedFetchJob){
+                log.info("FetchJob from ${result.wptBaseUrl+result.wptTestID} will be ignored, reason: ${failedFetchJob.reason}")
+            } else{
+                service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
+                log.debug(this.toString() + " FetchJob $currentJob.id finished, start deleting ")
+            }
             service.deleteJob(currentJob)
         } else {
             service.markJobAsFailed(currentJob)

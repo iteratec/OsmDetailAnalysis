@@ -36,15 +36,18 @@ class MappingService {
             List<Long> missingIds = idsNeeded - instance.getMapping(domain).mapping.keySet()*.toLong()
             if(missingIds.size()>0) domainsToUpdate."$domain" = missingIds
         }
+        boolean allUpdatesDone = true
         if(domainsToUpdate.size() > 0 ){
             List<MappingUpdate> updates = getIdUpdate(domainsToUpdate, instance)
 
             updates.each{
                 updateMapping(instance, it)
             }
-            //TODO check if something is missing
+            updates.each {MappingUpdate update ->
+                allUpdatesDone &= domainsToUpdate[update.domain.toString()].size() == update.updateCount()
+            }
         }
-        return true
+        return allUpdatesDone
     }
 
     /**
@@ -58,18 +61,24 @@ class MappingService {
             List<String> missingNames = namesNeeded - instance.getMapping(domain).mapping.values()
             if(missingNames.size()>0) domainsToUpdate."$domain" = missingNames
         }
+        boolean allUpdatesDone = true
         if(domainsToUpdate.size() > 0 ){
             try {
                 List<MappingUpdate> updates = getNameUpdate(domainsToUpdate, instance)
+
                 updates.each {
                     updateMapping(instance, it)
                 }
+                //check if something is missing
+                updates.each {MappingUpdate update ->
+                    allUpdatesDone &= domainsToUpdate[update.domain.toString()].size() == update.updateCount()
+                }
             } catch (ConnectException e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
+                return false
             }
-            //TODO check if something is missing
         }
-        return true
+        return allUpdatesDone
     }
 
     /**

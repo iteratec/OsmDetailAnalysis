@@ -26,6 +26,14 @@ class Request {
     //Current phase while the asset was done loading
     LoadPhase endPhase
 
+    boolean hasValues(){
+        return host &&
+                url &&
+                bytesOut > -1 &&
+                bytesIn > -1 &&
+                loadMs > -1
+    }
+
 
     void setPhases(int domTime, int loadTime){
        setStartPhase(domTime, loadTime)
