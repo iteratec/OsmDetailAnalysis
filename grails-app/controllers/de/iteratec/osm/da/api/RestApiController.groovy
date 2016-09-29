@@ -1,9 +1,11 @@
 package de.iteratec.osm.da.api
 
+import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.mapping.MappingUpdate
 import de.iteratec.osm.da.mapping.OsmDomain
+import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
@@ -14,6 +16,7 @@ import grails.validation.Validateable
 
 class RestApiController {
 
+    AssetRequestPersistenceService assetRequestPersistenceService
     MappingService mappingService
     WptDetailResultDownloadService wptDetailResultDownloadService
     public static final String DEFAULT_ACCESS_DENIED_MESSAGE = "Access denied! A valid API-Key with sufficient access rights is required!"
@@ -77,6 +80,24 @@ class RestApiController {
         fetchBatch.save(flush:true)
         log.debug("Queued ${numberOfFetchJobs} FetchJobs.")
         sendObjectAsJSON(numberOfFetchJobs,false)
+    }
+
+    def getAssetRequestGroup(GetAssetRequestGroupCommand command){
+        if (command.hasErrors()) {
+            StringWriter sw = new StringWriter()
+            command.errors.getFieldErrors().each { fieldError ->
+                sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
+            }
+            sendSimpleResponseAsStream(400, sw.toString())
+            return
+        }
+        AssetRequestGroup assetRequestGroup = assetRequestPersistenceService.getAssetRequestGroup(command.wptServerBaseUrl, command.wptTestId)
+        if(!assetRequestGroup){
+            sendSimpleResponseAsStream(400, "No data found")
+            return
+        }
+        sendObjectAsJSON(assetRequestGroup,true)
+
     }
 
     /**
@@ -214,6 +235,11 @@ public class UrlUpdateCommand extends OsmCommand{
             else return true
         })
     }
+}
+public class GetAssetRequestGroupCommand {
+    String wptTestId
+    String wptServerBaseUrl
+
 }
 
 public class MappingCommand extends OsmCommand{

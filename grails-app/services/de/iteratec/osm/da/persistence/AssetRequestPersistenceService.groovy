@@ -3,6 +3,7 @@ package de.iteratec.osm.da.persistence
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.model.Filters
+import de.iteratec.osm.da.instances.OsmInstance
 
 import static com.mongodb.client.model.Accumulators.*
 import de.iteratec.osm.da.asset.AssetRequestGroup
@@ -247,5 +248,9 @@ class AssetRequestPersistenceService {
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument
+    }
+
+    def AssetRequestGroup getAssetRequestGroup( String wptBaseUrl, String wptTestId){
+        return AssetRequestGroup.findByWptBaseUrlAndWptTestId(wptBaseUrl,wptTestId)
     }
 }
