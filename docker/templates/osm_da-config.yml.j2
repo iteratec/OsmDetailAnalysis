@@ -9,5 +9,5 @@ grails:
         iteratec:
             osm:
                 da:
-                    initialApiKey:
+                    initialApiKey: '{{ default .Env.INITIAL_API_KEY "myapikey" }}'
                     initialOsmUrl: '{{ default .Env.INITIAL_OSM_URL "http://localhost:8080" }}'
