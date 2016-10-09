@@ -2,7 +2,7 @@ server:
     port: 8081
 grails:
     mongodb:
-        host: '{{ default .Env.MONGODB_HOST "localhost" }}'
+        host: '{{ default .Env.MONGODB_HOST "osm_mongodb" }}'
         port: 27017
         databaseName: osmDetailAnalysis
     de:
