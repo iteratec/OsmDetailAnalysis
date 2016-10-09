@@ -6,7 +6,9 @@ osm_da:
   links:
    - osm_mongodb
   environment:
-    MONGODB_HOST: osm_mongodb
+    - MONGODB_HOST
+    - INITIAL_API_KEY
+    - INITIAL_OSM_URL
 
 osm_mongodb:
   image:  mongo:3.2
