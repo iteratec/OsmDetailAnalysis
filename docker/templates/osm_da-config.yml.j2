@@ -1,5 +1,5 @@
 server:
-    port: 8081
+    port: '{{ default .Env.PUBLIC_PORT "8081" }}'
 grails:
     mongodb:
         host: '{{ default .Env.MONGODB_HOST "osm_mongodb" }}'

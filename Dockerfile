@@ -6,8 +6,6 @@ ENV OSM_DA_HOME /osm_da
 ENV OSM_DA_CONFIG_HOME /home/osm_da/.grails
 ENV JAVA_OPTS "-server -Dgrails.env=prod -Dfile.encoding=UTF-8"
 ENV DOCKERIZE_VERSION v0.2.0
-ENV OSM_JVM_XMS 1024m
-ENV OSM_JVM_XMX 4096m
 
 # add osm_da-user
 RUN useradd -ms /bin/bash osm_da
