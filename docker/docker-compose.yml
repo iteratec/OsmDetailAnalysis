@@ -1,5 +1,5 @@
 osm_da:
-  image: nkuhn/osm-detail-analysis
+  image: iteratec/osm-detail-analysis
   ports:
    - "${PUBLIC_PORT}:8081"
   links:
