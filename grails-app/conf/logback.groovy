@@ -85,16 +85,16 @@ if (Environment.getCurrent() == Environment.PRODUCTION && targetDir) {
     appenders << "asyncOsmAppenderDetails"
 
     // our packages
-    logger("grails.app.controllers.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.services.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.domain.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.filters.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.conf.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.taglib.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.controllers.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.services.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.domain.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.filters.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.conf.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.taglib.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
 
     // other packages
-    logger("liquibase", ALL,["asyncOsmAppenderDetails"], false)
-    logger("grails.app", ERROR,["asyncOsmAppenderDetails"], false)
+    logger("liquibase", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
     logger("org.grails.commons", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
     logger("org.grails.web.mapping", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
     logger("org.grails.web.mapping.filter", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
@@ -170,16 +170,16 @@ if (Environment.isDevelopmentMode() && targetDir) {
     appenders << "asyncOsmAppenderDetails"
 
     // our packages
-    logger("grails.app.controllers.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.services.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.domain.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.filters.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.conf.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
-    logger("grails.app.taglib.de.iteratec.osm", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.controllers.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.services.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.domain.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.filters.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.conf.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app.taglib.de.iteratec.osm.da", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
 
     // other packages
-    logger("liquibase", ALL,["asyncOsmAppenderDetails"], false)
-    logger("grails.app", ERROR,["asyncOsmAppenderDetails"], false)
+    logger("liquibase", ALL,["osmAppender", "asyncOsmAppenderDetails"], false)
+    logger("grails.app", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
     logger("org.grails.commons", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
     logger("org.grails.web.mapping", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)
     logger("org.grails.web.mapping.filter", ERROR,["osmAppender", "asyncOsmAppenderDetails"], false)

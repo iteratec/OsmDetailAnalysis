@@ -62,10 +62,10 @@ class WptDownloadWorker implements Runnable{
                 handleResult(result, currentJob)
             }
         } catch (Exception e) {
-            service.markJobAsFailed(currentJob)
             log.error("Job with id ${currentJob?.id} encountert an error while trying to get the following result:\n" +
                     "'${currentJob.getWptBaseURL()}/jsonResult.php?test=${currentJob.wptTestId}&requests=1&multiStepFormat=1'." +
                     "\n\tNew try count: ${currentJob?.tryCount}\n Message: $e")
+            service.markJobAsFailed(currentJob)
         }
     }
     /**
@@ -76,12 +76,15 @@ class WptDownloadWorker implements Runnable{
      */
     void handleResult(WptDetailResult result, FetchJob currentJob){
         if(result){
+            log.debug(this.toString() + " FetchJob $currentJob.id: saveDetailDataForJobResult")
             service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
-            log.debug(this.toString() + " FetchJob $currentJob.id finished, start deleting ")
+            log.debug(this.toString() + " FetchJob $currentJob.id: saveDetailDataForJobResult... DONE")
+            log.debug(this.toString() + " FetchJob $currentJob.id: deleteJob")
             service.deleteJob(currentJob)
+            log.debug(this.toString() + " FetchJob $currentJob.id: deleteJob... DONE")
         } else {
-            service.markJobAsFailed(currentJob)
             log.error(this.toString() + " couldn't download job with id ${currentJob.id} will be skipped. New try count: ${currentJob?.tryCount}")
+            service.markJobAsFailed(currentJob)
         }
     }
 }

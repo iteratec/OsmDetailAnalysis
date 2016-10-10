@@ -1,6 +1,5 @@
 package de.iteratec.osm.da
 
-import grails.transaction.Transactional
 import groovy.json.JsonBuilder
 import groovy.util.slurpersupport.GPathResult
 import groovyx.net.http.ContentType
@@ -56,6 +55,7 @@ class HttpRequestService {
     }
 
     def getJsonResponse(String baseUrl, String path, queryParams){
+        log.debug("Try to get json. baseUrl=${baseUrl}, path=${path}, queryParams=${queryParams}")
         RESTClient client = getRestClient(baseUrl)
         def response = client.get(
                 path: path,
@@ -63,6 +63,7 @@ class HttpRequestService {
                 contentType: ContentType.JSON,
                 headers : [Accept : 'application/json']
         )
+        log.debug("Try to get json... DONE")
         return response.data
     }
 

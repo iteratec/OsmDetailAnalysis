@@ -1,6 +1,6 @@
 osm_da:
   image: iteratec/osm-detail-analysis
-  entrypoint: dockerize -wait tcp://osm_mongodb:27017 -timeout 240s /entrypoint.sh
+  entrypoint: dockerize -wait tcp://osm_mongodb:27017 -timeout 240s -stdout ${OSM_DA_HOME}/logs/OsmDetailAnalysisDetails.log -stderr ${OSM_DA_HOME}/logs/OsmDetailAnalysis.log /entrypoint.sh
   ports:
    - "${PUBLIC_PORT}:8081"
   links:

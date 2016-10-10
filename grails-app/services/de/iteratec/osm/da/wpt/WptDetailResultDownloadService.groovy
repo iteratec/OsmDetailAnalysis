@@ -1,13 +1,12 @@
 package de.iteratec.osm.da.wpt
 
-import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchBatch
+import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.fetch.Priority
+import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
-import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
 
@@ -15,7 +14,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.PriorityBlockingQueue
 import java.util.concurrent.TimeUnit
-
 /**
  * This service handles the downloading of the detail data from WPT.
  * The downloading will be queued and therefore eventually persisted. The queue will be persisted.
@@ -104,6 +102,7 @@ class WptDetailResultDownloadService {
     public int addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority, FetchBatch fetchBatch = null) {
         int numberOfNewFetchJobs = 0
 
+        log.debug("Persist ${wptTestIds.size()} wptTestIds as FetchJobs.")
 
         wptTestIds.each {String wptTestId ->
             FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
@@ -118,13 +117,13 @@ class WptDetailResultDownloadService {
     private void addToQueue(FetchJob fetchJob, Priority priority){
         synchronized (queueHashMap[priority]) {
             if (queueHashMap[priority].size() < queueMaximumInMemory) {
+                log.debug("Add the following FetchJob to queueHashMap with priority ${priority}:\n${fetchJob}")
                 queueHashMap[priority].offer(fetchJob)
             }
         }
     }
 
     public void addExistingFetchJobToQueue(List<FetchJob> jobsToAdd, Priority priority){
-
         jobsToAdd.each {queueHashMap[priority].put(it)}
         log.info("Added ${jobsToAdd.size()} jobs to $priority queue")
     }
@@ -137,6 +136,7 @@ class WptDetailResultDownloadService {
         if(job){
             job.withNewSession {
                 job.tryCount++
+                log.debug("Try ${job.tryCount} to Job")
                 if (job.fetchBatch && job.tryCount >= maxTryCount) {
                     job.fetchBatch.addFailure(job)
                     job.fetchBatch = null
