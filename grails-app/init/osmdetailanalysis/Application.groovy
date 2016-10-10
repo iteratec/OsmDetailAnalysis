@@ -2,7 +2,6 @@ package osmdetailanalysis
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
-import org.grails.config.yaml.YamlPropertySourceLoader
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.AbstractEnvironment
@@ -65,7 +64,7 @@ trait ExternalConfig implements EnvironmentAware {
                 }
                 Resource resource = defaultResourceLoader.getResource(finalLocation)
                 if(resource.exists()) {
-                    println "resource exists: $resource.filename"
+                    println "resource exists: ${resource.getFile().getCanonicalPath()}"
 
                     if(finalLocation.endsWith('.groovy')) {
                         properties = loadGroovyConfig(resource, encoding)

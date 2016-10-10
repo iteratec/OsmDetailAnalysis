@@ -1,7 +1,7 @@
 FROM java:openjdk-8
 MAINTAINER nils.kuhn@iteratec.de, birger.kamp@iteratec.de
 
-ENV OSM_DA_VERSION 0.1
+ENV OSM_DA_VERSION 1.0.0
 ENV OSM_DA_HOME /osm_da
 ENV OSM_DA_CONFIG_HOME /home/osm_da/.grails
 ENV JAVA_OPTS "-server -Dgrails.env=prod -Dfile.encoding=UTF-8"
