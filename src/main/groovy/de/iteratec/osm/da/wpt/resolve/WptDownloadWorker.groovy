@@ -4,9 +4,6 @@ import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import org.apache.commons.logging.LogFactory
-
-import javax.persistence.criteria.Fetch
-
 /**
  * A runnable which can be used to resolve FetchJobs in background.
  */
@@ -66,7 +63,9 @@ class WptDownloadWorker implements Runnable{
             }
         } catch (Exception e) {
             service.markJobAsFailed(currentJob)
-            log.error("Job with id ${currentJob?.id} encountert an error. New try count: ${currentJob?.tryCount}\n Message: $e")
+            log.error("Job with id ${currentJob?.id} encountert an error while trying to get the following result:\n" +
+                    "'${currentJob.getWptBaseURL()}/jsonResult.php?test=${currentJob.wptTestId}&requests=1&multiStepFormat=1'." +
+                    "\n\tNew try count: ${currentJob?.tryCount}\n Message: $e")
         }
     }
     /**
