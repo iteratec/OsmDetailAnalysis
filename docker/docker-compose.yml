@@ -1,16 +1,15 @@
 osm_da:
   image: iteratec/osm-detail-analysis
   ports:
-   - "${PUBLIC_PORT}:8081"
+   - "8088:8081"
   links:
    - osm_mongodb
   environment:
-    - MONGODB_HOST
-    - INITIAL_API_KEY
-    - INITIAL_OSM_URL
-    - PUBLIC_PORT
-    - OSM_JVM_XMS
-    - OSM_JVM_XMX
+    - OSMDA_MONGODB_HOST
+    - OSMDA_INITIAL_API_KEY
+    - OSMDA_INITIAL_OSM_URL
+    - OSMDA_JVM_XMS
+    - OSMDA_JVM_XMX
 
 osm_mongodb:
   image:  mongo:3.2

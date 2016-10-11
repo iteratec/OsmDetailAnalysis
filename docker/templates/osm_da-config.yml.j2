@@ -2,12 +2,12 @@ server:
     port: 8081
 grails:
     mongodb:
-        host: '{{ default .Env.MONGODB_HOST "osm_mongodb" }}'
+        host: '{{ default .Env.OSMDA_MONGODB_HOST "osm_mongodb" }}'
         port: 27017
         databaseName: osmDetailAnalysis
     de:
         iteratec:
             osm:
                 da:
-                    initialApiKey: '{{ default .Env.INITIAL_API_KEY "myapikey" }}'
-                    initialOsmUrl: '{{ default .Env.INITIAL_OSM_URL "http://localhost:8080" }}'
+                    initialApiKey: '{{ default .Env.OSMDA_INITIAL_API_KEY "myapikey" }}'
+                    initialOsmUrl: '{{ default .Env.OSMDA_INITIAL_OSM_URL "http://localhost:8080" }}'
