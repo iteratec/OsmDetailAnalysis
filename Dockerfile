@@ -18,7 +18,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 # get osm_da-sources and build war-file
 RUN mkdir -p $OSM_DA_HOME $OSM_DA_HOME/logs $OSM_DA_CONFIG_HOME
 WORKDIR $OSM_DA_HOME
-ADD ./build/libs/OsmDetailAnalysis*.war $OSM_DA_HOME/
+ADD ./build/libs/OsmDetailAnalysis.war $OSM_DA_HOME/
 
 # add osm_da config file
 ADD ./docker/templates/osm_da-config.yml.j2 $OSM_DA_CONFIG_HOME/OsmDetailAnalysis-config.yml.j2
