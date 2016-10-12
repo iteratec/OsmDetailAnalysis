@@ -53,6 +53,7 @@ class WptDownloadWorker extends WptWorker{
         } catch (Exception e) {
             service.markJobAsFailed(currentJob)
             log.error("Job with id ${currentJob?.id} encountert an error. New try count: ${currentJob?.tryCount}\n Message: $e")
+            e.printStackTrace()
         }
     }
     /**

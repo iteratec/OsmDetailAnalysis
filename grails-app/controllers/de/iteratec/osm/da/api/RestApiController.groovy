@@ -185,7 +185,7 @@ public class PersistenceCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         osmUrl(nullable:false)
@@ -217,7 +217,7 @@ public class PersistenceBatchCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceBatchCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         osmUrl(nullable:false)
@@ -231,7 +231,7 @@ public class UrlUpdateCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, UrlUpdateCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
     }
@@ -250,7 +250,7 @@ public class MappingCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, MappingCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
     }

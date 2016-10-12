@@ -7,6 +7,7 @@ import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.fetch.FetchJob
 import grails.util.Holders
+import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
 
 /**
@@ -16,6 +17,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
     HttpRequestService httpRequestService
     static WPTVersion minimumVersion = WPTVersion.get("2.19")
+    private static final log = LogFactory.getLog(this)
 
     @Override
     WptDetailResult getResult(FetchJob fetchJob) {
@@ -36,14 +38,19 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
     }
 
     static private void setConnectivity(WptDetailResult result, def json){
-        result.bandwidthDown = json.data.bwDown
-        result.bandwidthUp = json.data.bwUp
-        result.latency = json.data.latency
-        result.packagelossrate = Integer.parseInt(json.data.plr)
+        result.bandwidthDown = convertIntValue json.data.bwDown
+        result.bandwidthUp = convertIntValue json.data.bwUp
+        result.latency = convertIntValue json.data.latency
+        result.packagelossrate = convertIntValue json.data.plr
     }
 
     static private void setSteps(WptDetailResult result, def json){
         List<Step> steps = []
+        if(json.data.statusText == "Test Cancelled"){
+            log.info("Test with id $result.wptTestID from $result.wptBaseUrl was cancelled and will be skipped")
+            result.steps = steps
+            return
+        }
         json.data.runs.each{def run ->
             run.value?.firstView?.steps?.each{
                 Step step = createStep(it)

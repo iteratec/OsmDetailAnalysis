@@ -38,7 +38,7 @@ class WptDetailResultConvertService {
                 getMediaType(it.contentType)
             }
             mediaTypeMap.each {key, value ->
-                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, step.eventName, step.epochTimeStarted)
+                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted)
                 //If there was no group created, we just skip this group
                 if(!assetGroup) return
                 List<AssetRequest> assets = []
@@ -52,7 +52,7 @@ class WptDetailResultConvertService {
         return assetGroups
     }
 
-    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, long epochTimeStarted){
+    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted){
         boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, fetchJob.jobGroupId, fetchJob.jobId)
         if(!allUpdatesDone){
             FailedFetchJob failedFetchJob = failedFetchJobService.markJobAsFailedIfNeeded(result, fetchJob, FetchFailReason.MAPPINGS_NOT_AVAILABLE)
@@ -61,7 +61,7 @@ class WptDetailResultConvertService {
             return null
         }
         long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)
-        long page  = mappingService.getIdForPageName(fetchJob.osmInstance, getPageName(eventName))
+        long page  = mappingService.getIdForPageName(fetchJob.osmInstance, pageName)
         long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)
         long browser = mappingService.getIdForBrowserName(fetchJob.osmInstance,result.browser)
         return new AssetRequestGroup(osmInstance: fetchJob.osmInstance,eventName: eventName, jobId: result.jobId, jobGroup: result.jobGroupID,
@@ -83,11 +83,16 @@ class WptDetailResultConvertService {
     private boolean updateMappings(long osmInstance, WptDetailResult wptDetailResult, String eventName, long jobGroup, long jobId){
         Map updateMap = [(OsmDomain.Page):[getPageName(eventName)],
                          (OsmDomain.Browser):[wptDetailResult.browser],
-                         (OsmDomain.MeasuredEvent):[eventName],
+                         (OsmDomain.MeasuredEvent):[getEventName(eventName)],
                          (OsmDomain.Location):[wptDetailResult.location]]
         boolean missing = mappingService.updateIfNameMappingsDoesntExist(osmInstance,updateMap)
         missing &= mappingService.updateIfIdMappingsDoesntExist(osmInstance,[(OsmDomain.JobGroup):[jobGroup], (OsmDomain.Job):[jobId]])
         return missing
+    }
+
+    private String getEventName(String name){
+        List<String> tokenized = name.split(STEPNAME_DELIMITTER)
+        return tokenized.size() == 2 ? tokenized[1] : name
     }
 
     private String getPageName(String eventName){
@@ -101,7 +106,7 @@ class WptDetailResultConvertService {
                 downloadTimeMs: req.downloadMs,loadTimeMs: req.loadMs, timeToFirstByteMs: req.ttfbMs,
                 sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
                 mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
-                urlWithoutParams: req.host+createURLWithoutParams(req.url), startPhase: req.startPhase,
+                urlWithoutParams: req!=null && req.host!= null ?"{req.host}{createURLWithoutParams(req.url)}":req.host, startPhase: req.startPhase,
                 endPhase: req.endPhase, dnsMs: req.dnsTimeMs)
     }
 

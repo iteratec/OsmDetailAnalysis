@@ -72,8 +72,14 @@ class MappingService {
                 }
                 //check if something is missing
                 updates.each {MappingUpdate update ->
-                    allUpdatesDone &= domainsToUpdate[update.domain.toString()].size() == update.updateCount()
+                    boolean a = domainsToUpdate[update.domain.toString()].size() == update.updateCount()
+                    allUpdatesDone &= a
+                    if(!a){
+                        log.debug("Failed to update domain: " + update.domain)
+                        log.debug(domainsToUpdate["MeasuredEvent"])
+                    }
                 }
+
             } catch (ConnectException e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
                 return false
