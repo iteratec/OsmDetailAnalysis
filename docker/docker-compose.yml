@@ -4,12 +4,8 @@ osm_da:
    - "8088:8081"
   links:
    - osm_mongodb
-  environment:
-    - OSMDA_MONGODB_HOST
-    - OSMDA_INITIAL_API_KEY
-    - OSMDA_INITIAL_OSM_URL
-    - OSMDA_JVM_XMS
-    - OSMDA_JVM_XMX
+  env_file:
+     - .env-osmda
 
 osm_mongodb:
   image:  mongo:3.2
