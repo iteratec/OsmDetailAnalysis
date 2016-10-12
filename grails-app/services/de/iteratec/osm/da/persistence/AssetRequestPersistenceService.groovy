@@ -3,6 +3,7 @@ package de.iteratec.osm.da.persistence
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.model.Filters
+import de.iteratec.osm.da.instances.OsmInstance
 
 import static com.mongodb.client.model.Accumulators.*
 import de.iteratec.osm.da.asset.AssetRequestGroup
@@ -27,14 +28,18 @@ class AssetRequestPersistenceService {
     /**
      * Parses a WptDetailResult and saves all Assets.
      * This will only happen if this result is not null and if there are steps within this result.
+     * Also if a mapping is not available, the whole result won't be saved.
      * @param result JobResult which belongs to this HAR
      * @param har The HAR which belongs to this JobResult
      */
     public void saveDetailDataForJobResult(WptDetailResult result, FetchJob fetchJob) {
         if(result?.steps && !result.steps.isEmpty()){
             List<AssetRequestGroup> assetGroups = wptDetailResultConvertService.convertWPTDetailResultToAssetGroups(result, fetchJob)
-            assetGroups.each {
-                it.save(failOnError: true)
+            if(!assetGroups.contains(null)){
+                //If there where a null value, we know that a mapping wasnt available and the whole result can be ignored.
+                assetGroups.each {
+                    it.save(failOnError: true)
+                }
             }
         }
     }
@@ -243,5 +248,9 @@ class AssetRequestPersistenceService {
                             count:'\$count'
                             }""")
         return unpackIdProjectionDocument
+    }
+
+    def AssetRequestGroup getAssetRequestGroup( String wptBaseUrl, String wptTestId){
+        return AssetRequestGroup.findByWptBaseUrlAndWptTestId(wptBaseUrl,wptTestId)
     }
 }

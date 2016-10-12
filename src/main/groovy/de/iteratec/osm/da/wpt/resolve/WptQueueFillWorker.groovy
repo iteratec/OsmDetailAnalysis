@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory
  * Worker for WptDetailResultDownloadService.
  * Fills the normalPriorityQueue if it reaches a given point
  */
-class WptQueueFillWorker implements Runnable {
+class WptQueueFillWorker extends WptWorker {
 
     WptDetailResultDownloadService service
     private static final log = LogFactory.getLog(this)
@@ -21,16 +21,18 @@ class WptQueueFillWorker implements Runnable {
 
 
     WptQueueFillWorker(WptDetailResultDownloadService service) {
+        this.type = WptWorkerType.WptQueueFillWorker
         this.service = service
         log.info("${this.class.simpleName} started")
     }
 
     @Override
     void run() {
-        sleep(threshold * 2) // wait for application to start
         while (service.workerShouldRun) {
-            fillQueues()
+            setWait()
             sleep(threshold)
+            fillQueues()
+            setEndOfAction()
         }
     }
 

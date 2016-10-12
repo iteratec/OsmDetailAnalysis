@@ -1,8 +1,11 @@
 package de.iteratec.osm.da.api
 
+import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.Priority
+import de.iteratec.osm.da.mapping.MappingUpdate
 import de.iteratec.osm.da.mapping.OsmDomain
+import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
@@ -13,6 +16,7 @@ import grails.validation.Validateable
 
 class RestApiController {
 
+    AssetRequestPersistenceService assetRequestPersistenceService
     MappingService mappingService
     WptDetailResultDownloadService wptDetailResultDownloadService
     public static final String DEFAULT_ACCESS_DENIED_MESSAGE = "Access denied! A valid API-Key with sufficient access rights is required!"
@@ -78,6 +82,24 @@ class RestApiController {
         sendObjectAsJSON(numberOfFetchJobs,false)
     }
 
+    def getAssetRequestGroup(GetAssetRequestGroupCommand command){
+        if (command.hasErrors()) {
+            StringWriter sw = new StringWriter()
+            command.errors.getFieldErrors().each { fieldError ->
+                sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
+            }
+            sendSimpleResponseAsStream(400, sw.toString())
+            return
+        }
+        AssetRequestGroup assetRequestGroup = assetRequestPersistenceService.getAssetRequestGroup(command.wptServerBaseUrl, command.wptTestId)
+        if(!assetRequestGroup){
+            sendSimpleResponseAsStream(400, "No data found")
+            return
+        }
+        sendObjectAsJSON(assetRequestGroup,true)
+
+    }
+
     /**
      *
      * Example: curl http://localhost:8080/restApi/updateMapping --data "osmUrl=http://openspeedmonitor.org&JobGroup.1=AJob&JobGroup.2=AnotherJob&Location.2=ALocation"
@@ -94,10 +116,10 @@ class RestApiController {
             return
         }
         OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
-        if(command.Browser) mappingService.updateMapping(instance,OsmDomain.Browser, command.Browser)
-        if(command.JobGroup) mappingService.updateMapping(instance,OsmDomain.JobGroup, command.JobGroup)
-        if(command.Location) mappingService.updateMapping(instance,OsmDomain.Location, command.Location)
-        if(command.MeasuredEvent) mappingService.updateMapping(instance,OsmDomain.MeasuredEvent, command.MeasuredEvent)
+        if(command.Browser) mappingService.updateMapping(instance,new MappingUpdate(domain: OsmDomain.Browser, update: command.Browser))
+        if(command.JobGroup) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.JobGroup, update: command.JobGroup))
+        if(command.Location) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.Location, update: command.Location))
+        if(command.MeasuredEvent) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.MeasuredEvent, update: command.MeasuredEvent))
         sendSimpleResponseAsStream(200,"Mapping was updated")
 
     }
@@ -163,7 +185,7 @@ public class PersistenceCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         osmUrl(nullable:false)
@@ -195,7 +217,7 @@ public class PersistenceBatchCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceBatchCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         osmUrl(nullable:false)
@@ -209,10 +231,15 @@ public class UrlUpdateCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, UrlUpdateCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
     }
+}
+public class GetAssetRequestGroupCommand {
+    String wptTestId
+    String wptServerBaseUrl
+
 }
 
 public class MappingCommand extends OsmCommand{
@@ -223,7 +250,7 @@ public class MappingCommand extends OsmCommand{
     static constraints = {
         apiKey(validator: { String currentKey, MappingCommand cmd ->
             ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
-            if (!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            if (!validApiKey||!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
     }

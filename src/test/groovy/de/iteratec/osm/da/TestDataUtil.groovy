@@ -6,6 +6,13 @@ import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.instances.OsmInstance
+import groovyx.net.http.RESTClient
+import org.apache.http.HttpHost
+import software.betamax.Configuration
+import software.betamax.TapeMode
+import software.betamax.junit.RecorderRule
+
+import static org.apache.http.conn.params.ConnRoutePNames.DEFAULT_PROXY
 
 class TestDataUtil {
     OsmInstance createOsmInstance(){
@@ -120,5 +127,36 @@ class TestDataUtil {
             }
         }
         return count
+    }
+
+    static void mockHttpRequestServiceToUseBetamax(HttpRequestService requestService){
+        requestService.metaClass.getRestClient = {String url->
+            RESTClient restClient = new RESTClient(url)
+            restClient.client.params.setParameter(DEFAULT_PROXY, new HttpHost("localhost", 5555, 'http'))
+            return restClient
+        }
+    }
+
+    private static Properties getBetamaxPropertyObject(){
+        Properties properties = new Properties()
+        new File('grails-app/conf/betamax.properties').withInputStream {
+            properties.load(it)
+        }
+        return properties
+    }
+
+    public static Configuration getBetamaxConfiguration(){
+        Properties properties = getBetamaxPropertyObject()
+        File tapeRoot = new File(properties."betamax.tapeRoot" as String)
+        TapeMode mode = TapeMode.valueOf(properties."betamax.defaultMode" as String)
+        boolean ingoreLocalhost = Boolean.valueOf(properties."betamax.ignoreLocalhost" as String)
+        return Configuration.builder()
+                .tapeRoot(tapeRoot)
+                .ignoreLocalhost(ingoreLocalhost)
+                .defaultMode(mode).build();
+    }
+
+    public static RecorderRule getDefaultBetamaxRecorder(){
+        return new RecorderRule(getBetamaxConfiguration())
     }
 }

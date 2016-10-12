@@ -1,7 +1,10 @@
 package de.iteratec.osm.da.wpt
 
+import de.iteratec.osm.da.asset.AssetRequestGroup
+import de.iteratec.osm.da.fetch.FailedFetchJob
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.data.WPTVersion
@@ -9,10 +12,13 @@ import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
+import de.iteratec.osm.da.wpt.resolve.WptWorker
+import org.junit.internal.runners.statements.Fail
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.PriorityBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 /**
  * This service handles the downloading of the detail data from WPT.
@@ -42,6 +48,7 @@ class WptDetailResultDownloadService {
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
+    FailedFetchJobService failedFetchJobService
 
     /**
      * This List will cache FetchJobs and will be used from WptQueueDownloadWorker to get new Jobs to fetch.
@@ -58,8 +65,8 @@ class WptDetailResultDownloadService {
     /**
      * This pool is used for multiple WptDownloadWorker to download WPTResults. We add one additional Thread to fill the queues.
      */
-    ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1)
-
+    ThreadPoolExecutor executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1) as ThreadPoolExecutor
+    List<WptWorker> workerList = []
 
     public WptDetailResultDownloadService() {
         startWorker()
@@ -79,9 +86,13 @@ class WptDetailResultDownloadService {
         if (!workerShouldRun) {
             workerShouldRun = true
             NUMBER_OF_WORKERS.times {
-                executor.execute(new WptDownloadWorker(this))
+                WptDownloadWorker worker = new WptDownloadWorker(this)
+                executor.execute(worker)
+                workerList << worker
             }
-            executor.execute(new WptQueueFillWorker(this))
+            WptQueueFillWorker fillWorker = new WptQueueFillWorker(this)
+            executor.execute(fillWorker)
+            workerList << fillWorker
         }
     }
 
@@ -109,8 +120,9 @@ class WptDetailResultDownloadService {
                     wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch:fetchBatch).save(flush: true, failOnError: true)
 //            addToQueue(fetchJob, priority)
             numberOfNewFetchJobs++
-
+            log.debug("Created a FetchJob for WptId=$wptTestId")
         }
+
         return numberOfNewFetchJobs
     }
 
@@ -141,8 +153,13 @@ class WptDetailResultDownloadService {
                     job.fetchBatch.addFailure(job)
                     job.fetchBatch = null
                 }
-                job.lastTryEpochTime = new Date().getTime() / 1000
-                job.save(flush: true)
+                if(job.tryCount >= maxTryCount){
+                    failedFetchJobService.markJobAsFailedIfNeeded(null,job, FetchFailReason.WPT_NOT_AVAILABLE)
+                    job.delete(flush:true)
+                }else{
+                    job.lastTryEpochTime = new Date().getTime() / 1000
+                    job.save(flush: true)
+                }
                 inProgress.remove(job)
             }
         }
