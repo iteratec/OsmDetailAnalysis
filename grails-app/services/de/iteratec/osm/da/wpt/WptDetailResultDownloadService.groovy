@@ -12,11 +12,13 @@ import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
+import de.iteratec.osm.da.wpt.resolve.WptWorker
 import org.junit.internal.runners.statements.Fail
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.PriorityBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 /**
@@ -64,8 +66,8 @@ class WptDetailResultDownloadService {
     /**
      * This pool is used for multiple WptDownloadWorker to download WPTResults. We add one additional Thread to fill the queues.
      */
-    ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1)
-
+    ThreadPoolExecutor executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1) as ThreadPoolExecutor
+    List<WptWorker> workerList = []
 
     public WptDetailResultDownloadService() {
         startWorker()
@@ -87,8 +89,11 @@ class WptDetailResultDownloadService {
             NUMBER_OF_WORKERS.times {
                 WptDownloadWorker worker = new WptDownloadWorker(this)
                 executor.execute(worker)
+                workerList << worker
             }
-            executor.execute(new WptQueueFillWorker(this))
+            WptQueueFillWorker fillWorker = new WptQueueFillWorker(this)
+            executor.execute(fillWorker)
+            workerList << fillWorker
         }
     }
 

@@ -9,21 +9,14 @@ import org.apache.commons.logging.LogFactory
 /**
  * A runnable which can be used to resolve FetchJobs in background.
  */
-class WptDownloadWorker implements Runnable{
+class WptDownloadWorker extends WptWorker{
 
-    /**
-     * This is used as a counter, so every worker can get a unique id
-     */
-    private static idCount = 0
-    /**
-     * The actual id of this worker
-     */
-    private final id = nextId();
     private static final log = LogFactory.getLog(this)
 
     WptDetailResultDownloadService service
 
     WptDownloadWorker(WptDetailResultDownloadService service) {
+        this.type = WptWorkerType.WptDownloadWorker
         this.service = service
         log.info("$this started")
     }
@@ -33,20 +26,14 @@ class WptDownloadWorker implements Runnable{
         return "${this.class.simpleName} $id"
     }
 
-    /**
-     * Get a id for a new worker
-     * @return
-     */
-    private static int nextId(){
-        return idCount++
-    }
-
     @Override
     void run() {
         sleep(10000) //wait for the application to fully start.
         while (service.workerShouldRun){
             log.debug(this.toString() + " is ready for new work")
+            setWait()
             fetch()
+            setEndOfAction()
         }
     }
 

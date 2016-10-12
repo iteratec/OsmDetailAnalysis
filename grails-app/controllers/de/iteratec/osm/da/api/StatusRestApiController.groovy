@@ -32,4 +32,21 @@ class StatusRestApiController {
         }
         sendJSONResponseAsStream(200, sizes as JSON)
     }
+
+    def getWorkerStatus(){
+        List<Map<String, Object>> map = []
+
+        wptDetailResultDownloadService.workerList.each {
+            map << ["Type":it.type.toString(),
+                    "id":it.id,
+                    "LastTimeStartWaiting":it.lastTimeStartWaiting,
+                    "LastTimeEndOfAction":it.lastEndOfAction]
+        }
+        sendJSONResponseAsStream(200, map as JSON)
+    }
+
+    def getActiveWorkerThreads(){
+        Map<String, String> map = ["ActiveThreads":wptDetailResultDownloadService.executor.getActiveCount()]
+        sendJSONResponseAsStream(200, map as JSON)
+    }
 }
