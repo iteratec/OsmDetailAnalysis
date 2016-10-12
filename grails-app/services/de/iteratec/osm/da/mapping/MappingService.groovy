@@ -63,6 +63,7 @@ class MappingService {
         }
         boolean allUpdatesDone = true
         if(domainsToUpdate.size() > 0 ){
+            log.debug("OsmInstance $instanceId needs an mapping update")
             try {
                 List<MappingUpdate> updates = getNameUpdate(domainsToUpdate, instance)
 

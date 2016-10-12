@@ -120,8 +120,9 @@ class WptDetailResultDownloadService {
                     wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch:fetchBatch).save(flush: true, failOnError: true)
 //            addToQueue(fetchJob, priority)
             numberOfNewFetchJobs++
-
+            log.debug("Created a FetchJob for WptId=$wptTestId")
         }
+
         return numberOfNewFetchJobs
     }
 

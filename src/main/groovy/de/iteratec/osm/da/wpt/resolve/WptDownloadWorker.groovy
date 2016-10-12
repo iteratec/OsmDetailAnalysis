@@ -46,7 +46,7 @@ class WptDownloadWorker extends WptWorker{
         try {
             currentJob = service.getNextJob()
             if (currentJob) {
-                log.debug(this.toString() + " found job and start: " + currentJob.id)
+                log.debug(this.toString() + " got job(${currentJob.id})")
                 WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
                 handleResult(result, currentJob)
             }
