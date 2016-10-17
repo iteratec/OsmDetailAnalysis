@@ -49,7 +49,7 @@ class DetailAnalysisDashboardController {
             return
         }
         Map<String, Object> modelToRender = [:]
-        modelToRender.put("serverBaseUrl",grailsLinkGenerator.serverBaseURL)
+        modelToRender.put("serverBaseUrl", grailsLinkGenerator.serverBaseURL)
 
         cmd.copyRequestDataToViewModelMap(modelToRender)
 
@@ -57,8 +57,9 @@ class DetailAnalysisDashboardController {
 
         modelToRender
     }
+
     def getAssetsForDataPoint(){
-        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.hosts,request.JSON.browsers,request.JSON.mediaTypes,request.JSON.subtypes,request.JSON.jobGroups,request.JSON.pages)
+        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.host,request.JSON.browser,request.JSON.mediaType,request.JSON.subtype,request.JSON.jobGroup,request.JSON.page)
         response.setContentType(ContentType.JSON.toString())
         response.status = 200
         render result

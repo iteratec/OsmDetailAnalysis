@@ -23,7 +23,7 @@
         OpenSpeedMonitor.postLoadUrls = OpenSpeedMonitor.postLoadUrls || [];
         OpenSpeedMonitor.postLoadUrls.push("${serverBaseUrl}/assets/dashboard/DcDashboardCreator.js");
         <g:applyCodec encodeAs="none">
-            OsmDetailMicroService.ajaxUrl = "${serverBaseUrl+createLink(controller:'standAloneDetailAnalysisDashboard',action:'getAssetsForDataPoint')}";
+            OsmDetailMicroService.ajaxUrl = "${serverBaseUrl+createLink(controller:'detailAnalysisDashboard',action:'getAssetsForDataPoint')}";
             OsmDetailMicroService.data = ${graphData};
             OsmDetailMicroService.labels = ${labelAliases};
             OsmDetailMicroService.from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";

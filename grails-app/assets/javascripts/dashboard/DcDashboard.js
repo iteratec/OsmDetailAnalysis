@@ -26,6 +26,7 @@ DcDashboard.prototype.addData = function (data) {
     this.allData.add(data);
     dc.redrawAll();
     addOnClickListeners();
+    hideDataTable();
 };
 
 DcDashboard.prototype.clearData = function () {
@@ -33,6 +34,7 @@ DcDashboard.prototype.clearData = function () {
     this.allData.remove();
     dc.redrawAll();
     addOnClickListeners();
+    hideDataTable();
 };
 
 DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifier, dimension, group, labelAccessor) {
@@ -46,6 +48,7 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
         .renderLabel(true)
         .transitionDuration(500)
         .on("postRedraw", function () {
+            hideDataTable();
             addOnClickListeners();
         })
         .colors(d3.scale.category20c())
@@ -85,6 +88,7 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
         .height(30 * dataCount + 50)
         .on("postRedraw", function () {
             addOnClickListeners();
+            hideDataTable();
         })
         .fixedBarHeight(25)
         .x(d3.scale.linear())
