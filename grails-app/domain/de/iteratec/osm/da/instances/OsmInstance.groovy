@@ -45,13 +45,13 @@ class OsmInstance {
     static constraints = {
     }
 
-    static String createUrl(String url){
-        if(url.endsWith("/")) url = url.substring(0,url.length()-1)
+    static String ensureUrlHasTrailingSlash(String url){
+        url = url.endsWith('/') ? url : url + '/'
         return url
     }
 
     void setUrl(String url) {
-        this.url = createUrl(url)
+        this.url = ensureUrlHasTrailingSlash(url)
     }
 /**
      * Get the right map for a OsmDomain

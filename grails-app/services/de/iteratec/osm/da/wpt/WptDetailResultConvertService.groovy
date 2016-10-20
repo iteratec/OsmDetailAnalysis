@@ -53,7 +53,7 @@ class WptDetailResultConvertService {
     }
 
     private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted){
-        boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, fetchJob.jobGroupId, fetchJob.jobId)
+        boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, pageName, fetchJob.jobGroupId, fetchJob.jobId)
         if(!allUpdatesDone){
             FailedFetchJob failedFetchJob = failedFetchJobService.markJobAsFailedIfNeeded(result, fetchJob, FetchFailReason.MAPPINGS_NOT_AVAILABLE)
             log.info("FetchJob from ${result.wptBaseUrl+result.wptTestID} will be ignored, reason: ${failedFetchJob.reason}")
@@ -80,10 +80,10 @@ class WptDetailResultConvertService {
      * @param jobId
      * @return true if all mappings where present after update
      */
-    private boolean updateMappings(long osmInstance, WptDetailResult wptDetailResult, String eventName, long jobGroup, long jobId){
-        Map updateMap = [(OsmDomain.Page):[getPageName(eventName)],
+    private boolean updateMappings(long osmInstance, WptDetailResult wptDetailResult, String eventName, String pageName, long jobGroup, long jobId){
+        Map updateMap = [(OsmDomain.Page):[pageName],
                          (OsmDomain.Browser):[wptDetailResult.browser],
-                         (OsmDomain.MeasuredEvent):[getEventName(eventName)],
+                         (OsmDomain.MeasuredEvent):[eventName],
                          (OsmDomain.Location):[wptDetailResult.location]]
         boolean missing = mappingService.updateIfNameMappingsDoesntExist(osmInstance,updateMap)
         missing &= mappingService.updateIfIdMappingsDoesntExist(osmInstance,[(OsmDomain.JobGroup):[jobGroup], (OsmDomain.Job):[jobId]])

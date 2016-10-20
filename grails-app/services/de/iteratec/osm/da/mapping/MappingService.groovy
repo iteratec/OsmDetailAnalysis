@@ -57,13 +57,14 @@ class MappingService {
     synchronized boolean updateIfNameMappingsDoesntExist(long instanceId, Map<OsmDomain, List<String>> domains){
         OsmInstance instance = OsmInstance.get(instanceId)
         Map<String, List<Long>> domainsToUpdate = [:]
+
         domains.each { OsmDomain domain, List<String> namesNeeded->
             List<String> missingNames = namesNeeded - instance.getMapping(domain).mapping.values()
             if(missingNames.size()>0) domainsToUpdate."$domain" = missingNames
         }
         boolean allUpdatesDone = true
         if(domainsToUpdate.size() > 0 ){
-            log.debug("OsmInstance $instanceId needs an mapping update")
+            log.debug("OsmInstance $instanceId needs a mapping update")
             try {
                 List<MappingUpdate> updates = getNameUpdate(domainsToUpdate, instance)
 
@@ -76,11 +77,10 @@ class MappingService {
                     allUpdatesDone &= a
                     if(!a){
                         log.debug("Failed to update domain: " + update.domain)
-                        log.debug(domainsToUpdate["MeasuredEvent"])
                     }
                 }
 
-            } catch (ConnectException e){
+            } catch (Exception e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
                 return false
             }
@@ -95,7 +95,7 @@ class MappingService {
      * @return A map with the answer from the osm instance
      */
     private List<MappingUpdate> getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
-        def updateJson = httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/namesForIds/", idsToUpdate)
+        def updateJson = httpRequestService.getJsonResponseFromOsm( instance.url,"/rest/domain/namesForIds/", idsToUpdate)
         return MappingUpdate.createMappingList(updateJson)
     }
 

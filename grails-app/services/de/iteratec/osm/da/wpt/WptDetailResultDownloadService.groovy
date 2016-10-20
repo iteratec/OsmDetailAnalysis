@@ -146,21 +146,23 @@ class WptDetailResultDownloadService {
      */
     public void markJobAsFailed(FetchJob job){
         if(job){
-            job.withNewSession {
-                job.tryCount++
-                log.debug("Try ${job.tryCount} to Job")
-                if (job.fetchBatch && job.tryCount >= maxTryCount) {
-                    job.fetchBatch.addFailure(job)
-                    job.fetchBatch = null
+            synchronized (job.fetchBatch){
+                job.withNewSession {
+                    job.tryCount++
+                    log.debug("Try ${job.tryCount} to Job")
+                    if (job.fetchBatch && job.tryCount >= maxTryCount) {
+                        job.fetchBatch.addFailure(job)
+                        job.fetchBatch = null
+                    }
+                    if (job.tryCount >= maxTryCount) {
+                        failedFetchJobService.markJobAsFailedIfNeeded(null, job, FetchFailReason.WPT_NOT_AVAILABLE)
+                        job.delete(flush: true)
+                    } else {
+                        job.lastTryEpochTime = new Date().getTime() / 1000
+                        job.save(flush: true)
+                    }
+                    inProgress.remove(job)
                 }
-                if(job.tryCount >= maxTryCount){
-                    failedFetchJobService.markJobAsFailedIfNeeded(null,job, FetchFailReason.WPT_NOT_AVAILABLE)
-                    job.delete(flush:true)
-                }else{
-                    job.lastTryEpochTime = new Date().getTime() / 1000
-                    job.save(flush: true)
-                }
-                inProgress.remove(job)
             }
         }
     }

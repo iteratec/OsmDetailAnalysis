@@ -25,6 +25,7 @@ import grails.web.mapping.LinkGenerator
 import groovyx.net.http.ContentType
 import org.joda.time.DateTime
 
+import java.text.SimpleDateFormat
 import java.util.zip.GZIPOutputStream
 
 /**
@@ -40,11 +41,13 @@ class DetailAnalysisDashboardController {
     LinkGenerator grailsLinkGenerator
 
     Map<String, Object> show(DetailAnalysisDashboardCommand cmd) {
+        log.debug("Got DetailAnalysisDashboardCommand ... start collecting data")
         if (cmd.hasErrors()) {
             StringWriter sw = new StringWriter()
             cmd.errors.getFieldErrors().each { fieldError ->
                 sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
             }
+            log.error("DetailAnalysisDashboardCommand has errors:",new Exception(sw.toString()))
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }
@@ -55,6 +58,7 @@ class DetailAnalysisDashboardController {
 
         fillWithDashboardData(modelToRender, cmd);
 
+        log.debug("... data collecting for DetailAnalysisDashboardCommand done ... sending reply")
         modelToRender
     }
 
@@ -66,9 +70,14 @@ class DetailAnalysisDashboardController {
     }
 
     private void fillWithDashboardData(Map<String, Object> modelToRender, DetailAnalysisDashboardCommand cmd) {
-        Date from = cmd.from
-        Date to = cmd.to
-
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm")
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+        def toHour =0
+        if (cmd.toHour) toHour=  simpleDateFormat.parse(cmd.toHour).time
+        def fromHour = 0
+        if (cmd.fromHour) fromHour=  simpleDateFormat.parse(cmd.fromHour).time
+        Date from = new Date (cmd.from.time +fromHour)
+        Date to = new Date( cmd.to.time +toHour)
         List<Long> jobGroupIds = cmd.selectedFolder as List
         List<Long> pageIds = cmd.selectedPages as List
         List<Long> browserIds = cmd.selectedBrowsers as List
@@ -102,7 +111,6 @@ class DetailAnalysisDashboardController {
                 packetloss,
                 measuredEventIds,
                 selectedAllMeasuredEvents)
-
         def fromDate = new DateTime(cmd.from)
         def toDate = new DateTime(cmd.to).plusDays(1)
 
@@ -112,6 +120,7 @@ class DetailAnalysisDashboardController {
 
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
         fillWithI18N(modelToRender)
+
     }
 
     private void fillWithI18N(Map<String, Object> modelToRender) {
