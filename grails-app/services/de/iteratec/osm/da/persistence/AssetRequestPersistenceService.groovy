@@ -2,6 +2,7 @@ package de.iteratec.osm.da.persistence
 
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.util.JSON
 
@@ -91,7 +92,7 @@ class AssetRequestPersistenceService {
         log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} selectedAllBrowsers = ${selectedAllBrowsers} locations = ${locations} selectedAllLocations = ${selectedAllLocations} selectedAllConnectivityProfiles = ${selectedAllConnectivityProfiles} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents} selectedAllMeasuredEvents = ${selectedAllMeasuredEvents}")
         List aggregateList = []
         List matchList = []
-        def db = mongo.getDatabase("OsmDetailAnalysis")
+        MongoDatabase db = mongo.getDatabase("OsmDetailAnalysis")
         matchList << gte("epochTimeStarted", from.getTime() / 1000 as Long)
         matchList << lte("epochTimeStarted", to.getTime() / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
@@ -105,8 +106,9 @@ class AssetRequestPersistenceService {
             if (bandwidthUp) matchList << eq("bandwidthUp", bandwidthUp)
             if (bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)
             if (packetloss) matchList << eq("packetLoss", packetloss)
-            if (latency) matchList << eq("Latency", latency)
+            if (latency) matchList << eq("latency", latency)
         }
+
 
 
         aggregateList << match(and(matchList)) //filter out unwanted assets
