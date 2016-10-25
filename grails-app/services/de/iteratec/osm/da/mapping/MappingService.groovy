@@ -3,9 +3,10 @@ package de.iteratec.osm.da.mapping
 import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
+import de.iteratec.osm.da.wpt.resolve.exceptions.OsmMappingDoesntExistException
+import de.iteratec.osm.da.wpt.resolve.exceptions.OsmNotAvailableException
 import grails.transaction.Transactional
 
-@Transactional
 class MappingService {
 
     HttpRequestService httpRequestService
@@ -38,13 +39,13 @@ class MappingService {
         }
         boolean allUpdatesDone = true
         if(domainsToUpdate.size() > 0 ){
-            List<MappingUpdate> updates = getIdUpdate(domainsToUpdate, instance)
-
-            updates.each{
-                updateMapping(instance, it)
-            }
-            updates.each {MappingUpdate update ->
-                allUpdatesDone &= domainsToUpdate[update.domain.toString()].size() == update.updateCount()
+            log.debug("OsmInstance $instanceId needs an mapping update")
+            try {
+                List<MappingUpdate> updates = getIdUpdate(domainsToUpdate, instance)
+                applyUpdates(updates,instance,domainsToUpdate)
+            } catch (ConnectException e){
+                log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
+                throw new OsmNotAvailableException(instance.url)
             }
         }
         return allUpdatesDone
@@ -66,27 +67,39 @@ class MappingService {
             log.debug("OsmInstance $instanceId needs an mapping update")
             try {
                 List<MappingUpdate> updates = getNameUpdate(domainsToUpdate, instance)
-
-                updates.each {
-                    updateMapping(instance, it)
-                }
-                //check if something is missing
-                updates.each {MappingUpdate update ->
-                    boolean a = domainsToUpdate[update.domain.toString()].size() == update.updateCount()
-                    allUpdatesDone &= a
-                    if(!a){
-                        log.debug("Failed to update domain: " + update.domain)
-                        log.debug(domainsToUpdate["MeasuredEvent"])
-                    }
-                }
-
+                applyUpdates(updates,instance,domainsToUpdate)
             } catch (ConnectException e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
-                return false
+                throw new OsmNotAvailableException(instance.url)
             }
         }
         return allUpdatesDone
     }
+
+    /**
+     * Applies all updates to an OsmInstance. If there where updates missing this method will throw an OsmMappingDoesntExistException.
+     * @param updates
+     * @param instance
+     * @param domainsToUpdate
+     */
+    void applyUpdates(List<MappingUpdate> updates, OsmInstance instance, Map<String, List<Long>> domainsToUpdate  ){
+        updates.each {
+            updateMapping(instance, it)
+        }
+        //check if something is missing
+        Map<OsmDomain, List<Long>> missingUpdates = [:]
+        boolean allUpdatesDone = true
+        updates.each {MappingUpdate update ->
+            boolean updatesDone = domainsToUpdate[update.domain.toString()].size() == update.updateCount()
+            allUpdatesDone &= updatesDone
+            if(!updatesDone){
+                missingUpdates.put(update.domain, domainsToUpdate[update.domain.toString()] - update.update.keySet())
+            }
+        }
+        if(!missingUpdates.isEmpty()) throw new OsmMappingDoesntExistException(missingUpdates)
+    }
+
+
 
     /**
      * Sends a Request to osm instance to get missing mappings.

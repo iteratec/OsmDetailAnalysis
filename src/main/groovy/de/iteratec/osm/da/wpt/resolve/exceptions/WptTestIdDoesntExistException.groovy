@@ -1,5 +1,7 @@
 package de.iteratec.osm.da.wpt.resolve.exceptions
 
+import de.iteratec.osm.da.fetch.FetchFailReason
+
 class WptTestIdDoesntExistException extends WptResultProcessingException{
 
 
@@ -7,13 +9,14 @@ class WptTestIdDoesntExistException extends WptResultProcessingException{
     String wptUrl
 
     WptTestIdDoesntExistException(String id, String wptUrl) {
-        super(setAndGetReason(id, wptUrl))
+        super("WptTest id doesnt exist")
+        setReason(id, wptUrl)
+        fetchFailReason = FetchFailReason.WPT_TEST_ID_DOESNT_EXIST
     }
 
-    private String setAndGetReason(String id, String wptUrl){
+    private void setReason(String id, String wptUrl){
         this.id = id
         this.wptUrl = wptUrl
-        return getReason()
     }
 
     @Override

@@ -69,6 +69,7 @@ dependencies {
     testCompile 'software.betamax:betamax-junit:2.0.1'
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    provided "org.grails.plugins:embedded-mongodb:1.0.1"
     compile 'com.bertramlabs.plugins:less-asset-pipeline:2.9.4'
     assets 'com.bertramlabs.plugins:less-asset-pipeline:2.9.4'
 }

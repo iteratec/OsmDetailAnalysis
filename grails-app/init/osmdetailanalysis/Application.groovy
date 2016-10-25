@@ -3,6 +3,8 @@ package osmdetailanalysis
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.AbstractEnvironment
 import org.springframework.core.env.Environment

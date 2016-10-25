@@ -4,6 +4,7 @@ import de.iteratec.osm.da.fetch.FailedFetchJob
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import de.iteratec.osm.da.wpt.data.WptDetailResult
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultProcessingException
 import org.apache.commons.logging.LogFactory
 /**
  * A runnable which can be used to resolve FetchJobs in background.
@@ -42,19 +43,15 @@ class WptDownloadWorker extends WptWorker{
      */
     void fetch(){
         FetchJob currentJob
-        try {
+        try{
             currentJob = service.getNextJob()
-            if (currentJob) {
-                log.debug(this.toString() + " got job(${currentJob.id})")
-                WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
-                handleResult(result, currentJob)
-            }
-        } catch (Exception e) {
-            log.error("Job with id ${currentJob?.id} encountert an error while trying to get the following result:\n" +
-                    "'${currentJob.getWptBaseURL()}/jsonResult.php?test=${currentJob.wptTestId}&requests=1&multiStepFormat=1'." +
-                    "\n\tNew try count: ${currentJob?.tryCount}\n Message: $e")
-            service.markJobAsFailed(currentJob)
+            log.debug(this.toString() + " got Job(${currentJob.id}")
+            WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
+            handleResult(result, currentJob)
+        } catch (Exception e){
+            service.markJobAsFailed(currentJob, e)
         }
+
     }
     /**
      * Takes care of a WptResult. If there is result, the service will be noted to delete the job.
@@ -63,21 +60,15 @@ class WptDownloadWorker extends WptWorker{
      * @param currentJob FetchJob that was used to get this result
      */
     void handleResult(WptDetailResult result, FetchJob currentJob){
-        if(result){
-            FailedFetchJob failedFetchJob = service.failedFetchJobService.markJobAsFailedIfNeeded(result, currentJob)
-            if(failedFetchJob){
-                log.info("FetchJob from ${result.wptBaseUrl+result.wptTestID} will be ignored, reason: ${failedFetchJob.reason}")
-            } else{
-                log.debug(this.toString() + " FetchJob $currentJob.id: saveDetailDataForJobResult")
-                service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
-                log.debug(this.toString() + " FetchJob $currentJob.id: saveDetailDataForJobResult... DONE")
-            }
+        try{
+            log.debug(this.toString() + " FetchJob $currentJob.id: saveDetailDataForJobResult")
+            service.assetRequestPersistenceService.saveDetailDataForJobResult(result, currentJob)
+            log.debug(this.toString() + " FetchJob $currentJob.id: saveDetailDataForJobResult... DONE")
             log.debug(this.toString() + " FetchJob $currentJob.id: deleteJob")
             service.deleteJob(currentJob)
             log.debug(this.toString() + " FetchJob $currentJob.id: deleteJob... DONE")
-        } else {
-            log.error(this.toString() + " couldn't download job with id ${currentJob.id} will be skipped. New try count: ${currentJob?.tryCount}")
-            service.markJobAsFailed(currentJob)
+        }catch (Exception e){
+            service.failedFetchJobService.markJobAsFailed(currentJob,e)
         }
     }
 }

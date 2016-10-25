@@ -13,6 +13,7 @@ import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
 import de.iteratec.osm.da.wpt.resolve.WptWorker
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptVersionNotSupportedException
 import org.junit.internal.runners.statements.Fail
 
 import java.util.concurrent.ExecutorService
@@ -69,7 +70,7 @@ class WptDetailResultDownloadService {
     List<WptWorker> workerList = []
 
     public WptDetailResultDownloadService() {
-        startWorker()
+//        startWorker()
     }
 
     /**
@@ -144,22 +145,15 @@ class WptDetailResultDownloadService {
      * Marks a job as failed and removes it from progress
      * @param job
      */
-    public void markJobAsFailed(FetchJob job){
+    public void markJobAsFailed(FetchJob job, Exception e){
+        failedFetchJobService.markJobAsFailed(job,e)
         if(job){
             job.withNewSession {
-                job.tryCount++
-                log.debug("Try ${job.tryCount} to Job")
                 if (job.fetchBatch && job.tryCount >= maxTryCount) {
                     job.fetchBatch.addFailure(job)
                     job.fetchBatch = null
                 }
-                if(job.tryCount >= maxTryCount){
-                    failedFetchJobService.markJobAsFailedIfNeeded(null,job, FetchFailReason.WPT_NOT_AVAILABLE)
-                    job.delete(flush:true)
-                }else{
-                    job.lastTryEpochTime = new Date().getTime() / 1000
-                    job.save(flush: true)
-                }
+                job.save(flush: true)
                 inProgress.remove(job)
             }
         }
@@ -205,8 +199,7 @@ class WptDetailResultDownloadService {
     public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
         WptDetailDataStrategyI strategy = wptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
         if(!strategy){
-            log.error("No strategy for WPT-Version $fetchJob.wptVersion is supported")
-            return null
+            throw new WptVersionNotSupportedException(fetchJob.wptBaseURL,fetchJob.wptTestId, fetchJob.wptVersion)
         }
         return strategy.getResult(fetchJob)
     }

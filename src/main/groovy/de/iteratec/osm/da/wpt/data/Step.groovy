@@ -22,7 +22,6 @@ class Step {
                 stepNumber > -1 &&
                 url &&
                 eventName &&
-                epochTimeStarted > -1 &&
                 domTime > -1 &&
                 loadTime > -1 &&
                 fullyLoaded > -1

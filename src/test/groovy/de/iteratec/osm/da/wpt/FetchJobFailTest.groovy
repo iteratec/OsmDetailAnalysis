@@ -1,68 +1,73 @@
 package de.iteratec.osm.da.wpt
 
+import de.iteratec.osm.da.HttpRequestService
+import de.iteratec.osm.da.TestDataUtil
+import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FailedFetchJob
+import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.instances.OsmInstance
+import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
-import de.iteratec.osm.da.wpt.data.Step
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultMissingValueException
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasEmptyException
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import spock.lang.Ignore
+import grails.test.mixin.TestMixin
+import org.junit.Rule
+import software.betamax.junit.Betamax
+import software.betamax.junit.RecorderRule
 import spock.lang.Specification
 
-@TestFor(FailedFetchJobService)
-@Mock([OsmInstance, FetchJob, FailedFetchJob])
+
+@TestFor(WptDetailResultDownloadService)
+@Mock([OsmInstance, FetchJob, FailedFetchJob, FetchBatch, AssetRequestGroup])
 class FetchJobFailTest extends Specification{
 
     String url = "http://wptTest.openspeedmonitor.org"
     String testId = "163648_BD_4"
 
-    @Ignore //rewrite to a integration test, too many services are involved.
+    @Rule public RecorderRule recorder = TestDataUtil.getDefaultBetamaxRecorder()
+
+    @Betamax(tape="no_steps_devServer01_160810_A7_4D")
     def "Job should fail if values are missing"(){
-        given: "A FetchJob with steps, but missing values"
-        WptDownloadWorker wptDownloadWorker = createWorker()
-        FetchJob fetchJob = createFetchJob()
-        WptDetailResult result = createResult(fetchJob)
-        result.location = null
-        result.steps = [new Step()]
-        int id = fetchJob.id
-
-        when: "We try to handle the result"
-        wptDownloadWorker.handleResult(result, fetchJob)
+        given: "A FetchJob with no steps"
+        service.disableWorker()
+        service.executor.shutdownNow()
+        HttpRequestService httpRequestService = new HttpRequestService()
+        TestDataUtil.mockHttpRequestServiceToUseBetamax(httpRequestService)
+        service.wptDetailDataStrategyService = new WptDetailDataStrategyService()
+        service.failedFetchJobService = new FailedFetchJobService()
+        service.wptDetailDataStrategyService = new WptDetailDataStrategyService()
+        service.wptDetailDataStrategyService.httpRequestService = httpRequestService
+        service.assetRequestPersistenceService = new AssetRequestPersistenceService()
+        service.assetRequestPersistenceService.wptDetailResultConvertService = new WptDetailResultConvertService()
+        service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService = new MappingService()
+        service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService.httpRequestService = httpRequestService
+        OsmInstance instance = new OsmInstance(name:"TestInstance", url:"http://localhost:8080").save()
+        instance.browserMapping.mapping.put(1l,"Chrome")
+        instance.pageMapping.mapping.put(1l,"undefined")
+        instance.measuredEventMapping.mapping.put(1l,"esprit_infrontofotto")
+        instance.measuredEventMapping.mapping.put(2l,"google_infrontofotto")
+        instance.locationMapping.mapping.put(1l,"iteratec-dev-hetzner-win7:Chrome")
+        instance.jobGroupMapping.mapping.put(1l,"JobGroup")
+        instance.jobMapping.mapping.put(1l,"Job")
+        instance.save()
+        List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
+        WptDownloadWorker worker = new WptDownloadWorker(service)
+        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
+        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        when: "We start the fetching process"
+        worker.fetch()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
-        FetchJob.get(id) == null
-        FailedFetchJob.findByWptBaseURLAndWptTestId(url,testId).reason == FetchFailReason.MISSING_VALUES
-    }
-
-    def "Job should fail if there are no steps"(){
-        given: "A FetchJob without steps and it's id"
-        WptDownloadWorker wptDownloadWorker = createWorker()
-        FetchJob fetchJob = createFetchJob()
-        WptDetailResult result = createResult(fetchJob)
-        int id = fetchJob.id
-
-        when: "We try top handle "
-        wptDownloadWorker.handleResult(result, fetchJob)
-
-        then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
-        FetchJob.get(id) == null
-        FailedFetchJob.findByWptBaseURLAndWptTestId(url,testId).reason == FetchFailReason.NO_STEPS_FOUND
-    }
-
-    def "Job should fail if the wpt wasn't available"(){
-        given: "A FetchJob without steps and it's id"
-        FetchJob fetchJob = createFetchJob()
-        WptDetailResultDownloadService downloadService = new WptDetailResultDownloadService(failedFetchJobService: service)
-
-        when: "We fail 3 times to get the result"
-        3.times{downloadService.markJobAsFailed(fetchJob)}
-
-        then: "The Job should't exist anymore"
-        FetchJob.list().size() == 0
+        List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
+        failedFetchJobDifference.size() == 1
+        failedFetchJobDifference[0].reason == FetchFailReason.NO_STEPS_FOUND
     }
 
     private FetchJob createFetchJob(){

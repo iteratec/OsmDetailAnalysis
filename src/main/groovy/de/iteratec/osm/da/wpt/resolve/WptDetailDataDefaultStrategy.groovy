@@ -6,6 +6,9 @@ import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultMissingValueException
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasCancelledException
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasEmptyException
 import grails.util.Holders
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,11 +32,12 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
     static private WptDetailResult createResult(FetchJob fetchJob, def jsonResponse){
         WptDetailResult result = new WptDetailResult(fetchJob)
         result.location = jsonResponse.data.location
-        def locationSplit = jsonResponse.data.location.split(":")
+        def locationSplit = (jsonResponse.data.location as String).split(":")
         if(locationSplit.size() > 1) result.browser = locationSplit[1]
         setConnectivity(result,jsonResponse)
-        setSteps(result,jsonResponse)
+        setSteps(result,fetchJob,jsonResponse)
         result.calculateAdditionalInformations()
+        if(!result.hasAllValues()) throw new WptResultMissingValueException()
         return result
     }
 
@@ -44,31 +48,42 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         result.packagelossrate = convertIntValue json.data.plr
     }
 
-    static private void setSteps(WptDetailResult result, def json){
+    static private void setSteps(WptDetailResult result, FetchJob fetchJob, def json) throws WptTestWasEmptyException{
         List<Step> steps = []
         if(json.data.statusText == "Test Cancelled"){
-            log.info("Test with id $result.wptTestID from $result.wptBaseUrl was cancelled and will be skipped")
-            result.steps = steps
-            return
+            throw new WptTestWasCancelledException(fetchJob.wptTestId, fetchJob.wptBaseURL)
         }
         json.data.runs.each{def run ->
             run.value?.firstView?.steps?.each{
                 Step step = createStep(it)
-                step.epochTimeStarted = it.date
-                step.isFirstView = true
-                steps << step
+                if(step){
+                    step.isFirstView = true
+                    steps << step
+                }
             }
             run.value?.secondView?.steps?.each{
                 Step step = createStep(it)
-                step.isFirstView = false
-                steps << step
+                if(step){
+                    step.isFirstView = false
+                    steps << step
+                }
             }
+        }
+        if(steps.isEmpty()){
+            throw new WptTestWasEmptyException(fetchJob.wptTestId, fetchJob.wptBaseURL)
         }
         result.steps = steps
     }
 
+    /**
+     *
+     * @param stepInJason
+     * @return a Step or null if there was no data available
+     */
     static private Step createStep(def stepInJason){
+        if(!stepInJason) return null
         Step step = new Step()
+        step.epochTimeStarted = stepInJason.date
         step.domTime = stepInJason.docTime
         step.loadTime = stepInJason.loadTime
         step.fullyLoaded = stepInJason.fullyLoaded
@@ -77,6 +92,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         step.eventName = stepInJason.eventName
         step.url = stepInJason.URL
         step.requests = createRequests(stepInJason.requests)
+        if(!step.hasMetaValues() && !step.hasRequests()) return null
         return step
     }
 
@@ -98,6 +114,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
             request.downloadMs = convertIntValue(it.download_ms) 
             request.contentType = it.contentType
             request.dnsTimeMs = convertIntValue(it.dns_ms)
+            if(!request.hasValues()) throw new WptResultMissingValueException()
             requests << request
         }
         return requests

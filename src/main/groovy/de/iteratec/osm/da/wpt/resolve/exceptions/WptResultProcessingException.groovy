@@ -1,6 +1,10 @@
 package de.iteratec.osm.da.wpt.resolve.exceptions
 
-abstract class WptResultProcessingException extends Exception{
+import de.iteratec.osm.da.fetch.FetchFailReason
+
+abstract class WptResultProcessingException extends RuntimeException{
+
+    FetchFailReason fetchFailReason
 
     WptResultProcessingException(String s) {
         super(s)

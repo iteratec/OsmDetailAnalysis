@@ -143,6 +143,7 @@ class WptDetailResultDownloadServiceTest extends Specification {
     def "Test that getNextJob will only return, if there is a job available"(){
         given: "We disable the worker to run, so they won't 'steal' our jobs"
         service.disableWorker()
+        service.failedFetchJobService = new FailedFetchJobService()
         when: "We add a timer, which will run in 5 seconds"
         new Timer().runAfter(5000){
             FetchJob fetchJob = new FetchJob(priority: Priority.Normal, osmInstance: 1, jobId: 1, jobGroupId: 1, wptBaseURL: "http://iteratec.de",

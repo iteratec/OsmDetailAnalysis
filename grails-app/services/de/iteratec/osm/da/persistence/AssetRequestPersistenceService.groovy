@@ -17,7 +17,6 @@ import org.bson.Document
 import static com.mongodb.client.model.Aggregates.*
 import static com.mongodb.client.model.Filters.*
 
-@Transactional
 class AssetRequestPersistenceService {
 
     WptDetailResultConvertService wptDetailResultConvertService

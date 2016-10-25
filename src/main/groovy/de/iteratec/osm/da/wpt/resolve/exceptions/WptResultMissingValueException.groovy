@@ -1,19 +1,18 @@
 package de.iteratec.osm.da.wpt.resolve.exceptions
 
+import de.iteratec.osm.da.fetch.FetchFailReason
+
 class WptResultMissingValueException extends WptResultProcessingException{
 
-    String missingValue
 
-    WptResultMissingValueException(String missingValue) {
-        super(setAndGetReason(missingValue))
+    WptResultMissingValueException() {
+        super(getReason())
+        fetchFailReason = FetchFailReason.MISSING_VALUES
     }
 
-    String setAndGetReason(String value){
-        missingValue = value
-    }
 
     @Override
     String getReason() {
-        return "Atleast the value of $missingValue wasn't set"
+        return "At least one value within the requests was missing"
     }
 }
