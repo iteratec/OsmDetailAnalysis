@@ -1,0 +1,27 @@
+!tape
+name: wpt_not_available_devServer01_160810_A7_4D
+interactions:
+- recorded: 2016-09-15T09:50:31.296Z
+  request:
+    method: GET
+    uri: http://dev.server01.wpt.iteratec.de/jsonResult.php?test=160810_A7_4D&requests=1&multiStepFormat=1
+    headers:
+      Accept: application/json
+      Content-Length: '0'
+      Host: dev.server01.wpt.iteratec.de
+      Proxy-Connection: Keep-Alive
+  response:
+    status: 408
+    headers:
+      Access-Control-Allow-Origin: '*'
+      Cache-Control: no-cache, must-revalidate
+      Content-Type: application/json; charset=utf-8
+      Date: Thu, 15 Sep 2016 09:50:31 GMT
+      Expires: Sat, 26 Jul 1997 05:00:00 GMT
+      Server: Apache/2.4.10 (Debian)
+      Set-Cookie: o=8f530a2027abc55ff97929b70bb77e0dfc0d5c66; expires=Fri, 15-Sep-2017 09:50:31 GMT; Max-Age=31536000; path=/, tid=160810_A7_4D
+      Transfer-Encoding: chunked
+      Vary: Accept-Encoding
+      X-Frame-Options: sameorigin
+      X-Powered-By: PHP/5.6.25
+    body: ''

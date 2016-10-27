@@ -1,15 +1,19 @@
 package de.iteratec.osm.da.wpt.resolve
 
+import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.Step
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptNotAvailableException
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultMissingValueException
+import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestIdDoesntExistException
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasCancelledException
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasEmptyException
 import grails.util.Holders
+import groovyx.net.http.ResponseParseException
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -24,12 +28,26 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
     @Override
     WptDetailResult getResult(FetchJob fetchJob) {
-        //We set the multiStepFormat, because the new version can delivery single steps with the same format as the multi step results.
-        def jsonResponse = httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.wptTestId,requests: 1, multiStepFormat:1])
+
+        def jsonResponse = loadJson(fetchJob)
         return createResult(fetchJob, jsonResponse)
     }
 
+    def loadJson(FetchJob fetchJob, int tries = 0){
+        //We set the multiStepFormat, because the new version can delivery single steps with the same format as the multi step results.
+        try{
+            return httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.wptTestId,requests: 1, multiStepFormat:1])
+        } catch (ResponseParseException e){
+            if(tries<3){
+                return loadJson(fetchJob, ++tries)
+            } else{
+                throw new WptNotAvailableException(fetchJob.wptBaseURL)
+            }
+        }
+    }
+
     static private WptDetailResult createResult(FetchJob fetchJob, def jsonResponse){
+        if(jsonResponse.statusCode == 400) throw new WptTestIdDoesntExistException(fetchJob.wptTestId,fetchJob.wptBaseURL)
         WptDetailResult result = new WptDetailResult(fetchJob)
         result.location = jsonResponse.data.location
         def locationSplit = (jsonResponse.data.location as String).split(":")
@@ -50,7 +68,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
 
     static private void setSteps(WptDetailResult result, FetchJob fetchJob, def json) throws WptTestWasEmptyException{
         List<Step> steps = []
-        if(json.data.statusText == "Test Cancelled"){
+        if(json.statusText == "Test Cancelled"){
             throw new WptTestWasCancelledException(fetchJob.wptTestId, fetchJob.wptBaseURL)
         }
         json.data.runs.each{def run ->

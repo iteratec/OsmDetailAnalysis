@@ -6,7 +6,7 @@ class WptResultMissingValueException extends WptResultProcessingException{
 
 
     WptResultMissingValueException() {
-        super(getReason())
+        super("At least one value within the request was missing")
         fetchFailReason = FetchFailReason.MISSING_VALUES
     }
 

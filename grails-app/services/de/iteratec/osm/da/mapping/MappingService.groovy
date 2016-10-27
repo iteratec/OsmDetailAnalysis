@@ -68,7 +68,10 @@ class MappingService {
             try {
                 List<MappingUpdate> updates = getNameUpdate(domainsToUpdate, instance)
                 applyUpdates(updates,instance,domainsToUpdate)
-            } catch (ConnectException e){
+            }catch (OsmMappingDoesntExistException e){
+                //We have to pass this trough. Every other exception should be cached in the next block
+                throw e
+            }catch (Exception e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
                 throw new OsmNotAvailableException(instance.url)
             }
