@@ -11,7 +11,6 @@ import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import grails.transaction.Transactional
 
-@Transactional
 class WptDetailResultConvertService {
 
     MappingService mappingService
@@ -55,8 +54,6 @@ class WptDetailResultConvertService {
     private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted){
         boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, pageName, fetchJob.jobGroupId, fetchJob.jobId)
         if(!allUpdatesDone){
-            FailedFetchJob failedFetchJob = failedFetchJobService.markJobAsFailedIfNeeded(result, fetchJob, FetchFailReason.MAPPINGS_NOT_AVAILABLE)
-            log.info("FetchJob from ${result.wptBaseUrl+result.wptTestID} will be ignored, reason: ${failedFetchJob.reason}")
             fetchJob.delete(flush: true)
             return null
         }

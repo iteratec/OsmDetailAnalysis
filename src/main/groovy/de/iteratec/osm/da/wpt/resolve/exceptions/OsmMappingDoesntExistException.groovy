@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.wpt.resolve.exceptions
 
+import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.mapping.OsmDomain
 
 class OsmMappingDoesntExistException extends WptResultProcessingException{
@@ -11,10 +12,12 @@ class OsmMappingDoesntExistException extends WptResultProcessingException{
      * @param missingMappings a Map which maps a Domain to either a list of names or a list of ids
      */
     OsmMappingDoesntExistException(Map<OsmDomain, List<Object>> missingMappings) {
-        super(setAndGetReason(missingMappings))
+        super("Osm Mapping doesn't exist")
+        setReason(missingMappings)
+        fetchFailReason = FetchFailReason.MAPPINGS_NOT_AVAILABLE
     }
 
-    private String setAndGetReason(Map<OsmDomain, List<Object>> missingMappings){
+    private String setReason(Map<OsmDomain, List<Object>> missingMappings){
         this.missingMappings = missingMappings
         return getReason()
     }

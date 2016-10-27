@@ -1,15 +1,19 @@
 package de.iteratec.osm.da.wpt.resolve.exceptions
 
+import de.iteratec.osm.da.fetch.FetchFailReason
+
 class OsmNotAvailableException extends WptResultProcessingException{
 
     String osmUrl
     Date date
 
     OsmNotAvailableException(String osmUrl) {
-        super(setAndGetReason(osmUrl))
+        super("Osm wasn't available")
+        setReason(osmUrl)
+        fetchFailReason = FetchFailReason.OSM_NOT_AVAILABLE
     }
 
-    private String setAndGetReason(String osmUrl){
+    private String setReason(String osmUrl){
         date = new Date()
         this.osmUrl = osmUrl
         return getReason()
