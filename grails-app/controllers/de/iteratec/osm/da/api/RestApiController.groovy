@@ -171,7 +171,7 @@ public class OsmCommand implements Validateable{
     }
 
     void setOsmUrl(String url) {
-        this.osmUrl = OsmInstance.createUrl(url)
+        this.osmUrl = OsmInstance.ensureUrlHasTrailingSlash(url)
     }
 }
 

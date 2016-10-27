@@ -55,7 +55,7 @@ class HttpRequestService {
     }
 
     def getJsonResponse(String baseUrl, String path, queryParams){
-        log.debug("Try to get json. baseUrl=${baseUrl}, path=${path}, queryParams=${queryParams}")
+        log.debug("Trying to get json. baseUrl=${baseUrl}, path=${path}, queryParams=${queryParams}")
         RESTClient client = getRestClient(baseUrl)
         def response = client.get(
                 path: path,
@@ -63,12 +63,11 @@ class HttpRequestService {
                 contentType: ContentType.JSON,
                 headers : [Accept : 'application/json']
         )
-        log.debug("Try to get json... DONE")
+        log.debug("... DONE")
         return response.data
     }
 
     def postCallback(String callbackUrl, int countAssets, int loadedAssets,int callBackId,String osmUrl, int failureCount){
-        osmUrl = osmUrl.endsWith("/")?osmUrl:osmUrl+"/"
         RESTClient client = getRestClient(osmUrl)
 
         def response = client.post(
@@ -78,12 +77,7 @@ class HttpRequestService {
         )
         return response
     }
-    String addTrailingSlashIfMissing(String url){
-        return url.endsWith('/') ? url : url+'/'
-    }
-    String removeLeadingSlashIfExisting(String urlPart){
-        return urlPart.startsWith('/') ? urlPart.drop(1) : urlPart
-    }
+
     /**
      * Turn a String representation of the query from a URL into a map of parameter
      * which can be used with other Methods from this service

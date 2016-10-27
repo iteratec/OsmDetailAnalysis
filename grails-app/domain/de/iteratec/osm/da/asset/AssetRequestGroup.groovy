@@ -24,6 +24,7 @@ package de.iteratec.osm.da.asset
  * Step 1 will result in 3 AssetRequestGroups, Step 2 in 2 Results. The same applies for the second view. Overall there will be 9 AssetGroups.
  *
  */
+
 class AssetRequestGroup {
 
     long osmInstance

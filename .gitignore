@@ -42,3 +42,4 @@ bower_components
 
 # idea specific files
 /.idea/
+.asscache

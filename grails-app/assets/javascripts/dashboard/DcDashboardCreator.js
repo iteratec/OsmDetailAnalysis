@@ -425,6 +425,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);
         dc.renderAll();
         addOnClickListeners();
+        hideDataTable()
         board.setAnimationTime(700);
     }
 }
@@ -464,48 +465,21 @@ function showUniqueValues(dataCounts, data, labels) {
 function getDataCounts(data) {
     var result = {};
 
-    var uniqueMap = {
-        'browser': [],
-        'mediaType': [],
-        'subtype': [],
-        'host': [],
-        'page': [],
-        'measuredEvent': [],
-        'jobGroup': []
-    };
-    for (var i = 0; i < data.length; i++) {
-        var datum = data[i];
+    var uniqueMap = {};
 
-        if (uniqueMap['browser'].indexOf(datum['browser']) < 0) {
-            uniqueMap['browser'].push(datum['browser'])
-        }
-        if (uniqueMap['mediaType'].indexOf(datum['mediaType']) < 0) {
-            uniqueMap['mediaType'].push(datum['mediaType'])
-        }
-        if (uniqueMap['subtype'].indexOf(datum['subtype']) < 0) {
-            uniqueMap['subtype'].push(datum['subtype'])
-        }
-        if (uniqueMap['host'].indexOf(datum['host']) < 0) {
-            uniqueMap['host'].push(datum['host'])
-        }
-        if (uniqueMap['page'].indexOf(datum['page']) < 0) {
-            uniqueMap['page'].push(datum['page'])
-        }
-        if (uniqueMap['measuredEvent'].indexOf(datum['measuredEvent']) < 0) {
-            uniqueMap['measuredEvent'].push(datum['measuredEvent'])
-        }
-        if (uniqueMap['jobGroup'].indexOf(datum['jobGroup']) < 0) {
-            uniqueMap['jobGroup'].push(datum['jobGroup'])
+    for (var i = 0; i < data.length; i++) {
+        var current_entry = data[i];
+        for (var key in current_entry) {
+            if (typeof  uniqueMap[key] == 'undefined')uniqueMap[key] = {};
+            uniqueMap[key][current_entry[key]] = true;
+
         }
     }
+    for (var key in uniqueMap) {
+        var keys = Object.keys(uniqueMap[key]);
+        result[key] = keys.length
 
-    result['browser'] = uniqueMap['browser'].length;
-    result['mediaType'] = uniqueMap['mediaType'].length;
-    result['subtype'] = uniqueMap['subtype'].length;
-    result['host'] = uniqueMap['host'].length;
-    result['page'] = uniqueMap['page'].length;
-    result['measuredEvent'] = uniqueMap['measuredEvent'].length;
-    result['jobGroup'] = uniqueMap['jobGroup'].length;
+    }
 
     return result;
 }
@@ -531,12 +505,8 @@ function remove_empty_bins(source_group, valueAccessor) {
 function addOnClickListeners() {
     d3.selectAll("circle").on("click", function (d) {
 
-        // all data points unhighlighted
-        d3.selectAll("circle")
-            .style("fill", null)
-            .style("stroke", null)
-            .style("stroke-width", null)
-            .style("opacity", 0.6);
+        hideDataTable()
+
         // highlight clicked data point
         d3.select(this)
             .style("fill", "red")
@@ -575,6 +545,9 @@ function addOnClickListeners() {
         if (charts["page-chart"] != null) {
             data["page"] = (charts["page-chart"].filters());
         }
+
+
+
         jQuery.ajax({
             type: "POST",
             url: ajaxUrl,
@@ -583,8 +556,14 @@ function addOnClickListeners() {
             data: JSON.stringify(data),
             success: function (resp) {
                 removeAllRowsFromAssetDetailsTable();
-                fillPreFilteredTable(data);
-                fillDataInAssetTable(resp, data);
+                var dataCount = getDataCounts(resp);
+                var uniqueMap  = createUniqueMapFromDataCount(dataCount,resp);
+                fillPreFilteredTable(resp,uniqueMap);
+                fillDataInAssetTable(resp, data,uniqueMap);
+                var preFilterTable = document.getElementById("preFilterTable")
+                preFilterTable.style.display = 'block';
+                var assetDetailsContainer = document.getElementById("assetDetailsContainer");
+                assetDetailsContainer.style.display = 'block';
 
             }
         });
@@ -592,27 +571,30 @@ function addOnClickListeners() {
 
     });
 }
-function fillPreFilteredTable(data) {
-    addRowToPreFilteredTable("subtype", data["subtype"]);
-    addRowToPreFilteredTable("page", data["page"]);
-    addRowToPreFilteredTable("mediaType", data["mediaType"]);
-    addRowToPreFilteredTable("jobGroup", data["jobGroup"]);
-    addRowToPreFilteredTable("host", data["host"]);
-    addRowToPreFilteredTable("date", [data["date"]]);
-    addRowToPreFilteredTable("browser", data["browser"]);
-}
-function addRowToPreFilteredTable(key, data) {
-    var preFilteredTable = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
-    var value = "";
-    if (data.length == 1) value = data[0];
-    else if (key in uniqueValues) value = uniqueValues[key];
-    if (value != "") {
-        var row = preFilteredTable.insertRow(0);
-        var cellKey = row.insertCell(0);
-        cellKey.innerHTML = key;
-        var cellValue = row.insertCell(1);
-        cellValue.innerHTML = getLable(key, value)
+
+function createUniqueMapFromDataCount(dataCount,data) {
+    var uniqueMap = {};
+
+    for (var key in dataCount) {
+        if (dataCount[key] <= 1) {
+            uniqueMap[key] = data[0][key]
+        }
     }
+    return uniqueMap;
+}
+function fillPreFilteredTable(data,uniqueMap) {
+
+    var preFilteredTable = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
+    for (var key in uniqueMap) {
+            var row = preFilteredTable.insertRow(0);
+            var cellKey = row.insertCell(0);
+            cellKey.innerHTML = key;
+            var cellValue = row.insertCell(1);
+            cellValue.innerHTML = getLable(key, uniqueMap[key])
+    }
+}
+function addRowToPreFilteredTable(key, data,uniqueMap) {
+
 }
 
 function getLable(key, value) {
@@ -642,7 +624,7 @@ function removeAllRowsFromAssetDetailsTable() {
 }
 
 
-function fillDataInAssetTable(resp, requestData) {
+function fillDataInAssetTable(resp, requestData,uniqueMap) {
 
 
     var tableContainer = document.getElementById("assetDetailsContainer");
@@ -650,17 +632,12 @@ function fillDataInAssetTable(resp, requestData) {
     var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
     var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
     var columnsMapping = [];
+
     for (var k in resp[0]) {
+        // if (typeof resp[k] == 'undefined') continue;
         if (k == "_id") continue; //filter out mongodb id
-        if (k in uniqueValues) continue; // filter out params that are unique in the preselection e.g. if all measurements were done with chrome
-        //filter out the values selected in the charts
-        if (k == "host" && requestData["host"].length == 1) continue;
-        if (k == "epochTimeStarted") continue;
-        if (k == "browser" && requestData["browser"].length == 1) continue;
-        if (k == "mediaType" && requestData["mediaType"].length == 1) continue;
-        if (k == "subtype" && requestData["subtype"].length == 1) continue;
-        if (k == "jobGroup" && requestData["jobGroup"].length == 1) continue;
-        if (k == "page" && requestData["page"].length == 1) continue;
+        if (k in uniqueMap) continue; // filter out params that are unique in the preselection e.g. if all measurements were done with chrome
+
         columnsMapping.push(k);
     }
     columnsMapping.sort();
@@ -685,6 +662,20 @@ function fillDataInAssetTable(resp, requestData) {
         paging: "true"
     });
 
+
+}
+
+function hideDataTable() {
+    // all data points unhighlighted
+    d3.selectAll("circle")
+        .style("fill", null)
+        .style("stroke", null)
+        .style("stroke-width", null)
+        .style("opacity", 0.6);
+    var preFilterTable = document.getElementById("preFilterTable")
+    preFilterTable.style.display = 'none';
+    var assetDetailsContainer = document.getElementById("assetDetailsContainer");
+    assetDetailsContainer.style.display = 'none';
 
 }
 
