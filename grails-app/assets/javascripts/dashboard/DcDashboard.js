@@ -1,12 +1,12 @@
 var DcDashboard = function DcDashboard() {
     // init crossfilter
     this.allData = crossfilter([]);
-    this.dashboardWidth = 940;
+    // this.dashboardWidth = 940;
     this.allDashboardGraphs = [];
 };
 
 DcDashboard.prototype.setDashboardWidth = function (width) {
-    this.dashboardWidth = width
+    // this.dashboardWidth = width
 };
 
 DcDashboard.prototype.addData = function (data) {

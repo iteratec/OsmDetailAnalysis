@@ -19,13 +19,11 @@
 }
 
 .dc-chartContainer {
-    margin: 15px 30px;
+    max-height: 700px;
+    width: 100%;
 }
 
-.dashboardContainer {
-    margin: 0 auto;
-    width: 1000px;
-}
+
 
 table.dataTable thead .sorting { background: url('/assets/bower_components/datatables.net-dt/images/sort_both.png') no-repeat center right; }
 table.dataTable thead .sorting_asc { background: url('/assets/bower_components/datatables.net-dt/images/sort_asc.png') no-repeat center right; }
@@ -36,6 +34,12 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
 
 .rowChartContainer {
     max-height: 200px;
-    overflow-x: hidden;
     overflow-y: auto;
+}
+.dc-data-count {
+    width: 50%;
+    height: 60px;
+}
+.dc-chart{
+    width:100%;
 }

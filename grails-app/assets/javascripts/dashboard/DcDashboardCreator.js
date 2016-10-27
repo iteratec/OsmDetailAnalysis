@@ -17,14 +17,14 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     }
     board = new DcDashboard();
     // Set dashboard width same as div width
-    var width = $(".dashboardContainer").css("width").replace("px", "");
-    board.setDashboardWidth(+width);
+    // var width = $(".dashboardContainer").css("width").replace("px", "");
+    // board.setDashboardWidth(+width);
     charts = new Object();
     var dataCounts = getDataCounts(data);
     showUniqueValues(dataCounts, data, labels);
 
     // BROWSER FILTER
-    if (dataCounts['browser'] > 1) {
+    // if (dataCounts['browser'] > 1) {
         var browser = board.allData.dimension(function (d) {
             return "" + d['browser'];
         });
@@ -35,10 +35,10 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             return labels['browser'] ? labels['browser'][d.key] : d.key
         };
         charts["browser-chart"] = board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
-    }
+    // }
 
     // MEDIATYPE FILTER
-    if (dataCounts['mediaType'] > 1) {
+    // if (dataCounts['mediaType'] > 1) {
         var mediaType = board.allData.dimension(function (d) {
             return "" + d['mediaType'];
         });
@@ -49,10 +49,10 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             return d.key
         };
         charts["mediaType-chart"] = board.addPieChart('dcChart', 'mediaType-chart', mediaType, mediaTypeGroup, mediaTypeLabelAccessor);
-    }
+    // }
 
     // SUBTYPE FILTER
-    if (dataCounts['subtype'] > 1) {
+    // if (dataCounts['subtype'] > 1) {
         var subtype = board.allData.dimension(function (d) {
             return "" + d['subtype'];
         });
@@ -63,10 +63,10 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             return d.key
         };
         charts["subtype-chart"] = board.addPieChart('dcChart', 'subtype-chart', subtype, subtypeGroup, subtypeLabelAccessor);
-    }
+    // }
 
     // PAGE FILTER
-    if (dataCounts['page'] > 1) {
+    // if (dataCounts['page'] > 1) {
         var page = board.allData.dimension(function (d) {
             return "" + d['page'];
         });
@@ -77,10 +77,10 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             return labels['page'] ? labels['page'][d.key] : d.key
         };
         charts["page-chart"] = board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
-    }
+    // }
 
     //JOBGROUP FILTER
-    if (dataCounts['jobGroup'] > 1) {
+    // if (dataCounts['jobGroup'] > 1) {
         var jobGroup = board.allData.dimension(function (d) {
             return "" + d['jobGroup']
         });
@@ -94,10 +94,10 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             return labels['jobGroup'] ? labels['jobGroup'][d.key] : "" + d.key
         };
         charts["jobGroup-chart"] = board.addPieChart('dcChart', 'jobGroup-chart', jobGroup, jobGroupGroup, jobGroupLabelAccessor)
-    }
+    // }
 
     // MEASURED EVENT FILTER
-    if (dataCounts['measuredEvent'] > 1) {
+    // if (dataCounts['measuredEvent'] > 1) {
         var measuredEvent = board.allData.dimension(function (d) {
             return "" + d['measuredEvent'];
         });
@@ -111,7 +111,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             return labels['measuredEvent'] ? labels['measuredEvent'][d.key] : "" + d.key
         };
         charts["measuredEvent-chart"] = board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
-    }
+    // }
 
     // HOST FILTER
     if (dataCounts['host'] > 1) {
@@ -425,7 +425,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         board.getCompositeChart('dcChart', 'line-chart').compose(visibleGraphs);
         dc.renderAll();
         addOnClickListeners();
-        hideDataTable()
+        hideDataTable();
         board.setAnimationTime(700);
     }
 }
@@ -446,15 +446,14 @@ function showUniqueValues(dataCounts, data, labels) {
         }
     }
 
-    if (Object.keys(uniqueValues).length >= 0) {
-        for (var key in uniqueValues) {
-            var label = labels[key] ? labels[key][uniqueValues[key]] : uniqueValues[key];
-            var summary = OsmDetailMicroService.i18n.allValuesEqual;
-            summary += "<br/>" + key + ": " + label;
-
-            document.getElementById(key + "-chart").innerHTML = summary
-        }
-    }
+    // if (Object.keys(uniqueValues).length >= 0) {
+    //     for (var key in uniqueValues) {
+    //         var label = labels[key] ? labels[key][uniqueValues[key]] : uniqueValues[key];
+    //         var summary = OsmDetailMicroService.i18n.allValuesEqual;
+    //         summary += "<br/>" + key + ": " + label;
+    //         document.getElementById(key + "-chart").innerHTML = summary
+    //     }
+    // }
 }
 
 /**
