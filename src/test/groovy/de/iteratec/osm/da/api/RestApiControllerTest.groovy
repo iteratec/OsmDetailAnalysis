@@ -11,6 +11,6 @@ class RestApiControllerTest extends Specification {
         def command = new OsmCommand(osmUrl: 'localhost/')
 
         then:
-        command.osmUrl == "localhost"
+        command.osmUrl == "localhost/"
     }
 }

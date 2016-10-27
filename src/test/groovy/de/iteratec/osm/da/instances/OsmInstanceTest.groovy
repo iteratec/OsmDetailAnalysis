@@ -13,12 +13,12 @@ class OsmInstanceTest extends Specification {
 
         where:
         givenUrl                      | expectedUrl
-        "localhost"                   | "localhost"
-        "localhost"                   | "localhost"
-        "localhost/path/"             | "localhost/path"
-        "http://localhost"            | "http://localhost"
-        "http://localhost/"           | "http://localhost"
-        "http://localhost/path"       | "http://localhost/path"
-        "http://localhost/path/"      | "http://localhost/path"
+        "localhost"                   | "localhost/"
+        "localhost"                   | "localhost/"
+        "localhost/path/"             | "localhost/path/"
+        "http://localhost"            | "http://localhost/"
+        "http://localhost/"           | "http://localhost/"
+        "http://localhost/path"       | "http://localhost/path/"
+        "http://localhost/path/"      | "http://localhost/path/"
     }
 }
