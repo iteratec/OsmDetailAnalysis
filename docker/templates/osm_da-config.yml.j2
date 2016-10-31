@@ -4,7 +4,7 @@ grails:
     mongodb:
         host: '{{ default .Env.OSMDA_MONGODB_HOST "osm_mongodb" }}'
         port: 27017
-        databaseName: OsmDetailAnalysis # This HAS to be OsmDetailAnalysis at the moment. Otherwise the AssetRequestPersistanceService wont find any AssetRequestGroups.
+        databaseName: OsmDetailAnalysis
     de:
         iteratec:
             osm:

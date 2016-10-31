@@ -46,6 +46,14 @@ class AssetRequestGroup {
 
     List<AssetRequest> assets
     static embedded = ['assets', 'connectivity']
+    static mapping = {
+        "epochTimeStarted" index: true
+        "jobGroup" index: true
+        "page" index: true
+        "browser" index: true
+        "location" index: true
+        "measuredEvent" index: true
+    }
     static constraints = {
     }
 

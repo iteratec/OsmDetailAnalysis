@@ -2,6 +2,7 @@ package de.iteratec.osm.da.persistence
 
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
+import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.util.JSON
@@ -24,6 +25,7 @@ class AssetRequestPersistenceService {
     Document preFilterForCompleteAssetRequest
     Document preFilterProjectionDocument
     Document unpackIdProjectionDocument
+    def grailsApplication
     MongoClient mongo
     /**
      * Parses a WptDetailResult and saves all Assets.
@@ -55,7 +57,9 @@ class AssetRequestPersistenceService {
     ) {
         List aggregateList = []
         List matchList = []
-        def db = mongo.getDatabase("OsmDetailAnalysis")
+        def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
+        databaseName = databaseName?databaseName:"OsmDetailAnalysis"
+        MongoDatabase db = mongo.getDatabase(databaseName)
         matchList << eq("epochTimeStarted", timestamp.time / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
@@ -91,7 +95,9 @@ class AssetRequestPersistenceService {
         log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} selectedAllBrowsers = ${selectedAllBrowsers} locations = ${locations} selectedAllLocations = ${selectedAllLocations} selectedAllConnectivityProfiles = ${selectedAllConnectivityProfiles} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents} selectedAllMeasuredEvents = ${selectedAllMeasuredEvents}")
         List aggregateList = []
         List matchList = []
-        MongoDatabase db = mongo.getDatabase("OsmDetailAnalysis")
+        def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
+        databaseName = databaseName?databaseName:"OsmDetailAnalysis"
+        MongoDatabase db = mongo.getDatabase(databaseName)
         matchList << gte("epochTimeStarted", from.getTime() / 1000 as Long)
         matchList << lte("epochTimeStarted", to.getTime() / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
@@ -146,7 +152,7 @@ class AssetRequestPersistenceService {
                                 max('bytesOut_max', '\$bytesOut'), //add max sslNegotiationTime
                                 sum('count', 1)) //add sum of elements per aggregation
         aggregateList << project(createUnpackIdProjectDocument()) //flatten hierarchy
-        def resultList = db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true)
+        AggregateIterable<Document> resultList = db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true)
         def numberOfResults = resultList.size()
         log.debug("Found ${numberOfResults} results.")
         return JsonOutput.toJson(resultList)
