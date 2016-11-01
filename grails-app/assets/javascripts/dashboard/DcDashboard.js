@@ -1,7 +1,6 @@
 var DcDashboard = function DcDashboard() {
     // init crossfilter
     this.allData = crossfilter([]);
-    // this.dashboardWidth = 940;
     this.allDashboardGraphs = [];
 };
 
@@ -41,7 +40,8 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
     var chart = dc.pieChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
 
     chart
-        .radius(90)
+        .radius(80)
+        .height(170)
         .dimension(dimension)
         .group(group)
         .label(labelAccessor)
@@ -123,18 +123,18 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
 
     chart
         .width(this.dashboardWidth)
-        .height(700 + legendHeight)
+        .height(500 + legendHeight)
         .brushOn(false)
         .renderHorizontalGridLines(true)
         .elasticY(true)
         .elasticX(true)
         .yAxisLabel("ms")
-        .legend(dc.legend().x(20).y(700).itemHeight(13).gap(5))
+        .legend(dc.legend().x(20).y(500).itemHeight(13).gap(5))
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
         .compose([]);
     chart.yAxisPadding("5%");
-    dc.renderAll();
+
     this.allDashboardGraphs.push(chart);
     return chart;
 };
@@ -159,6 +159,11 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
     if(unit == "bytes"){
         chart.useRightYAxis(true);
     }
+    window.onresize = function(event) {
+        dc.renderAll();
+        addOnClickListeners();
+        hideDataTable();
+    };
 
     this.allDashboardGraphs.push(chart);
     return chart;
@@ -181,7 +186,7 @@ DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentif
     chart.margins().left = 40;
     chart
         .width(this.dashboardWidth)
-        .height(150)
+        .height(190)
         .x(d3.time.scale().domain([from, to]))
         // .xUnits(d3.time.months)
         .gap(5)

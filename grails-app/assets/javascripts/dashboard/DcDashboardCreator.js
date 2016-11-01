@@ -110,7 +110,8 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
             }
             return labels['measuredEvent'] ? labels['measuredEvent'][d.key] : "" + d.key
         };
-        charts["measuredEvent-chart"] = board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
+        charts["measuredEvent-chart"] = board.addPieChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup,  measuredEventLabelAccessor);
+        // charts["measuredEvent-chart"] = board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
     // }
 
     // HOST FILTER
@@ -127,8 +128,8 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         charts["host-chart"] = board.addRowChart('dcChart', 'host-chart', host, hostGroup, dataCounts['host'], hostLabelAccessor);
     }
 
-    var loadingIndicator = document.getElementById("loadingIndicator");
-    loadingIndicator.style.display = 'none';
+    var loadingIndicatorGlobal = document.getElementById("loadingIndicatorGlobal");
+    loadingIndicatorGlobal.style.display = 'none';
     var detailDataContainer = document.getElementById("detailDataContainer");
     detailDataContainer.style.display = 'block';
 
@@ -504,7 +505,11 @@ function remove_empty_bins(source_group, valueAccessor) {
 function addOnClickListeners() {
     d3.selectAll("circle").on("click", function (d) {
 
-        hideDataTable()
+        hideDataTable();
+
+        // show loading indicator
+        var loadingIndicatorTable = document.getElementById("loadingIndicatorTable");
+        loadingIndicatorTable.style.display = 'block';
 
         // highlight clicked data point
         d3.select(this)
@@ -604,6 +609,8 @@ function getLable(key, value) {
 }
 
 function removeAllRowsFromAssetDetailsTable() {
+    var loadingIndicatorTable = document.getElementById("loadingIndicatorTable");
+    loadingIndicatorTable.style.display = 'none';
     if (typeof assetDataTable != 'undefined') {
         assetDataTable.clear();
         assetDataTable.destroy();
@@ -666,6 +673,7 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
 
 function hideDataTable() {
     // all data points unhighlighted
+
     d3.selectAll("circle")
         .style("fill", null)
         .style("stroke", null)
@@ -675,6 +683,8 @@ function hideDataTable() {
     preFilterTable.style.display = 'none';
     var assetDetailsContainer = document.getElementById("assetDetailsContainer");
     assetDetailsContainer.style.display = 'none';
+
+
 
 }
 

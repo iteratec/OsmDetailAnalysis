@@ -2,10 +2,16 @@
 *= require_tree ../bower_components/dcjs
 *= require_tree ../bower_components/datatables.net-dt
 */
-.fa-gear.dc-chart{
+.global.loadingIndicator{
     position:absolute;
     left:50%;
     top:50%;
+}
+
+.loadingIndicatorTable{
+    position:absolute;
+    left:50%;
+    margin-top: 200px;
 }
 .dc-chart .pie-slice {
     fill: #fff;
@@ -19,11 +25,16 @@
 }
 
 .dc-chartContainer {
-    max-height: 700px;
+    max-height: 500px;
     width: 100%;
 }
 
-
+.rect.placeholder{
+    float:left;
+    height: 700px; /* or whatever you want */
+    position:relative;
+    width: 500px;
+}
 
 table.dataTable thead .sorting { background: url('/assets/bower_components/datatables.net-dt/images/sort_both.png') no-repeat center right; }
 table.dataTable thead .sorting_asc { background: url('/assets/bower_components/datatables.net-dt/images/sort_asc.png') no-repeat center right; }
@@ -41,5 +52,6 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
     height: 60px;
 }
 .dc-chart{
-    width:100%;
+    width:90%;
 }
+

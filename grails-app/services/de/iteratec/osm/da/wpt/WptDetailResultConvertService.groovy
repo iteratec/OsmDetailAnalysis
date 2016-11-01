@@ -106,7 +106,8 @@ class WptDetailResultConvertService {
                 downloadTimeMs: req.downloadMs,loadTimeMs: req.loadMs, timeToFirstByteMs: req.ttfbMs,
                 sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
                 mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
-                urlWithoutParams: req!=null && req.host!= null ?"{req.host}{createURLWithoutParams(req.url)}":req.host, startPhase: req.startPhase,
+                urlWithoutParams: req!=null && req.host!= null ?"${req.host}${createURLWithoutParams(req.url)}":req.host,
+                startPhase: req.startPhase,
                 endPhase: req.endPhase, dnsMs: req.dnsTimeMs)
     }
 

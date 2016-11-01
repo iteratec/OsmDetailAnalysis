@@ -2,7 +2,10 @@
     %{--Needed for OSM integration--}%
     <link rel="stylesheet" type="text/css" href="${serverBaseUrl}/assets/dashboard/DcDashboard.css">
     <g:if test="${graphData != "[]"}">
-        <i id="loadingIndicator" class="fa  fa-gear fa-spin dc-chart" style="font-size:60px"></i>
+        <div id="loadingIndicatorGlobal">
+            <i  class="fa  fa-gear fa-spin global loadingIndicator " style="font-size:60px"></i>
+            <div  class="rect placeholder"></div>
+        </div>
     </g:if>
 <div id="detailDataContainer" class="container-fluid" style="display: none;">
     <h3 align="center">Detail Dashboard</h3>
@@ -10,7 +13,7 @@
     <g:if test="${graphData != "[]"}">
         <div class="detailDashboardContainer">
             <div class="row" align="center">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div align="left">
                         <label class="checkbox-inline" >
                             <input type="checkbox" name="measurementCheckbox" id="loadTimeMs" checked="checked">
@@ -61,28 +64,11 @@
                         </label>
                     </div>
 
-                    <div class="row" >
-                        <div class="dc-chartContainer" id="line-chart"/>
-                    </div>
+                    <div class="dc-chartContainer" id="line-chart"/>
                     </div>
                     <div class="row" align="center">
-                        <div id="dc-data-count"/>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row rowChartContainer">
-                            <div>
-                                <span><strong>By Host</strong></span>
-                            </div>
-
-                            <div id="host-chart"></div>
-
-                        </div>
-
-
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row rowChartContainer">
-                            <div class="dc-chartContainer" id="timeChart"></div>
+                        <div class="col-md-12">
+                            <div id="dc-data-count"/>
                         </div>
                     </div>
 
@@ -113,7 +99,8 @@
 
                     <div class="pieChartDiv" id="browser-chart"></div>
                 </div>
-
+            </div>
+            <div class="col-md-2">
                 <div class="row" align="center">
                     <div>
                         <span><strong>By Page</strong></span>
@@ -144,11 +131,32 @@
         </div>
 
 
+        <div class ="row">
+            <div class="col-md-6">
+                <div class="rowChartContainer">
+                    <div class="dc-chartContainer" id="timeChart"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="rowChartContainer">
+                    <div>
+                        <span><strong>By Host</strong></span>
+                    </div>
+
+                    <div id="host-chart"></div>
+
+                </div>
 
 
+            </div>
+
+        </div>
 
         <br>
-
+        <div id="loadingIndicatorTable" style="display: none;" >
+            <i  class="fa  fa-gear fa-spin  loadingIndicatorTable " style=" font-size:60px"></i>
+            <div  class="rect placeholder"></div>
+        </div>
 
         <div class="container-fluid" id="assetDetailsContainer" style="display: none;">
 
