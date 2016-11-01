@@ -25,7 +25,7 @@
 }
 
 .dc-chartContainer {
-    max-height: 500px;
+    max-height: 550px;
     width: 100%;
 }
 
@@ -51,7 +51,16 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
     width: 50%;
     height: 60px;
 }
-.dc-chart{
-    width:90%;
+
+.pieChartDiv.dc-chart{
+    float: none;
 }
 
+#dc-data-count {
+    float: none;
+}
+
+.dcControls {
+    text-align: center;
+    min-width: 340px;
+}

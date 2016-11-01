@@ -42,6 +42,7 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
     chart
         .radius(80)
         .height(170)
+        .width(170)
         .dimension(dimension)
         .group(group)
         .label(labelAccessor)

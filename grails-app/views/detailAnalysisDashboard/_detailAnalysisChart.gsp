@@ -12,9 +12,9 @@
     <h4 align="center">${new java.text.SimpleDateFormat().format(from)} - ${new java.text.SimpleDateFormat().format(to)}</h4>
     <g:if test="${graphData != "[]"}">
         <div class="detailDashboardContainer">
-            <div class="row" align="center">
+            <div class="row">
                 <div class="col-md-8">
-                    <div align="left">
+                    <div>
                         <label class="checkbox-inline" >
                             <input type="checkbox" name="measurementCheckbox" id="loadTimeMs" checked="checked">
                             Load Time
@@ -64,93 +64,101 @@
                         </label>
                     </div>
 
-                    <div class="dc-chartContainer" id="line-chart"/>
-                    </div>
-                    <div class="row" align="center">
+                    <div class="dc-chartContainer" id="line-chart"></div>
+                    <div class="row">
                         <div class="col-md-12">
-                            <div id="dc-data-count"/>
+                            <div id="dc-data-count"> </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="rowChartContainer">
+                                <div class="dc-chartContainer" id="timeChart"></div>
+                            </div>
                         </div>
                     </div>
 
-                </div>
-            </div>
 
-            <div class="col-md-2">
-                <div class="row" align="center">
-                    <div>
-                        <span><strong>By MediaType</strong></span>
-                    </div>
-
-                    <div class="pieChartDiv" id="mediaType-chart"></div>
                 </div>
 
-                <div class="row" align="center">
-                    <div>
-                        <span><strong>By Subtype</strong></span>
+                <div class="col-md-4 dcControls">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <span><strong>By MediaType</strong></span>
+                                    </div>
+
+                                    <div class="pieChartDiv" id="mediaType-chart"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <span><strong>By Subtype</strong></span>
+                                    </div>
+
+                                    <div class="pieChartDiv" id="subtype-chart"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <span><strong>By Browser</strong></span>
+                                    </div>
+
+                                    <div class="pieChartDiv" id="browser-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <span><strong>By Page</strong></span>
+                                    </div>
+
+                                    <div class="pieChartDiv" id="page-chart"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <span><strong>By Job Group</strong></span>
+                                    </div>
+
+                                    <div class="pieChartDiv" id="jobGroup-chart"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <span><strong>By Measured Event</strong></span>
+                                    </div>
+
+                                    <div class="pieChartDiv" id="measuredEvent-chart"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="pieChartDiv" id="subtype-chart"></div>
-                </div>
-
-                <div class="row" align="center">
-                    <div>
-                        <span><strong>By Browser</strong></span>
+                    <div class="row">
+                        <div class="rowChartContainer">
+                            <div id="host-chart"></div>
+                        </div>
                     </div>
-
-                    <div class="pieChartDiv" id="browser-chart"></div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="row" align="center">
-                    <div>
-                        <span><strong>By Page</strong></span>
-                    </div>
-
-                    <div class="pieChartDiv" id="page-chart"></div>
-                </div>
-
-                <div class="row" align="center">
-                    <div>
-                        <span><strong>By Job Group</strong></span>
-                    </div>
-
-                    <div class="pieChartDiv" id="jobGroup-chart"></div>
-                </div>
-
-                <div class="row" align="center">
-                    <div>
-                        <span><strong>By Measured Event</strong></span>
-                    </div>
-
-                    <div id="measuredEvent-chart"></div>
                 </div>
             </div>
 
         </div>
 
-        </div>
 
 
-        <div class ="row">
-            <div class="col-md-6">
-                <div class="rowChartContainer">
-                    <div class="dc-chartContainer" id="timeChart"></div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="rowChartContainer">
-                    <div>
-                        <span><strong>By Host</strong></span>
-                    </div>
-
-                    <div id="host-chart"></div>
-
-                </div>
-
-
-            </div>
-
-        </div>
 
         <br>
         <div id="loadingIndicatorTable" style="display: none;" >
