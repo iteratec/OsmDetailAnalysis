@@ -140,23 +140,17 @@ task bowerSyncStylesheets(type: Sync) {
     into "grails-app/assets/stylesheets/bower_components"
     include 'datatables.net-dt/css/jquery.dataTables.min.css'
     include 'dcjs/dc.css'
-    include 'bootstrap/docs/assets/css/bootstrap*.css'
+    include 'bootstrap/dist/css/bootstrap*.min.css'
     include 'bootstrap/less/*.less'
-    include 'bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css'
+    include 'bootstrap/less/mixins/*.less'
     include 'components-font-awesome/css/font-awesome.min.css'
     include 'components-font-awesome/fonts/*'
     dependsOn bowerInstall
 }
 
-task bowerSyncImages(type: Sync) {
-    from 'bower_components'
-    into "grails-app/assets/images/bower_components"
-    include 'datatables.net-dt/images/*.png'
-    dependsOn bowerInstall
-}
 
 task bowerPackages() {
-    dependsOn bowerSyncJavascript, bowerSyncStylesheets, bowerSyncImages
+    dependsOn bowerSyncJavascript, bowerSyncStylesheets
 }
 
 processResources.dependsOn bowerPackages
