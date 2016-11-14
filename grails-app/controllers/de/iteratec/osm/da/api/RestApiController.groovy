@@ -55,7 +55,7 @@ class RestApiController {
         sendSimpleResponseAsStream(200,"Added to normalPriorityQueue")
     }
     def persistAssetsBatchJob(PersistenceBatchCommand command){
-        log.debug("Got a new PersitenceBatchCommand")
+        log.debug("Got a new PersitenceBatchCommand with parameters osmUlr=\"${command.osmUrl}\" callbackUrl=\"${command.callbackUrl}\" callbackJobId=\"${command.callbackJobId}\" persistanceJobList=\"${command.persistanceJobList}\"")
         if (command.hasErrors()) {
             StringWriter sw = new StringWriter()
             command.errors.getFieldErrors().each { fieldError ->
