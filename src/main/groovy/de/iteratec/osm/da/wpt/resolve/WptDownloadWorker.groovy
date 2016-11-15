@@ -72,7 +72,7 @@ class WptDownloadWorker extends WptWorker{
             log.debug(this.toString() + " FetchJob $currentJob.id: deleteJob... DONE")
         }catch (Exception e){
             log.debug(this.toString() + " caught exception during handling of Job(${currentJob.id}): ${e}")
-            service.failedFetchJobService.markJobAsFailed(currentJob,e)
+            service.markJobAsFailed(currentJob,e)
         }
     }
 }
