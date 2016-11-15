@@ -61,6 +61,7 @@ class RestApiController {
             command.errors.getFieldErrors().each { fieldError ->
                 sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
             }
+            log.error("PersistenceBatchCommand has the following errors: ${sw.toString()}")
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }

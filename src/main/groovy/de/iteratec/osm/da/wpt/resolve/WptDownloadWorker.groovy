@@ -45,10 +45,13 @@ class WptDownloadWorker extends WptWorker{
         FetchJob currentJob
         try{
             currentJob = service.getNextJob()
-            log.debug(this.toString() + " got Job(${currentJob.id}")
+            log.debug(this.toString() + " start handling Job(${currentJob.id}.")
             WptDetailResult result = service.downloadWptDetailResultFromWPTInstance(currentJob)
+            log.debug(this.toString() + " got WptDetailResult with ${result.steps.size()} steps for Job(${currentJob.id}. Starting to persist it now ...")
             handleResult(result, currentJob)
+            log.debug(this.toString() + " finished persisting for Job(${currentJob.id}.")
         } catch (Exception e){
+            log.debug(this.toString() + " caught exception during handling of Job(${currentJob.id}: ${e}")
             service.markJobAsFailed(currentJob, e)
         }
 
@@ -68,6 +71,7 @@ class WptDownloadWorker extends WptWorker{
             service.deleteJob(currentJob)
             log.debug(this.toString() + " FetchJob $currentJob.id: deleteJob... DONE")
         }catch (Exception e){
+            log.debug(this.toString() + " caught exception during handling of Job(${currentJob.id}: ${e}")
             service.failedFetchJobService.markJobAsFailed(currentJob,e)
         }
     }
