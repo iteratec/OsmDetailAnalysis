@@ -156,7 +156,7 @@ class WptDetailResultDownloadService {
                         job.fetchBatch.addFailure(job)
                         job.fetchBatch = null
                     }
-                    job.save()
+                    job.save(failOnError: true, flush: true)
                     inProgress.remove(job)
                 }
             }
