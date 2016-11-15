@@ -1,13 +1,11 @@
 package de.iteratec.osm.da.wpt.data
 
 import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.wpt.LoadPhase
 
 /**
  * This represents the whole necessary data which to save the detail data.
  */
 class WptDetailResult {
-
 
     int bandwidthDown
     int bandwidthUp
@@ -61,19 +59,6 @@ class WptDetailResult {
         }
     }
 
-    public boolean hasAllValues(){
-        return  bandwidthDown >= 0 &&
-                bandwidthUp >= 0&&
-                latency >= 0 &&
-                packagelossrate >= 0&&
-                location &&
-                browser &&
-                jobGroupID >= 0&&
-                wptBaseUrl  &&
-                wptTestID &&
-                osmInstance >= 0&&
-                jobId
-    }
 
     public boolean hasSteps(){
         return steps?steps.size()>0:false

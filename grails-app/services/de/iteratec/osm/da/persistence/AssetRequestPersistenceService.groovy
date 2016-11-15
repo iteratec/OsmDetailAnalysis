@@ -40,7 +40,7 @@ class AssetRequestPersistenceService {
             if(!assetGroups.contains(null)){
                 //If there where a null value, we know that a mapping wasnt available and the whole result can be ignored.
                 assetGroups.each {
-                    it.save(failOnError: true)
+                    it.save(failOnError: true, flush: true)
                 }
             }
         }

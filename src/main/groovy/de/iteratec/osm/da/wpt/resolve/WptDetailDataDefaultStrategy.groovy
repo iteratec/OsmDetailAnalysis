@@ -59,8 +59,32 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         setConnectivity(result,jsonResponse)
         setSteps(result,fetchJob,jsonResponse)
         result.calculateAdditionalInformations()
-        if(!result.hasAllValues()) throw new WptResultMissingValueException()
+        ensurePresenceOfAllValues(result)
         return result
+    }
+
+    static private  ensurePresenceOfAllValues(WptDetailResult result ){
+        def missingValues = [:]
+        if (!(result.bandwidthDown >= 0))missingValues["bandwidthDown"]= result.bandwidthDown
+        if (!(result.bandwidthUp >= 0))missingValues["bandwidthUp"]= result.bandwidthUp
+        if (!(result.latency >= 0))missingValues["latency"]= result.latency
+        if (!(result.packagelossrate >= 0))missingValues["packagelossrate"]= result.packagelossrate
+        if (!(result.location))missingValues["location"]= result.location
+        if (!(result.browser))missingValues["browser"]= result.browser
+        if (!(result.jobGroupID >= 0))missingValues["jobGroupID"]= result.jobGroupID
+        if (!(result.wptBaseUrl))missingValues["wptBaseUrl"]= result.wptBaseUrl
+        if (!(result.wptTestID))missingValues["wptTestID"]= result.wptTestID
+        if (!(result.osmInstance >= 0))missingValues["osmInstance"]= result.osmInstance
+        if (!(result.jobId))missingValues["jobId"]= result.jobId
+
+        def missingValueStringList = []
+        missingValues.each {key, value ->
+            missingValueStringList.add(key)
+        }
+        if (missingValueStringList){
+            throw new WptResultMissingValueException(missingValueStringList)
+        }
+        return missingValues.isEmpty()
     }
 
     static private void setConnectivity(WptDetailResult result, def json){
@@ -136,7 +160,16 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
             request.downloadMs = convertIntValue(it.download_ms) 
             request.contentType = it.contentType
             request.dnsTimeMs = convertIntValue(it.dns_ms)
-            if(!request.hasValues()) throw new WptResultMissingValueException()
+            def missingValuesStringList = []
+            if(!request.host)missingValuesStringList.add("host")
+            if(!request.url)missingValuesStringList.add("url")
+            if(!(request.bytesOut >-1))missingValuesStringList.add("bytesOut")
+            if(!(request.bytesIn >-1))missingValuesStringList.add("bytesIn")
+            if(!(request.loadMs >-1))missingValuesStringList.add("loadMs")
+            if(missingValuesStringList) {
+                log.error(missingValuesStringList)
+                throw new WptResultMissingValueException(missingValuesStringList)
+            }
             requests << request
         }
         return requests
