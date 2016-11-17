@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.wpt.resolve
 
+import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
@@ -45,7 +46,7 @@ class WptQueueFillWorker extends WptWorker {
         service.getAvailablePriorities().each {
             if (service.getJobCountInQueueByPriority(it) < (service.getQueueMaximumInMemory() / 2 as int)) {
                 Set<FetchJob> jobsInMemory = collectJobsInMemory(it)
-                log.debug("Jobs in cached $it queue and in progress: ${jobsInMemory.size()}")
+                log.debug("Jobs in cached $it queue and in progress: ${jobsInMemory.size()}. Starting to queue new FetchJobs ")
                 int maxToAdd = service.getQueueMaximumInMemory() - service.getJobCountInQueueByPriority(it) - 1 // -1 because there could be a running job added
                 loadJobsFromDatabase(maxToAdd, jobsInMemory*.id as List<Integer>, service.getMaxTryCount(), it)
             }
@@ -61,24 +62,36 @@ class WptQueueFillWorker extends WptWorker {
      * @param priority the priority which should be loaded
      */
     void loadJobsFromDatabase(int maximumAmount, List<Integer> idsToIgnore, int maximumTries, Priority priority){
-        FetchJob.withNewSession {
-            def c = FetchJob.createCriteria()
-            List<FetchJob> jobsToAdd = c.list(max: maximumAmount) {
-                and {
-                    eq('priority',priority.value)
-                    order('created','asc')
-                    not {
-                        'in'("id", idsToIgnore)
+        def notAddedJobsButStillJobsInDB = true
+        while (notAddedJobsButStillJobsInDB){  //needed in case we have a lot of duplicates in the mongobd
+            FetchJob.withNewSession {
+                List<FetchJob> jobsToAdd = FetchJob.createCriteria().list(max: maximumAmount) {
+                    and {
+                        eq('priority',priority.value)
+                        order('created','asc')
+                        not {
+                            'in'("id", idsToIgnore)
+                        }
+                        lt('tryCount', maximumTries)
                     }
-                    lt('tryCount', maximumTries)
                 }
-            }
-            if(jobsToAdd?.size()>0){
-                jobsToAdd.each { FetchJob fetchJob ->
-                    List<FetchJob> jobs = FetchJob.findAllByWptBaseURLAndWptTestId(fetchJob.wptBaseURL,fetchJob.wptTestId)
-                    if(jobs.size() > 1) service.deleteJob(fetchJob) // It's not necessary to download the assets twice
+
+                if(jobsToAdd?.size()>0){
+                    def uniqueFetchJobs = []
+                    jobsToAdd.each { FetchJob fetchJob ->
+                        int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstance(fetchJob.wptBaseURL, fetchJob.wptTestId, fetchJob.osmInstance)
+                        int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(fetchJob.wptBaseURL, fetchJob.wptTestId, fetchJob.osmInstance)
+                        if ( identicalFetchJobs> 1 || alreadyLoadedAssetGroups > 0) {
+                            service.deleteJob(fetchJob)// It's not necessary to download the assets twice
+                        }else{
+                            notAddedJobsButStillJobsInDB = false
+                            uniqueFetchJobs.add(fetchJob)
+                        }
+                    }
+                    service.addExistingFetchJobToQueue(uniqueFetchJobs, priority)
+                }else{
+                    notAddedJobsButStillJobsInDB = false
                 }
-                service.addExistingFetchJobToQueue(jobsToAdd, priority)
             }
         }
     }

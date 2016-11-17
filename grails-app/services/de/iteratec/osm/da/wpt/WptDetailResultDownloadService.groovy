@@ -32,7 +32,7 @@ class WptDetailResultDownloadService {
      * Number of workers which should download data from wpt.
      * Not that if you change this value you have to disable and enable the worker again.
      */
-    Integer NUMBER_OF_WORKERS = 8
+    Integer NUMBER_OF_WORKERS = 10
     /**
      * This boolean should be false at start.
      * It used to determine if the worker should be cancelled
@@ -45,7 +45,7 @@ class WptDetailResultDownloadService {
     /**
      * Maximum FetchJob which should be cached in each queue.
      */
-    int queueMaximumInMemory = 50
+    int queueMaximumInMemory = 100
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
@@ -168,6 +168,7 @@ class WptDetailResultDownloadService {
      * @param job
      */
     public void deleteJob(FetchJob job) {
+        log.debug("delete job ${job.id}")
         job.delete(flush: true)
         inProgress.remove(job)
     }
