@@ -34,17 +34,18 @@ class FetchJobFailTest extends Specification{
         given: "A FetchJob with no steps"
         createServices()
         createOsmInstance()
-        List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
+        int failedJobsBefore = FailedFetchJob.list().size()
         WptDownloadWorker worker = new WptDownloadWorker(service)
         service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
         service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+
         when: "We start the fetching process"
         worker.fetch()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
-        List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
-        failedFetchJobDifference.size() == 1
-        failedFetchJobDifference[0].reason == FetchFailReason.NO_STEPS_FOUND
+        List<FailedFetchJob> failedFetchJobs = FailedFetchJob.list()
+        failedFetchJobs.size()  - failedJobsBefore == 1
+        failedFetchJobs[0].reason == FetchFailReason.NO_STEPS_FOUND
     }
 
     @Betamax(tape="cancelled_devServer01_160810_A7_4D")
@@ -161,6 +162,7 @@ class FetchJobFailTest extends Specification{
         service.assetRequestPersistenceService.wptDetailResultConvertService = new WptDetailResultConvertService()
         service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService = new MappingService()
         service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService.httpRequestService = httpRequestService
+        service.maxTryCount = 1
     }
 
     private WptDownloadWorker createWorker(){

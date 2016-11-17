@@ -119,7 +119,6 @@ class WptDetailResultDownloadService {
         wptTestIds.each {String wptTestId ->
             FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
                     wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch: fetchBatch).save(flush: true, failOnError: true)
-//            addToQueue(fetchJob, priority)
             numberOfNewFetchJobs++
             log.debug("Created a FetchJob for WptId=$wptTestId")
         }
@@ -146,20 +145,25 @@ class WptDetailResultDownloadService {
      * @param job
      */
     public void markJobAsFailed(FetchJob job, Exception e){
-        if(job){
-            synchronized (job.fetchBatch){
-                job.withNewSession {
-                    job.tryCount++
-                    log.debug("Try ${job.tryCount} for Job ${job.id}")
-                    if (job.fetchBatch && job.tryCount >= maxTryCount) {
-                        failedFetchJobService.markJobAsFailed(job,e)
-                        job.fetchBatch.addFailure(job)
-                        job.fetchBatch = null
+
+        if(job) {
+            job.withNewSession {
+                job.tryCount++
+                log.debug("Try ${job.tryCount} for Job ${job.id}")
+                if (job.tryCount >= maxTryCount) {
+                    if (job.fetchBatch) {
+                        synchronized (job.fetchBatch) {
+                            job.fetchBatch.addFailure(job)
+                            job.fetchBatch = null
+                        }
                     }
-                    job.save(failOnError: true, flush: true)
-                    inProgress.remove(job)
                 }
+                job.save(failOnError: true, flush: true)
             }
+            if (job.tryCount >= maxTryCount) {
+                failedFetchJobService.markJobAsFailed(job, e)
+            }
+            inProgress.remove(job)
         }
     }
 
