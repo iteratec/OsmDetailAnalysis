@@ -18,6 +18,7 @@ class ApiKey {
     Boolean allowedToDisplayResults = false
     Boolean allowedToUpdateOsmUrl = false
     Boolean allowedToUpdateMapping = false
+    Boolean allowedToCreateApiKeys = false
 
 
 
@@ -32,5 +33,6 @@ class ApiKey {
         description(nullable: true)
         valid(nullable: false)
         allowedToTriggerFetchJobs(nullable: false)
+        allowedToCreateApiKeys(nullable: false)
     }
 }

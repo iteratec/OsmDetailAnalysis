@@ -1,5 +1,6 @@
 server:
     port: 8081
+
 grails:
     mongodb:
         host: '{{ default .Env.OSMDA_MONGODB_HOST "osm_mongodb" }}'
@@ -9,5 +10,47 @@ grails:
         iteratec:
             osm:
                 da:
-                    initialApiKey: '{{ default .Env.OSMDA_INITIAL_API_KEY "myapikey" }}'
-                    initialOsmUrl: '{{ default .Env.OSMDA_INITIAL_OSM_URL "http://localhost:8080" }}'
+                    apiKeys:
+                        list:
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL "http://localhost:8080" }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY1 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY1 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL1 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY2 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY2 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL2 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY3 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY3 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL3 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY4 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY4 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL4 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY5 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY5 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL5 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY6 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY6 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL6 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY7 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY7 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL7 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY8 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY8 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL8 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY9 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY9 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL9 "http://localhost:8080" }}
+                            {{ end }}
+                            {{ if .Env.OSMDA_INITIAL_API_KEY10 }}
+                        -   key: {{ default .Env.OSMDA_INITIAL_API_KEY10 "myapikey" }}
+                            osmUrl: {{ default .Env.OSMDA_INITIAL_OSM_URL10 "http://localhost:8080" }}
+                            {{ end }}

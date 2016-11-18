@@ -185,7 +185,11 @@ public class PersistenceCommand extends OsmCommand{
 
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+            List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
+            ApiKey validApiKey
+            apiKeys.each {
+                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+            }
             if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
@@ -217,7 +221,11 @@ public class PersistenceBatchCommand extends OsmCommand{
 
     static constraints = {
         apiKey(validator: { String currentKey, PersistenceBatchCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
+            List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
+            ApiKey validApiKey
+            apiKeys.each {
+                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+            }
             if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
@@ -231,7 +239,11 @@ public class UrlUpdateCommand extends OsmCommand{
     String newOsmUrl
     static constraints = {
         apiKey(validator: { String currentKey, UrlUpdateCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
+            List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
+            ApiKey validApiKey
+            apiKeys.each {
+                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+            }
             if (!validApiKey||!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
@@ -250,7 +262,11 @@ public class MappingCommand extends OsmCommand{
     Map<Long, String> MeasuredEvent
     static constraints = {
         apiKey(validator: { String currentKey, MappingCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKeyAndOsmUrl(currentKey,cmd.osmUrl)
+            List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
+            ApiKey validApiKey
+            apiKeys.each {
+                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+            }
             if (!validApiKey||!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })

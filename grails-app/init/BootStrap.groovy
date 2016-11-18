@@ -7,24 +7,38 @@ class BootStrap {
     def grailsApplication
 
     def init = { servletContext ->
-        if (ApiKey.list().isEmpty()) {
-            String initialApiKey = grailsApplication.config.grails.de.iteratec.osm.da.initialApiKey.isEmpty() ?
-                    null : grailsApplication.config.grails.de.iteratec.osm.da.initialApiKey
-            String initialOsmUrl = grailsApplication.config.grails.de.iteratec.osm.da.initialOsmUrl.isEmpty() ?
-                    null : grailsApplication.config.grails.de.iteratec.osm.da.initialOsmUrl
-            if (!initialApiKey || !initialOsmUrl) log.warn("initial ApiKey configuration missing")
-            else {
-                OsmInstance.findAll().each { it.delete(failOnError: true) }
-                OsmInstance osmInstance = new OsmInstance([name                  : "Initial Osm", url: initialOsmUrl,
-                                                           jobGroupMapping: new OsmMapping([domain: OsmDomain.JobGroup]),
-                                                           locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
-                                                           measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),
-                                                           browserMapping      : new OsmMapping([domain: OsmDomain.Browser]),
-                                                           pageMapping         : new OsmMapping([domain: OsmDomain.Page]),
-                                                           jobMapping          : new OsmMapping([domain: OsmDomain.Job])]).save(failOnError: true)
-                new ApiKey([secretKey            : initialApiKey, description: "Initial ApiKey for communication with OpenSpeedMonitor",
+        initOsmInstances()
+
+    }
+
+    private void initOsmInstances() {
+        def apiKeyOsmMap = grailsApplication.config.grails.de.iteratec.osm.da.apiKeys
+        apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
+            boolean apiKeyIsKnown = false
+            List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
+            apiKeys.each { ApiKey apiKey ->
+                if (apiKey.osmInstance == apiKeyOsmTupel.osmUrl) {
+                    apiKeyIsKnown = true
+                }
+            }
+            if (!apiKeyIsKnown) {
+                def osmUrl = apiKeyOsmTupel.osmUrl.endsWith("/") ? apiKeyOsmTupel.osmUrl : apiKeyOsmTupel.osmUrl + "/"
+                OsmInstance osmInstance = OsmInstance.findByUrl(osmUrl)
+                if (!osmInstance) {
+                    osmInstance = new OsmInstance([name                : osmUrl,
+                                                   url                 : osmUrl,
+                                                   jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
+                                                   locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
+                                                   measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),
+                                                   browserMapping      : new OsmMapping([domain: OsmDomain.Browser]),
+                                                   pageMapping         : new OsmMapping([domain: OsmDomain.Page]),
+                                                   jobMapping          : new OsmMapping([domain: OsmDomain.Job])]).save(failOnError: true, flush: true)
+
+                }
+                new ApiKey([secretKey            : apiKeyOsmTupel.key, description: "Key generated from initial properties",
                             osmInstance          : osmInstance, valid: true, allowedToTriggerFetchJobs: true, allowedToDisplayResults: true,
-                            allowedToUpdateOsmUrl: true, allowedToUpdateMapping: true]).save(failOnError: true)
+                            allowedToUpdateOsmUrl: true, allowedToUpdateMapping: true, allowedToCreateApiKeys: true]).save(failOnError: true, flush: true)
+
             }
 
         }
