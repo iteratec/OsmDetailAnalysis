@@ -17,7 +17,7 @@ class BootStrap {
             boolean apiKeyIsKnown = false
             List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
             apiKeys.each { ApiKey apiKey ->
-                if (apiKey.osmInstance == apiKeyOsmTupel.osmUrl) {
+                if (apiKey.osmInstance.url == apiKeyOsmTupel.osmUrl) {
                     apiKeyIsKnown = true
                 }
             }
