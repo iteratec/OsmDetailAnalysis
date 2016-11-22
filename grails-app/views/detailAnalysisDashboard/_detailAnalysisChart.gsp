@@ -172,8 +172,11 @@
                 <thead></thead>
                 <tbody></tbody>
             </table>
-            <br>
+            <label for="wptUrl">WptUrl:</label>
+            <div id="wptUrl">DuSiehstMichNicht</div>
+        </div>
 
+        <div class="container-fluid" id="preselectedValuesContainer" style="display: none;">
             <h3>Preselected Values</h3>
             <table class="table table-hover" cellspacing="0" width="100%" id="preFilterTable">
                 <thead>
@@ -184,7 +187,6 @@
                 </thead>
                 <tbody></tbody>
             </table>
-
         </div>
     </g:if>
     <g:else>

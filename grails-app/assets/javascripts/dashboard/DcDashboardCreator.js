@@ -550,8 +550,6 @@ function addOnClickListeners() {
             data["page"] = (charts["page-chart"].filters());
         }
 
-
-
         jQuery.ajax({
             type: "POST",
             url: ajaxUrl,
@@ -560,25 +558,20 @@ function addOnClickListeners() {
             data: JSON.stringify(data),
             success: function (resp) {
                 removeAllRowsFromAssetDetailsTable();
-                var dataCount = getDataCounts(resp);
-                var uniqueMap  = createUniqueMapFromDataCount(dataCount,resp);
-                fillPreFilteredTable(resp,uniqueMap);
+                var uniqueMap = {};
+                if(resp.length>1) { // If there is only one asset there is no need to extract all values that are the same
+                    var dataCount = getDataCounts(resp);
+                    uniqueMap = createUniqueMapFromDataCount(dataCount, resp);
+                    fillPreFilteredTable(resp, uniqueMap);
+                }
                 fillDataInAssetTable(resp, data,uniqueMap);
-                var preFilterTable = document.getElementById("preFilterTable")
-                preFilterTable.style.display = 'block';
-                var assetDetailsContainer = document.getElementById("assetDetailsContainer");
-                assetDetailsContainer.style.display = 'block';
-
             }
         });
-
-
     });
 }
 
 function createUniqueMapFromDataCount(dataCount,data) {
     var uniqueMap = {};
-
     for (var key in dataCount) {
         if (dataCount[key] <= 1) {
             uniqueMap[key] = data[0][key]
@@ -587,19 +580,22 @@ function createUniqueMapFromDataCount(dataCount,data) {
     return uniqueMap;
 }
 function fillPreFilteredTable(data,uniqueMap) {
-
+    var isEmpty = true;
     var preFilteredTable = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
     for (var key in uniqueMap) {
+            isEmpty=false;
             var row = preFilteredTable.insertRow(0);
             var cellKey = row.insertCell(0);
             cellKey.innerHTML = key;
             var cellValue = row.insertCell(1);
             cellValue.innerHTML = getLable(key, uniqueMap[key])
     }
+    if(!isEmpty) {
+        var preselectedValuesContainer = document.getElementById("preselectedValuesContainer");
+        preselectedValuesContainer.style.display = 'block';
+    }
 }
-function addRowToPreFilteredTable(key, data,uniqueMap) {
 
-}
 
 function getLable(key, value) {
     var result = value;
@@ -629,10 +625,7 @@ function removeAllRowsFromAssetDetailsTable() {
     }
 }
 
-
 function fillDataInAssetTable(resp, requestData,uniqueMap) {
-
-
     var tableContainer = document.getElementById("assetDetailsContainer");
     tableContainer.style.display = 'block';
     var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
@@ -664,10 +657,13 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
                 cells[columnsMapping.indexOf(k)].innerHTML = getLable(k, asset[k])
         }
     });
-    assetDataTable = $('#assetDetailsTable').DataTable({
-        paging: "true"
-    });
-
+    if(columnsMapping.length > 0) {
+        assetDataTable = $('#assetDetailsTable').DataTable({
+            paging: "true"
+        });
+        var assetDetailsContainer = document.getElementById("assetDetailsContainer");
+        assetDetailsContainer.style.display = 'block';
+    }
 
 }
 
@@ -679,13 +675,10 @@ function hideDataTable() {
         .style("stroke", null)
         .style("stroke-width", null)
         .style("opacity", 0.6);
-    var preFilterTable = document.getElementById("preFilterTable")
-    preFilterTable.style.display = 'none';
+    var preselectedValuesContainer = document.getElementById("preselectedValuesContainer");
+    preselectedValuesContainer.style.display = 'none';
     var assetDetailsContainer = document.getElementById("assetDetailsContainer");
     assetDetailsContainer.style.display = 'none';
-
-
-
 }
 
 // Data is set in the detailAnalysis/show.gsp

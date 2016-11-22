@@ -73,7 +73,9 @@ class AssetRequestPersistenceService {
         aggregateList << unwind("\$assets") // return one document for each asset in the asset group
         aggregateList << project(createPreFilterForCompleteAssetRequest()) //filter out unwanted fields and flatten hierarchy
         aggregateList << match(and(matchList)) //filter out unwanted assets
-        return JsonOutput.toJson(db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true))
+        def results = db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true)
+        log.debug("Found ${results.size()} assets.")
+        return JsonOutput.toJson(results)
     }
     public String getRequestAssetsAsJson(
             Date from,

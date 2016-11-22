@@ -63,7 +63,9 @@ class DetailAnalysisDashboardController {
     }
 
     def getAssetsForDataPoint(){
+        log.debug("got a getAssetsForDataPointRequest with the following parameters epochTime=${request.JSON.date} host=${request.JSON.host} browser=${request.JSON.browser} mediaType=${request.JSON.mediaType} subType=${request.JSON.subtype} jobGroup=${request.JSON.jonGroup} page=${request.JSON.page}")
         def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.host,request.JSON.browser,request.JSON.mediaType,request.JSON.subtype,request.JSON.jobGroup,request.JSON.page)
+
         response.setContentType(ContentType.JSON.toString())
         response.status = 200
         render result
