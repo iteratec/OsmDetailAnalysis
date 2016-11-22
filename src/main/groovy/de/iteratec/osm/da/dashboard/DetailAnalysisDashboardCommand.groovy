@@ -54,6 +54,36 @@ class DetailAnalysisDashboardCommand extends OsmCommand {
     })
     Date to
 
+
+    @BindUsing({
+        obj, source ->
+            def dateObject = source['fromDate']
+            if (dateObject) {
+                if (dateObject instanceof Date) {
+                    return dateObject
+                } else {
+                    def dateResult = new Date(Long.parseLong(dateObject))
+                    return dateResult
+                }
+            }
+    })
+    Date fromDate
+
+    @BindUsing({
+        obj, source ->
+            def dateObject = source['toDate']
+            if (dateObject) {
+                if (dateObject instanceof Date) {
+                    return dateObject
+                } else {
+                    def dateResult = new Date(Long.parseLong(dateObject))
+                    return dateResult
+                }
+            }
+    })
+    Date toDate
+
+
     /**
      * The selected start hour of date.
      *
@@ -178,6 +208,8 @@ class DetailAnalysisDashboardCommand extends OsmCommand {
             if (!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
+        fromDate(nullable: true)
+        toDate(nullable: true)
         from(nullable: true, validator: { Date currentFrom, DetailAnalysisDashboardCommand cmd ->
             boolean manualTimeframe = cmd.selectedTimeFrameInterval == 0
             if (manualTimeframe && currentFrom == null) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.from.nullWithManualSelection']

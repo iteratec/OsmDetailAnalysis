@@ -13,7 +13,7 @@
 
 <g:if test="${graphData}">
 
-    <g:render template="/detailAnalysisDashboard/detailAnalysisChart" model="${[]}"/>
+    <g:render template="/detailAnalysisDashboard/detailAnalysisChart" />
 </g:if>
 
 <content tag="include.bottom">

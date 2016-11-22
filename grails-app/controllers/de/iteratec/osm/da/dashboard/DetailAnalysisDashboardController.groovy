@@ -70,14 +70,23 @@ class DetailAnalysisDashboardController {
     }
 
     private void fillWithDashboardData(Map<String, Object> modelToRender, DetailAnalysisDashboardCommand cmd) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm")
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
-        def toHour =0
-        if (cmd.toHour) toHour=  simpleDateFormat.parse(cmd.toHour).time
-        def fromHour = 0
-        if (cmd.fromHour) fromHour=  simpleDateFormat.parse(cmd.fromHour).time
-        Date from = new Date (cmd.from.time +fromHour)
-        Date to = new Date( cmd.to.time +toHour)
+        Date from
+        Date to
+        if(!cmd.toDate || !cmd.fromDate) {
+            println(cmd.toDate)
+            println(cmd.fromDate)
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm")
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+            def toHour = 0
+            if (cmd.toHour) toHour = simpleDateFormat.parse(cmd.toHour).time
+            def fromHour = 0
+            if (cmd.fromHour) fromHour = simpleDateFormat.parse(cmd.fromHour).time
+            from = new Date(cmd.from.time + fromHour)
+            to = new Date(cmd.to.time + toHour)
+        }else{
+            from = cmd.fromDate
+            to = cmd.toDate
+        }
         List<Long> jobGroupIds = cmd.selectedFolder as List
         List<Long> pageIds = cmd.selectedPages as List
         List<Long> browserIds = cmd.selectedBrowsers as List
@@ -111,12 +120,12 @@ class DetailAnalysisDashboardController {
                 packetloss,
                 measuredEventIds,
                 selectedAllMeasuredEvents)
-        def fromDate = new DateTime(cmd.from)
-        def toDate = new DateTime(cmd.to).plusDays(1)
 
         modelToRender.put('graphData', graphData)
-        modelToRender.put('fromDateInMillis', fromDate.millis)
-        modelToRender.put('toDateInMillis', toDate.millis)
+        modelToRender.put('fromDateInMillis', from.time)
+        modelToRender.put('toDateInMillis', to.time)
+        modelToRender.put('fromDate', from)
+        modelToRender.put('toDate', to)
 
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
         fillWithI18N(modelToRender)

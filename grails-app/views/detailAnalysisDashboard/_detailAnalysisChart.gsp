@@ -9,7 +9,7 @@
     </g:if>
 <div id="detailDataContainer" class="container-fluid" style="display: none;">
     <h3 align="center">Detail Dashboard</h3>
-    <h4 align="center">${new java.text.SimpleDateFormat().format(from)} - ${new java.text.SimpleDateFormat().format(to)}</h4>
+    <h4 align="center">${new java.text.SimpleDateFormat().format(fromDate)} - ${new java.text.SimpleDateFormat().format(toDate)}</h4>
     <g:if test="${graphData != "[]"}">
         <div class="detailDashboardContainer">
             <div class="row">
