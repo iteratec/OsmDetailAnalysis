@@ -39,12 +39,19 @@ class RestApiInterceptor {
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
-        ApiKey apiKey = ApiKey.findBySecretKey(params.apiKey)
-        if( apiKey == null ) {
+        List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(params.apiKey)
+        if( !apiKeys ) {
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
-        if(apiKey.osmInstance.url != params.osmUrl){
+        def apiKey
+        def osmUrlParam = params.osmUrl.endsWith("/")?params.osmUrl:params.osmUrl+"/"
+        apiKeys.each{
+            if(it.osmInstance.url == osmUrlParam){
+                apiKey= it
+            }
+        }
+        if(!apiKey){
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }

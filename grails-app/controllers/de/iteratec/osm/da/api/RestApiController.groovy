@@ -34,11 +34,13 @@ class RestApiController {
     }
 
     def securedViaApiKeyPersistAssetsForWptResult(PersistenceCommand command){
+        log.debug("Got a new PersistenceCommand with parameters osmUrl=\"${command.osmUrl}\"  jobGroupId=\"${command.jobGroupId}\"  jobId=\"${command.jobId}\"  wptServerBaseUrl=\"${command.wptServerBaseUrl}\" wptTestId=\"${command.wptTestId}\" wptVersion=\"${command.wptVersion}\" " )
         if (command.hasErrors()) {
             StringWriter sw = new StringWriter()
             command.errors.getFieldErrors().each { fieldError ->
                 sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
             }
+            log.error("PersistenceCommand has the following errors: ${sw.toString()}")
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }
@@ -55,7 +57,7 @@ class RestApiController {
         sendSimpleResponseAsStream(200,"Added to normalPriorityQueue")
     }
     def persistAssetsBatchJob(PersistenceBatchCommand command){
-        log.debug("Got a new PersitenceBatchCommand with parameters osmUlr=\"${command.osmUrl}\" callbackUrl=\"${command.callbackUrl}\" callbackJobId=\"${command.callbackJobId}\" persistanceJobList=\"${command.persistanceJobList}\"")
+        log.debug("Got a new PersitenceBatchCommand with parameters osmUrl=\"${command.osmUrl}\" callbackUrl=\"${command.callbackUrl}\" callbackJobId=\"${command.callbackJobId}\" persistanceJobList=\"${command.persistanceJobList}\"")
         if (command.hasErrors()) {
             StringWriter sw = new StringWriter()
             command.errors.getFieldErrors().each { fieldError ->
