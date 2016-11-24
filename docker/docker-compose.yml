@@ -1,9 +1,9 @@
 version: '2'
 services:
   osm_da:
-    image: mcsnail/osm_da
+    image: iteratec/osm-detail-analysis
     ports:
-     - "8081:8081"
+     - "8088:8081"
     links:
      - osm_mongodb
     env_file:

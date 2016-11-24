@@ -557,6 +557,7 @@ function addOnClickListeners() {
             dataType: 'json',
             data: JSON.stringify(data),
             success: function (resp) {
+                console.log(resp)
                 removeAllRowsFromAssetDetailsTable();
                 var uniqueMap = {};
                 if(resp.length>1) { // If there is only one asset there is no need to extract all values that are the same
