@@ -105,7 +105,7 @@ class AssetRequestPersistenceService {
             List jobGroups,
             List pages
     ) {
-        println("${timestamp.time / 1000 as Long}${hosts}${browsers}${mediaTypes}${subtypes}${jobGroups}${pages}")
+        log.debug("${timestamp.time / 1000 as Long}${hosts}${browsers}${mediaTypes}${subtypes}${jobGroups}${pages}")
         List aggregateList = []
         List matchList = []
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
