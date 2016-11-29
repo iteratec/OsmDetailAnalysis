@@ -12,11 +12,21 @@ class MigrationUtil {
     def static executeChanges(){
         if (aquireLock()) {
             Changelog.changesets.each { ChangeSet changeSet ->
-                if (ChangeSet.findByUniqueId(changeSet.class.simpleName)) return // If the ChangeSet is already applied we don't want to execute it again
+                String nameOfChangeSet = changeSet.class.simpleName
+                log.debug("Processing changeset ${nameOfChangeSet}")
+                if (ChangeSet.findByUniqueId(nameOfChangeSet)){// If the ChangeSet is already applied we don't want to execute it again
+                    log.debug("Changeset already applied ... skipping")
+                    return
+                }
+                log.debug("Start executing changeset. Timestamp: ${DateTime.now()} ")
                 def success = changeSet.execute()
-                if (!success) throw new Exception("Couldn't execute changeSet ${changeSet.class.simpleName}")
+                if (!success){
+                    log.error("Finished executing changeset with an error. Timestamp: ${DateTime.now()}")
+                    throw new Exception("Couldn't execute changeSet ${nameOfChangeSet}")
+                }
+                log.debug("Finished executing changeset - persist information about migration. Timestamp: ${DateTime.now()}")
                 changeSet.fillAndSave()
-                log.debug("Applied ChangeSet ${changeSet.class.simpleName}")
+                log.debug("Successfully applied changeset ${nameOfChangeSet}")
             }
         }else{
             throw new Exception("Couldn't aquire the MigrationLock")

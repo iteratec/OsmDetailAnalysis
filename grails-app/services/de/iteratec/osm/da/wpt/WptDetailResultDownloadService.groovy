@@ -69,9 +69,6 @@ class WptDetailResultDownloadService {
     ThreadPoolExecutor executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1) as ThreadPoolExecutor
     List<WptWorker> workerList = []
 
-    public WptDetailResultDownloadService() {
-        startWorker()
-    }
 
     /**
      * Stops all worker. All currently running will finish their current job and

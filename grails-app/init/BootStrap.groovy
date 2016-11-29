@@ -3,13 +3,16 @@ import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.migration.MigrationUtil
+import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 
 class BootStrap {
     def grailsApplication
+    WptDetailResultDownloadService wptDetailResultDownloadService
 
     def init = { servletContext ->
         initOsmInstances()
         MigrationUtil.executeChanges()
+        wptDetailResultDownloadService.startWorker()
     }
 
     private void initOsmInstances() {
