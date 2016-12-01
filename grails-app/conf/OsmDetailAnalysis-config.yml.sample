@@ -1,9 +1,12 @@
 server:
     port: 8081
 grails:
+    serverURL: "http://localhost:8081/"
     de:
         iteratec:
             osm:
                 da:
-                    initialApiKey:
-                    initialOsmUrl: http://localhost:8080
+                    apiKeys:
+                        list:
+                        -   key: abc
+                            osmUrl: "http://localhost:8080"
