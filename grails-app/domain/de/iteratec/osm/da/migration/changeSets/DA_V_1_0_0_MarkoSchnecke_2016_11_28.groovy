@@ -67,5 +67,7 @@ class DA_V_1_0_0_MarkoSchnecke_2016_11_28 extends ChangeSet{
                 }
             }
         }
+        return true
+
     }
 }
