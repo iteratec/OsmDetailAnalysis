@@ -204,8 +204,12 @@ class DetailAnalysisDashboardCommand extends OsmCommand {
      */
     static constraints = {
         apiKey(nullable: false, validator: { String currentKey, DetailAnalysisDashboardCommand cmd ->
-            ApiKey validApiKey = ApiKey.findBySecretKey(currentKey)
-            if (!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
+            List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
+            ApiKey validApiKey
+            apiKeys.each {
+                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+            }
+            if (!validApiKey||!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
         })
         fromDate(nullable: true)
