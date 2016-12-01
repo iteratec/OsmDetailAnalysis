@@ -99,6 +99,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         if(json.statusText == "Test Cancelled"){
             throw new WptTestWasCancelledException(fetchJob.wptTestId, fetchJob.wptBaseURL)
         }
+        log.debug("Start processing ${result}")
         json.data.runs.each{def run ->
             run.value?.firstView?.steps?.each{
                 Step step = createStep(it)
@@ -137,8 +138,10 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         step.stepNumber = stepInJason.step
         step.eventName = stepInJason.eventName
         step.url = stepInJason.URL
+        log.debug("Start creating step with the following parameters: epochTimeStarted=${step.epochTimeStarted} domTime=${step.domTime} step.loadTime=${step.loadTime} fullyLoaded=${step.fullyLoaded} run=${step.run} stepNumber=${step.stepNumber} eventName=${step.eventName} url=${step.url}")
         step.requests = createRequests(stepInJason.requests)
         if(!step.hasMetaValues() && !step.hasRequests()) return null
+        log.debug("Step created")
         return step
     }
 
@@ -167,10 +170,11 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
             if(!(request.bytesIn >-1))missingValuesStringList.add("bytesIn")
             if(!(request.loadMs >-1))missingValuesStringList.add("loadMs")
             if(missingValuesStringList) {
-                log.error(missingValuesStringList)
-                throw new WptResultMissingValueException(missingValuesStringList)
+                log.error("The following values are missing: ${missingValuesStringList} ${it}")
+//                throw new WptResultMissingValueException(missingValuesStringList)
+            }else {
+                requests << request
             }
-            requests << request
         }
         return requests
     }
