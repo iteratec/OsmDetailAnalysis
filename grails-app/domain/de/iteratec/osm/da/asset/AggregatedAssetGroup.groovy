@@ -39,4 +39,7 @@ class AggregatedAssetGroup {
 
     static constraints = {
     }
+    static mapping = {
+        compoundIndex epochTimeStarted:-1, jobGroup:1, page:1, browser:1, location:1, measuredEvent:1
+    }
 }

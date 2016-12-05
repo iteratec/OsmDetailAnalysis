@@ -53,6 +53,7 @@ class AssetRequestGroup {
         "browser" index: true
         "location" index: true
         "measuredEvent" index: true
+        compoundIndex epochTimeStarted:-1, jobGroup:1, page:1,browser:1, mediaType:1
     }
     static constraints = {
     }

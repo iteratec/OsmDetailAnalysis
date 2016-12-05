@@ -107,23 +107,25 @@ class AssetRequestPersistenceService {
     ) {
         log.debug("${timestamp.time / 1000 as Long}${hosts}${browsers}${mediaTypes}${subtypes}${jobGroups}${pages}")
         List aggregateList = []
-        List matchList = []
+        List initialMatchList = []
+        List matchListAfterUnwind = []
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
-        matchList << eq("epochTimeStarted", timestamp.time / 1000 as Long)
+        initialMatchList << eq("epochTimeStarted", timestamp.time / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
-        if (jobGroups) matchList << Filters.in("jobGroup", jobGroups)
-        if (pages) matchList << Filters.in("page", pages)
-        if (browsers) matchList << Filters.in("browser", browsers)
-        if (hosts) matchList << Filters.in("host", hosts)
-        if (mediaTypes) matchList << Filters.in("mediaType", mediaTypes)
-        if (subtypes) matchList << Filters.in("subtype", subtypes)
+        if (jobGroups) initialMatchList << Filters.in("jobGroup", jobGroups)
+        if (pages) initialMatchList << Filters.in("page", pages)
+        if (browsers) initialMatchList << Filters.in("browser", browsers)
+        if (mediaTypes) initialMatchList << Filters.in("mediaType", mediaTypes)
+        if (hosts) matchListAfterUnwind << Filters.in("host", hosts)
+        if (subtypes) matchListAfterUnwind << Filters.in("subtype", subtypes)
 
+        aggregateList << match(and(initialMatchList)) //filter out unwanted assets
         aggregateList << unwind("\$assets") // return one document for each asset in the asset group
         aggregateList << project(createPreFilterForCompleteAssetRequest()) //filter out unwanted fields and flatten hierarchy
-        aggregateList << match(and(matchList)) //filter out unwanted assets
+        if (matchListAfterUnwind) aggregateList << match(and(matchListAfterUnwind)) //filter out unwanted assets
         def results = db.getCollection("assetRequestGroup").aggregate(aggregateList).allowDiskUse(true)
         log.debug("Found ${results.size()} assets.")
         return JsonOutput.toJson(results)
