@@ -9,6 +9,7 @@
 function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     labels = labelsParam;
     ajaxUrl = ajaxUrlParam;
+
     if (data[0] == undefined) {
         //No data to show, so just stop here
         var detailDataContainer = document.getElementById("detailDataContainer");
@@ -557,9 +558,9 @@ function addOnClickListeners() {
             dataType: 'json',
             data: JSON.stringify(data),
             success: function (resp) {
-                console.log(resp)
                 removeAllRowsFromAssetDetailsTable();
                 var uniqueMap = {};
+                createWptUrl(resp);
                 if(resp.length>1) { // If there is only one asset there is no need to extract all values that are the same
                     var dataCount = getDataCounts(resp);
                     uniqueMap = createUniqueMapFromDataCount(dataCount, resp);
@@ -571,6 +572,20 @@ function addOnClickListeners() {
     });
 }
 
+function createWptUrl(resp) {
+    var wptUrl = document.getElementById("wptUrl");
+    while (wptUrl.firstChild) {
+        wptUrl.removeChild(wptUrl.firstChild);
+    }
+
+    var urlString = resp[0].wptBaseUrl
+    if (urlString.substr(-1) != '/') urlString += '/';
+    urlString += "result/"+ resp[0].wptTestId;
+
+    var linkText = document.createTextNode(urlString);
+    wptUrl.appendChild(linkText);
+    wptUrl.href = urlString;
+}
 function createUniqueMapFromDataCount(dataCount,data) {
     var uniqueMap = {};
     for (var key in dataCount) {
