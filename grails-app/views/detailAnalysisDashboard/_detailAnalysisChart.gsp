@@ -173,7 +173,7 @@
                 <tbody></tbody>
             </table>
             <label for="wptUrl">WptUrl:</label>
-            <div id="wptUrl">DuSiehstMichNicht</div>
+            <a id="wptUrl"></a>
         </div>
 
         <div class="container-fluid" id="preselectedValuesContainer" style="display: none;">
