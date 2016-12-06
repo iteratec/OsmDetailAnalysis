@@ -642,6 +642,9 @@ function removeAllRowsFromAssetDetailsTable() {
 }
 
 function fillDataInAssetTable(resp, requestData,uniqueMap) {
+
+    var assetDetailsTableCardWell = document.getElementById("assetDetailsTableCardWell");
+    assetDetailsTableCardWell.style.display = 'block';
     var tableContainer = document.getElementById("assetDetailsContainer");
     tableContainer.style.display = 'block';
     var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
@@ -675,10 +678,13 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
     });
     if(columnsMapping.length > 0) {
         assetDataTable = $('#assetDetailsTable').DataTable({
-            paging: "true"
+            paging: true,
+            scrollX:true
         });
         var assetDetailsContainer = document.getElementById("assetDetailsContainer");
         assetDetailsContainer.style.display = 'block';
+        var assetDetailsTableCardWell = document.getElementById("assetDetailsTableCardWell");
+        assetDetailsTableCardWell.style.display = 'block';
     }
 
 }
@@ -695,6 +701,8 @@ function hideDataTable() {
     preselectedValuesContainer.style.display = 'none';
     var assetDetailsContainer = document.getElementById("assetDetailsContainer");
     assetDetailsContainer.style.display = 'none';
+    var assetDetailsTableCardWell = document.getElementById("assetDetailsTableCardWell");
+    assetDetailsTableCardWell.style.display = 'none';
 }
 
 // Data is set in the detailAnalysis/show.gsp

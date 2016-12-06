@@ -92,6 +92,7 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
             hideDataTable();
         })
         .fixedBarHeight(25)
+        .width(500)
         .x(d3.scale.linear())
         .elasticX(true)
         .dimension(dimension)

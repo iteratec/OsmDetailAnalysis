@@ -64,3 +64,10 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
     text-align: center;
     min-width: 340px;
 }
+#host-chart{
+    float: none;
+}
+#hostChartContainer{
+    margin: 0 auto;
+    max-height: 337px;
+}
