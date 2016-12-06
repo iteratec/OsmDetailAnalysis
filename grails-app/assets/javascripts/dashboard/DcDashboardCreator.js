@@ -383,14 +383,17 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     $(document).keyup(function(e) {
         if (e.keyCode == 27) {
             $(".card-modal").hide();
+            $("#preselectedValuesContainer").hide();
         }
     });
 
     $('.card-modal').click(function() {
         $(".card-modal").hide();
+        $("#preselectedValuesContainer").hide();
     });
     $('.card-header .close').click(function() {
         $(".card-modal").hide();
+        $("#preselectedValuesContainer").hide();
     });
 
     $('.card-modal-inner').click(function(e) {
@@ -640,8 +643,7 @@ function fillPreFilteredTable(data,uniqueMap) {
             cellValue.innerHTML = getLable(key, uniqueMap[key])
     }
     if(!isEmpty) {
-        var preselectedValuesContainer = document.getElementById("preselectedValuesContainer");
-        preselectedValuesContainer.style.display = 'block';
+        $("#preselectedValuesContainer").show();
     }
 }
 
@@ -726,6 +728,7 @@ function hideDataTable() {
         .style("stroke", null)
         .style("stroke-width", null)
         .style("opacity", 0.6);
+    $("#preselectedValuesContainer").hide();
 }
 
 // Data is set in the detailAnalysis/show.gsp
