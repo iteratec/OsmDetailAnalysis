@@ -9,7 +9,7 @@
 function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     labels = labelsParam;
     ajaxUrl = ajaxUrlParam;
-    createChangeSelectionButton();
+    // createChangeSelectionButton();
     if (data[0] == undefined) {
         //No data to show, so just stop here
         var detailDataContainer = document.getElementById("detailDataContainer");
