@@ -71,3 +71,35 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
     margin: 0 auto;
     max-height: 337px;
 }
+
+.card-modal {
+    position: absolute;
+    display: none;
+    top:0px;
+    left:0;
+    right: 0;
+    background: rgba(0,0, 0, 0.6);
+    padding: 20px 50px;
+    z-index: 1050;
+    min-height: calc(100% - 50px);
+}
+
+.card-modal .card {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+}
+
+.card-modal .card-header {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 15px;
+    margin: -15px -15px 15px -15px;
+
+}
+
+.card-modal .card-header h3 {
+    line-height:1.43;
+    margin: 0;
+    font-size: 18px;
+}

@@ -8,11 +8,11 @@
         </div>
     </g:if>
 <div id="detailDataContainer" class="container-fluid" style="display: none;">
-    <h3 align="center">Detail Dashboard</h3>
-    <h4 align="center">${new java.text.SimpleDateFormat().format(fromDate)} - ${new java.text.SimpleDateFormat().format(toDate)}</h4>
+    %{--<h3 align="center">Detail Dashboard</h3>--}%
+    %{--<h4 align="center">${new java.text.SimpleDateFormat().format(fromDate)} - ${new java.text.SimpleDateFormat().format(toDate)}</h4>--}%
     <g:if test="${graphData != "[]"}">
-        <div class="card-well">
-        <div class="detailDashboardContainer">
+        <div class="">
+        <div class="detailDashboardContainer card-well">
             <div class="row" >
                 <div class="col-md-8">
                     <div class="card">
@@ -163,10 +163,13 @@
             <div  class="rect placeholder"></div>
         </div>
 
-        <div class="" id="assetDetailsTableCardWell" style="display: none;">
-            <div class="row">
-            <div class="col-md-12">
-                <div class="card" id="assetDetailsContainer" style="display: none;">
+        <div class="card-modal">
+            <div class="card-modal-inner">
+                <div class="card" id="assetDetailsContainer">
+                    <div class="card-header">
+                        <button type="button" class="close" aria-hidden="true">×</button>
+                        <h3>Asset Details</h3>
+                    </div>
                     <table class="table table-hover" cellspacing="0" width="100%" id="assetDetailsTable">
                         <thead></thead>
                         <tbody></tbody>
@@ -174,12 +177,10 @@
                     <label for="wptUrl">WptUrl:</label>
                     <a id="wptUrl"></a>
                 </div>
-            </div>
-            </div>
-            <div class="row">
-            <div class="col-md-12">
                 <div class="card" id="preselectedValuesContainer" style="display: none;">
-                    <h3>Preselected Values</h3>
+                    <div class="card-header">
+                        <h3>Preselected Values</h3>
+                    </div>
                     <table class="table table-hover" cellspacing="0" width="100%" id="preFilterTable">
                         <thead>
                         <tr>
@@ -190,7 +191,6 @@
                         <tbody></tbody>
                     </table>
                 </div>
-            </div>
             </div>
         </div>
         </div>

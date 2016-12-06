@@ -9,7 +9,7 @@
 function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     labels = labelsParam;
     ajaxUrl = ajaxUrlParam;
-
+    createChangeSelectionButton();
     if (data[0] == undefined) {
         //No data to show, so just stop here
         var detailDataContainer = document.getElementById("detailDataContainer");
@@ -380,6 +380,22 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     $(document).on('change', 'input:checkbox[name="measurementCheckbox"]', function (event) {
         redrawCompositeChart();
     });
+    $(document).keyup(function(e) {
+        if (e.keyCode == 27) {
+            $(".card-modal").hide();
+        }
+    });
+
+    $('.card-modal').click(function() {
+        $(".card-modal").hide();
+    });
+    $('.card-header .close').click(function() {
+        $(".card-modal").hide();
+    });
+
+    $('.card-modal-inner').click(function(e) {
+        e.stopPropagation();
+    });
 
     function redrawCompositeChart() {
         board.setAnimationTime(500);
@@ -430,6 +446,23 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         hideDataTable();
         board.setAnimationTime(700);
     }
+}
+
+function createChangeSelectionButton() {
+    var linkText = document.createTextNode("Change Selection");
+    var element = document.createElement("a");
+    element.appendChild(linkText);
+    var currentUrl = window.location.href;
+    var newFunction = "eventResultDashboard/showAll";
+    var newUrl = currentUrl.replace("detailAnalysis/show", newFunction);
+    element.setAttribute("href", newUrl);
+    element.setAttribute("class", "btn btn-primary");
+    element.setAttribute("value", "ChangeSelection");
+    element.setAttribute("name", "ChangeSelection");
+    element.style.float = "right";
+    element.style.marginRight = "15px";
+    var selectionSummary = document.getElementById("selectionSummary");
+    selectionSummary.appendChild(element);
 }
 
 /**
@@ -643,8 +676,7 @@ function removeAllRowsFromAssetDetailsTable() {
 
 function fillDataInAssetTable(resp, requestData,uniqueMap) {
 
-    var assetDetailsTableCardWell = document.getElementById("assetDetailsTableCardWell");
-    assetDetailsTableCardWell.style.display = 'block';
+    $(".card-modal").show();
     var tableContainer = document.getElementById("assetDetailsContainer");
     tableContainer.style.display = 'block';
     var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
@@ -681,10 +713,7 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
             paging: true,
             scrollX:true
         });
-        var assetDetailsContainer = document.getElementById("assetDetailsContainer");
-        assetDetailsContainer.style.display = 'block';
-        var assetDetailsTableCardWell = document.getElementById("assetDetailsTableCardWell");
-        assetDetailsTableCardWell.style.display = 'block';
+        $(".card-modal").show();
     }
 
 }
@@ -697,12 +726,6 @@ function hideDataTable() {
         .style("stroke", null)
         .style("stroke-width", null)
         .style("opacity", 0.6);
-    var preselectedValuesContainer = document.getElementById("preselectedValuesContainer");
-    preselectedValuesContainer.style.display = 'none';
-    var assetDetailsContainer = document.getElementById("assetDetailsContainer");
-    assetDetailsContainer.style.display = 'none';
-    var assetDetailsTableCardWell = document.getElementById("assetDetailsTableCardWell");
-    assetDetailsTableCardWell.style.display = 'none';
 }
 
 // Data is set in the detailAnalysis/show.gsp
