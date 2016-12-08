@@ -156,7 +156,15 @@ class DetailAnalysisDashboardController {
         i18n.put("resetAll", message(code: 'de.iteratec.osm.da.resetAll', default: 'Reset All'))
         i18n.put("all", message(code: 'de.iteratec.osm.da.all', default: 'all'))
         i18n.put("applyFilters", message(code: 'de.iteratec.osm.da.applyFilters', default: 'Please click on the graph to apply filters.'))
-
+        i18n.put("changeSelectionButtonText", message(code: 'de.iteratec.osm.da.changeselection.buttontext', default: 'Change Selection'))
+        i18n.put("dataTableLengthMenu", message(code: 'de.iteratec.osm.da.datatable.lengthMenu', default: ' Display _MENU_ records per page'))
+        i18n.put("dataTableZeroRecords", message(code: 'de.iteratec.osm.da.datatable.zeroRecords', default: 'Nothing found - sorry'))
+        i18n.put("dataTableInfo", message(code: 'de.iteratec.osm.da.datatable.info', default: 'Showing page _PAGE_ of _PAGES_'))
+        i18n.put("dataTableInfoEmpty", message(code: 'de.iteratec.osm.da.datatable.infoEmpty', default: 'No records available'))
+        i18n.put("dataTableInfoFiltered", message(code: 'de.iteratec.osm.da.datatable.infoFiltered', default: '(filtered from _MAX_ total records'))
+        i18n.put("dataTablePageSearch", message(code: 'de.iteratec.osm.da.datatable.pageSearch', default: 'Search'))
+        i18n.put("dataTableNext", message(code: 'de.iteratec.osm.da.datatable.next', default: 'Next'))
+        i18n.put("dataTablePrevious", message(code: 'de.iteratec.osm.da.datatable.previous', default: 'Previous'))
         modelToRender.put('i18n', i18n as JSON)
     }
 

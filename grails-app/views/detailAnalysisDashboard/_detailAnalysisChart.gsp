@@ -71,7 +71,7 @@
                         <div class="rowChartContainer">
                             <div class="dc-chartContainer" id="timeChart"></div>
                         </div>
-                        <div id="timeChartExplanation">To narrow down the time frame click-and-hold to where you want to start and then drag to the desired end</div>
+                        <div id="timeChartExplanation"><g:message code="de.iteratec.osm.da.timechart.explanation"/></div>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@
                             <div class="col-md-4">
                                 <div class="row">
                                     <div>
-                                        <span><strong>By Job Group</strong></span>
+                                        <span><strong><g:message code="de.iteratec.osm.da.piechart.title.jobgroup"/></strong></span>
                                     </div>
 
                                     <div class="pieChartDiv" id="jobGroup-chart"></div>
@@ -89,7 +89,7 @@
 
                                 <div class="row">
                                     <div>
-                                        <span><strong>By Browser</strong></span>
+                                        <span><strong><g:message code="de.iteratec.osm.da.piechart.title.browser"/></strong></span>
                                     </div>
 
                                     <div class="pieChartDiv" id="browser-chart"></div>
@@ -98,14 +98,14 @@
                             <div class="col-md-4">
                                 <div class="row">
                                     <div>
-                                        <span><strong>By Page</strong></span>
+                                        <span><strong><g:message code="de.iteratec.osm.da.piechart.title.page"/></strong></span>
                                     </div>
 
                                     <div class="pieChartDiv" id="page-chart"></div>
                                 </div>
                                 <div class="row">
                                     <div>
-                                        <span><strong>By Measured Event</strong></span>
+                                        <span><strong><g:message code="de.iteratec.osm.da.piechart.title.measuredevent"/></strong></span>
                                     </div>
 
                                     <div class="pieChartDiv" id="measuredEvent-chart"></div>
@@ -114,7 +114,7 @@
                             <div class="col-md-4">
                                 <div class="row">
                                     <div>
-                                        <span><strong>By MediaType</strong></span>
+                                        <span><strong><g:message code="de.iteratec.osm.da.piechart.title.mediatype"/></strong></span>
                                     </div>
 
                                     <div class="pieChartDiv" id="mediaType-chart"></div>
@@ -122,7 +122,7 @@
 
                                 <div class="row">
                                     <div>
-                                        <span><strong>By Subtype</strong></span>
+                                        <span><strong><g:message code="de.iteratec.osm.da.piechart.title.subtype"/></strong></span>
                                     </div>
 
                                     <div class="pieChartDiv" id="subtype-chart"></div>
@@ -164,15 +164,14 @@
 
                         <hr id="assetTablesSeperator">
                     </div>
-
                     <div class="card-header" id="preselectedValuesHeader">
-                        <h3>Preselected Values</h3>
+                        <h3><g:message code="de.iteratec.osm.da.preselectedValues.headline"/></h3>
                     </div>
                     <table class="table table-hover" cellspacing="0" width="100%" id="preFilterTable">
                         <thead>
                         <tr>
-                            <th>Property</th>
-                            <th>Value</th>
+                            <th><g:message code="de.iteratec.osm.da.preselectedValues.property"/></th>
+                            <th><g:message code="de.iteratec.osm.da.preselectedValues.value"/></th>
                         </tr>
                         </thead>
                         <tbody></tbody>
@@ -184,7 +183,8 @@
     </g:if>
     <g:else>
         <div>
-            There was no data available for the selected timeframe and filter.
+            <g:message code="de.iteratec.osm.da.nodata.info"/>
+
         </div>
     </g:else>
 </div>

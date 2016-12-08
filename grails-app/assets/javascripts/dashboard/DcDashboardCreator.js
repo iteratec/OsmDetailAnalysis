@@ -456,7 +456,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
 }
 
 function createChangeSelectionButton() {
-    var linkText = document.createTextNode("Change Selection");
+    var linkText = document.createTextNode(OsmDetailMicroService.i18n.changeSelectionButtonText);
     var element = document.createElement("a");
     element.appendChild(linkText);
     var currentUrl = window.location.href;
@@ -715,7 +715,20 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
         $("#preselectedValuesHeader").show();
         assetDataTable = $('#assetDetailsTable').DataTable({
             paging: true,
-            scrollX:true
+            scrollX:true,
+            language: {
+                "lengthMenu": OsmDetailMicroService.i18n.dataTableLengthMenu,
+                "zeroRecords": OsmDetailMicroService.i18n.dataTableZeroRecords,
+                "info": OsmDetailMicroService.i18n.dataTableInfo,
+                "infoEmpty": OsmDetailMicroService.i18n.dataTableInfoEmpty,
+                "infoFiltered": OsmDetailMicroService.i18n.dataTableInfoFiltered,
+                "search": OsmDetailMicroService.i18n.dataTablePageSearch,
+                "paginate": {
+                    "next": OsmDetailMicroService.i18n.dataTableNext,
+                    "previous": OsmDetailMicroService.i18n.dataTablePrevious
+                }
+
+            }
         });
         $(".card-modal").show();
     }
