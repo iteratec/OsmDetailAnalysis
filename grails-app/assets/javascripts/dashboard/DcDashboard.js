@@ -41,8 +41,8 @@ DcDashboard.prototype.addPieChart = function (dashboardIdentifier, chartIdentifi
 
     chart
         .radius(80)
-        .height(170)
-        .width(170)
+        .height(160)
+        .width(160)
         .dimension(dimension)
         .group(group)
         .label(labelAccessor)
@@ -92,7 +92,7 @@ DcDashboard.prototype.addRowChart = function (dashboardIdentifier, chartIdentifi
             hideDataTable();
         })
         .fixedBarHeight(25)
-        .width(500)
+        .width(520)
         .x(d3.scale.linear())
         .elasticX(true)
         .dimension(dimension)
@@ -125,13 +125,13 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
 
     chart
         .width(this.dashboardWidth)
-        .height(500 + legendHeight)
+        .height(450 + legendHeight)
         .brushOn(false)
         .renderHorizontalGridLines(true)
         .elasticY(true)
         .elasticX(true)
         .yAxisLabel("ms")
-        .legend(dc.legend().x(20).y(500).itemHeight(13).gap(5))
+        .legend(dc.legend().x(20).y(450).itemHeight(13).gap(5).horizontal(true).autoItemWidth(true).legendWidth(1000))
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
         .compose([]);
@@ -164,7 +164,6 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
     window.onresize = function(event) {
         dc.renderAll();
         addOnClickListeners();
-        hideDataTable();
     };
 
     this.allDashboardGraphs.push(chart);
@@ -188,10 +187,10 @@ DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentif
     chart.margins().left = 40;
     chart
         .width(this.dashboardWidth)
-        .height(190)
+        .height(100)
         .x(d3.time.scale().domain([from, to]))
         // .xUnits(d3.time.months)
-        .gap(5)
+        .gap(10)
         .elasticX(true)
         .elasticY(true)
         .yAxisLabel("count")
@@ -200,7 +199,7 @@ DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentif
         .group(group)
         .controlsUseVisibility(true);
 
-    chart.yAxis().ticks(8);
+    chart.yAxis().ticks(5);
     chart.yAxisPadding("5%");
 
 

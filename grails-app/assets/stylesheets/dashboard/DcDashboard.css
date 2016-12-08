@@ -25,7 +25,7 @@
 }
 
 .dc-chartContainer {
-    max-height: 550px;
+    max-height: 490px;
     width: 100%;
 }
 
@@ -69,7 +69,7 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
 }
 #hostChartContainer{
     margin: 0 auto;
-    max-height: 337px;
+    max-height: 369px;
 }
 
 .card-modal {
@@ -97,9 +97,28 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
     margin: -15px -15px 15px -15px;
 
 }
+.card-modal .card-header.centered{
+    text-align:center;
+}
 
 .card-modal .card-header h3 {
     line-height:1.43;
     margin: 0;
     font-size: 18px;
+}
+#assetDetailsHeadline{
+    float: left;
+}
+
+#assetTablesSeperator{
+    border-top: 1px solid #000;
+}
+#timeChartExplanation{
+    text-align: center;
+}
+#dc-data-count{
+    text-align: center;
+}
+#checkboxAvgMinMaxContainer{
+    float:right;
 }

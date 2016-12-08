@@ -9,11 +9,10 @@
 function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     labels = labelsParam;
     ajaxUrl = ajaxUrlParam;
-    // createChangeSelectionButton();
+    createChangeSelectionButton();
     if (data[0] == undefined) {
         //No data to show, so just stop here
-        var detailDataContainer = document.getElementById("detailDataContainer");
-        detailDataContainer.style.display = 'block';
+        $("detailDataContainer").show();
         return;
     }
     board = new DcDashboard();
@@ -275,7 +274,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
 
     var allGraphs = {};
 
-    var colorScale = d3.scale.category20b();
+    var colorScale = d3.scale.category10();
 
     function createLineChart(jobFilter, label, name, valueAccessor, unit) {
         var group = remove_empty_bins(jobFilter, valueAccessor);
@@ -378,8 +377,12 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
 
     // Add onClick Listener
     $(document).on('change', 'input:checkbox[name="measurementCheckbox"]', function (event) {
+        $(this).parent().toggleClass( "btn-primary" );
+        $(this).parent().toggleClass( "btn-default" );
         redrawCompositeChart();
+        $(this).parent().removeClass( "focus" );
     });
+
     $(document).keyup(function(e) {
         if (e.keyCode == 27) {
             $(".card-modal").hide();
@@ -411,6 +414,7 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         function handleValueTypeCheckbox(avgName, minName, maxName) {
             if (showAvg)
                 visibleGraphs.push(allGraphs[avgName]);
+
             if (showMin)
                 visibleGraphs.push(allGraphs[minName]);
             if (showMax)
@@ -597,11 +601,9 @@ function addOnClickListeners() {
                 removeAllRowsFromAssetDetailsTable();
                 var uniqueMap = {};
                 createWptUrl(resp);
-                if(resp.length>1) { // If there is only one asset there is no need to extract all values that are the same
-                    var dataCount = getDataCounts(resp);
-                    uniqueMap = createUniqueMapFromDataCount(dataCount, resp);
-                    fillPreFilteredTable(resp, uniqueMap);
-                }
+                var dataCount = getDataCounts(resp);
+                uniqueMap = createUniqueMapFromDataCount(dataCount, resp);
+                fillPreFilteredTable(resp, uniqueMap);
                 fillDataInAssetTable(resp, data,uniqueMap);
             }
         });
@@ -614,11 +616,11 @@ function createWptUrl(resp) {
         wptUrl.removeChild(wptUrl.firstChild);
     }
 
-    var urlString = resp[0].wptBaseUrl
+    var urlString = resp[0].wptBaseUrl;
     if (urlString.substr(-1) != '/') urlString += '/';
     urlString += "result/"+ resp[0].wptTestId;
 
-    var linkText = document.createTextNode(urlString);
+    var linkText = document.createTextNode(labels['measuredEvent'][resp[0].measuredEvent]);
     wptUrl.appendChild(linkText);
     wptUrl.href = urlString;
 }
@@ -642,9 +644,7 @@ function fillPreFilteredTable(data,uniqueMap) {
             var cellValue = row.insertCell(1);
             cellValue.innerHTML = getLable(key, uniqueMap[key])
     }
-    if(!isEmpty) {
-        $("#preselectedValuesContainer").show();
-    }
+
 }
 
 
@@ -711,6 +711,8 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
         }
     });
     if(columnsMapping.length > 0) {
+        $("#assetDetailsDatatableContainer").show();
+        $("#preselectedValuesHeader").show();
         assetDataTable = $('#assetDetailsTable').DataTable({
             paging: true,
             scrollX:true
@@ -728,7 +730,8 @@ function hideDataTable() {
         .style("stroke", null)
         .style("stroke-width", null)
         .style("opacity", 0.6);
-    $("#preselectedValuesContainer").hide();
+    $("#assetDetailsDatatableContainer").hide();
+    $("#preselectedValuesHeader").hide();
 }
 
 // Data is set in the detailAnalysis/show.gsp
