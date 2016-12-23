@@ -85,7 +85,7 @@ class RestApiController {
         sendObjectAsJSON(numberOfFetchJobs,false)
     }
 
-    def getAssetRequestGroup(GetAssetRequestGroupCommand command){
+    def getWptResultStep(GetWptResultStepCommand command){
         if (command.hasErrors()) {
             StringWriter sw = new StringWriter()
             command.errors.getFieldErrors().each { fieldError ->
@@ -94,7 +94,7 @@ class RestApiController {
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }
-        AssetRequestGroup assetRequestGroup = assetRequestPersistenceService.getAssetRequestGroup(command.wptServerBaseUrl, command.wptTestId)
+        List<AssetRequestGroup> assetRequestGroup = assetRequestPersistenceService.getAssetRequestGroups(command.wptServerBaseUrl, command.wptTestId, command.measuredEvent)
         if(!assetRequestGroup){
             sendSimpleResponseAsStream(400, "No data found")
             return
@@ -251,10 +251,10 @@ public class UrlUpdateCommand extends OsmCommand{
         })
     }
 }
-public class GetAssetRequestGroupCommand {
+public class GetWptResultStepCommand {
     String wptTestId
     String wptServerBaseUrl
-
+    String measuredEvent
 }
 
 public class MappingCommand extends OsmCommand{

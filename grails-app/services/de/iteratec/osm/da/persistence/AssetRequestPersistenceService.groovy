@@ -361,7 +361,8 @@ class AssetRequestPersistenceService {
         return unpackIdProjectionDocument
     }
 
-    def AssetRequestGroup getAssetRequestGroup( String wptBaseUrl, String wptTestId){
-        return AssetRequestGroup.findByWptBaseUrlAndWptTestId(wptBaseUrl,wptTestId)
+    def List<AssetRequestGroup> getAssetRequestGroups(String wptBaseUrl, String wptTestId, String measuredEvent){
+        wptDetailResultConvertService.getEventName(measuredEvent)
+        return AssetRequestGroup.findAllByWptBaseUrlAndWptTestId(wptBaseUrl,wptTestId,measuredEvent)
     }
 }
