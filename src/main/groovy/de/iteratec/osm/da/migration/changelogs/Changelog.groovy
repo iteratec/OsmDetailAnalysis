@@ -1,6 +1,6 @@
 package de.iteratec.osm.da.migration.changelogs
 
-import de.iteratec.osm.da.migration.changeSets.DA_V_1_0_0_MarkoSchnecke_2016_11_28
+import de.iteratec.osm.da.migration.changeSets.DA_V_1_0_0_MarkoSchnecke_2016_12_23
 
 
 //Usage: add an Instance of your changeSet to the end of the "changesets"-list. The name must be unique
@@ -9,6 +9,6 @@ import de.iteratec.osm.da.migration.changeSets.DA_V_1_0_0_MarkoSchnecke_2016_11_
 //           new DA_V_1_0_2_MaxMustermann_1971_01_15_V2()
 class Changelog {
     public static List changesets = [
-            new DA_V_1_0_0_MarkoSchnecke_2016_11_28()
+            new DA_V_1_0_0_MarkoSchnecke_2016_12_23()
     ]
 }

@@ -133,7 +133,8 @@ class DetailAnalysisDashboardController {
                 latency,
                 packetloss,
                 measuredEventIds,
-                selectedAllMeasuredEvents)
+                selectedAllMeasuredEvents,
+                cmd.osmUrl)
 
         modelToRender.put('graphData', graphData)
         modelToRender.put('fromDateInMillis', from.time)

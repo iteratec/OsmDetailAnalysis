@@ -8,6 +8,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.util.JSON
 import de.iteratec.osm.da.asset.AggregatedAssetGroup
 import de.iteratec.osm.da.asset.AssetRequest
+import de.iteratec.osm.da.instances.OsmInstance
 
 import static com.mongodb.client.model.Accumulators.*
 import de.iteratec.osm.da.asset.AssetRequestGroup
@@ -90,6 +91,7 @@ class AssetRequestPersistenceService {
                     aggregatedAssetGroup.bytesOut_min = assets.bytesOut.min()
                     aggregatedAssetGroup.bytesOut_max = assets.bytesOut.max()
                     aggregatedAssetGroup.count = assets.size()
+                    aggregatedAssetGroup.osmInstance = assetRequestGroup.osmInstance
                     aggregatedAssetGroup.save(failOnError:true, flush:true)
                 }
             }
@@ -145,7 +147,9 @@ class AssetRequestPersistenceService {
             Integer latency,
             Integer packetloss,
             List<Long> measuredEvents,
-            boolean selectedAllMeasuredEvents
+            boolean selectedAllMeasuredEvents,
+            String osmUrl
+
     ){
         log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} selectedAllBrowsers = ${selectedAllBrowsers} locations = ${locations} selectedAllLocations = ${selectedAllLocations} selectedAllConnectivityProfiles = ${selectedAllConnectivityProfiles} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents} selectedAllMeasuredEvents = ${selectedAllMeasuredEvents}")
         List aggregateList = []
@@ -153,6 +157,7 @@ class AssetRequestPersistenceService {
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
+        def osmUrlParam = osmUrl.endsWith("/")?osmUrl:osmUrl+"/"
         matchList << gte("epochTimeStarted", from.getTime() / 1000 as Long)
         matchList << lte("epochTimeStarted", to.getTime() / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
@@ -168,6 +173,7 @@ class AssetRequestPersistenceService {
             if (packetloss) matchList << eq("packetLoss", packetloss)
             if (latency) matchList << eq("latency", latency)
         }
+        matchList << eq ("osmInstance", OsmInstance.findByUrl(osmUrlParam).id)
         aggregateList << match(and(matchList)) //filter out unwanted assets
         AggregateIterable<Document> resultList = db.getCollection("aggregatedAssetGroup").aggregate(aggregateList).allowDiskUse(true)
         def numberOfResults = resultList.size()
@@ -189,7 +195,8 @@ class AssetRequestPersistenceService {
             Integer latency,
             Integer packetloss,
             List<Long> measuredEvents,
-            boolean selectedAllMeasuredEvents
+            boolean selectedAllMeasuredEvents,
+            String osmUrl
     ){
         log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} selectedAllBrowsers = ${selectedAllBrowsers} locations = ${locations} selectedAllLocations = ${selectedAllLocations} selectedAllConnectivityProfiles = ${selectedAllConnectivityProfiles} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents} selectedAllMeasuredEvents = ${selectedAllMeasuredEvents}")
         List aggregateList = []
@@ -197,6 +204,7 @@ class AssetRequestPersistenceService {
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
+        def osmUrlParam = osmUrl.endsWith("/")?osmUrl:osmUrl+"/"
         matchList << gte("epochTimeStarted", from.getTime() / 1000 as Long)
         matchList << lte("epochTimeStarted", to.getTime() / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
@@ -206,6 +214,7 @@ class AssetRequestPersistenceService {
         if (!selectedAllBrowsers && browsers) matchList << Filters.in("browser", browsers)
         if (!selectedAllLocations && locations) matchList << Filters.in("location", locations)
         if (!selectedAllMeasuredEvents && measuredEvents) matchList << Filters.in("measuredEvent", measuredEvents)
+        matchList << eq ("osmInstance", OsmInstance.findByUrl(osmUrlParam).id)
         if (!selectedAllConnectivityProfiles) {
             if (bandwidthUp) matchList << eq("bandwidthUp", bandwidthUp)
             if (bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)

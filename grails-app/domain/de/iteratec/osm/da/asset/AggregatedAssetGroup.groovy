@@ -3,6 +3,7 @@ package de.iteratec.osm.da.asset
 import com.mongodb.BasicDBObject
 
 class AggregatedAssetGroup {
+    long osmInstance
     long jobGroup
     String mediaType
     long browser

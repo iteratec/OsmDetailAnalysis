@@ -1,14 +1,22 @@
 package de.iteratec.osm.da.migration.changeSets
 
+import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
 import de.iteratec.osm.da.asset.AggregatedAssetGroup
 import de.iteratec.osm.da.asset.AssetRequest
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.migration.ChangeSet
 
-class DA_V_1_0_0_MarkoSchnecke_2016_11_28 extends ChangeSet{
+class DA_V_1_0_0_MarkoSchnecke_2016_12_23 extends ChangeSet{
+    MongoClient mongo
+    def grailsApplication
 
     @Override
     Boolean execute() {
+        def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
+        databaseName = databaseName?databaseName:"OsmDetailAnalysis"
+        MongoDatabase db = mongo.getDatabase(databaseName)
+        db.getCollection("aggregatedAssetGroup").remove([:])
         def assetGroups  = AssetRequestGroup.list()
         assetGroups.each {AssetRequestGroup assetRequestGroup->
 
@@ -61,6 +69,7 @@ class DA_V_1_0_0_MarkoSchnecke_2016_11_28 extends ChangeSet{
                             aggregatedAssetGroup.bytesOut_min = assets.bytesOut.min()
                             aggregatedAssetGroup.bytesOut_max = assets.bytesOut.max()
                             aggregatedAssetGroup.count = assets.size()
+                            aggregatedAssetGroup.osmInstance = assetRequestGroup.osmInstance
                             aggregatedAssetGroup.save(failOnError: true, flush: true)
                         }
                     }
