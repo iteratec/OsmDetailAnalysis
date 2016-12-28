@@ -17,17 +17,17 @@ class DA_V_1_0_0_MarkoSchnecke_2016_12_23 extends ChangeSet{
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
         db.getCollection("aggregatedAssetGroup").remove([:])
-        def assetGroupCount = AssetRequestGroup.count
-        def offset = 0
-        def limit = 10
-        AggregatedAssetGroup aggregatedAssetGroup
-        while (offset< assetGroupCount) {
-            log.debug("percent ${100*offset/assetGroupCount}% offset ${offset} assetGroupCount ${assetGroupCount}")
-            log.debug(Runtime.getRuntime().freeMemory()*100/Runtime.getRuntime().maxMemory())
-            createAggregationsForBatch(limit, offset, aggregatedAssetGroup)
-            offset+=limit
-
-        }
+//        def assetGroupCount = AssetRequestGroup.count
+//        def offset = 0
+//        def limit = 10
+//        AggregatedAssetGroup aggregatedAssetGroup
+//        while (offset< assetGroupCount) {
+//            log.debug("percent ${100*offset/assetGroupCount}% offset ${offset} assetGroupCount ${assetGroupCount}")
+//            log.debug(Runtime.getRuntime().freeMemory()*100/Runtime.getRuntime().maxMemory())
+//            createAggregationsForBatch(limit, offset, aggregatedAssetGroup)
+//            offset+=limit
+//
+//        }
         return true
 
     }
