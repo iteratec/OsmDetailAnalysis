@@ -118,7 +118,7 @@ class DetailAnalysisDashboardController {
 
 
 
-        def graphData = assetRequestPersistenceService.getRequestAssetsAsJson(
+        def graphData = assetRequestPersistenceService.getRequestAssetsAsJsonOld(
                 from,
                 to,
                 jobGroupIds,
