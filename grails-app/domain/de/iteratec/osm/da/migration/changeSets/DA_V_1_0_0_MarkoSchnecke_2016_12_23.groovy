@@ -17,16 +17,33 @@ class DA_V_1_0_0_MarkoSchnecke_2016_12_23 extends ChangeSet{
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
         db.getCollection("aggregatedAssetGroup").remove([:])
-        def assetGroups  = AssetRequestGroup.list()
-        assetGroups.each {AssetRequestGroup assetRequestGroup->
+        def assetGroupCount = AssetRequestGroup.count
+        def offset = 0
+        def limit = 10
+        AggregatedAssetGroup aggregatedAssetGroup
+        while (offset< assetGroupCount) {
+            log.debug("percent ${100*offset/assetGroupCount}% offset ${offset} assetGroupCount ${assetGroupCount}")
+            log.debug(Runtime.getRuntime().freeMemory()*100/Runtime.getRuntime().maxMemory())
+            createAggregationsForBatch(limit, offset, aggregatedAssetGroup)
+            offset+=limit
 
-            if(AggregatedAssetGroup.countByJobGroupAndMediaTypeAndBrowserAndPageAndMeasuredEventAndEpochTimeStarted(
+        }
+        return true
+
+    }
+
+    private void createAggregationsForBatch(int limit, int offset, AggregatedAssetGroup aggregatedAssetGroup) {
+        def assetGroups = AssetRequestGroup.list(max: limit, offset: offset, sort: "_id")
+
+        assetGroups.each { AssetRequestGroup assetRequestGroup ->
+            if (AggregatedAssetGroup.countByJobGroupAndMediaTypeAndBrowserAndPageAndMeasuredEventAndEpochTimeStartedAndOsmInstance(
                     assetRequestGroup.jobGroup,
                     assetRequestGroup.mediaType,
                     assetRequestGroup.browser,
                     assetRequestGroup.page,
                     assetRequestGroup.measuredEvent,
-                    assetRequestGroup.epochTimeStarted)==0) {
+                    assetRequestGroup.epochTimeStarted,
+                    assetRequestGroup.osmInstance) == 0) {
 
                 def groups = assetRequestGroup.assets.groupBy(
                         { it.mediaType },
@@ -35,7 +52,7 @@ class DA_V_1_0_0_MarkoSchnecke_2016_12_23 extends ChangeSet{
                 groups.each { mediaType, subTypes ->
                     subTypes.each { subType, urls ->
                         urls.each { url, List<AssetRequest> assets ->
-                            AggregatedAssetGroup aggregatedAssetGroup = new AggregatedAssetGroup()
+                            aggregatedAssetGroup = new AggregatedAssetGroup()
                             aggregatedAssetGroup.jobGroup = assetRequestGroup.jobGroup
                             aggregatedAssetGroup.mediaType = mediaType
                             aggregatedAssetGroup.browser = assetRequestGroup.browser
@@ -76,7 +93,5 @@ class DA_V_1_0_0_MarkoSchnecke_2016_12_23 extends ChangeSet{
                 }
             }
         }
-        return true
-
     }
 }
