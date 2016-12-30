@@ -122,3 +122,6 @@ table.dataTable thead .sorting_desc_disabled { background: url('/assets/bower_co
 #checkboxAvgMinMaxContainer{
     float:right;
 }
+#noDataInfo{
+    text-align: center;
+}

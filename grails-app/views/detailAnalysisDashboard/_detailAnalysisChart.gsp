@@ -193,7 +193,7 @@
         <div class="card-well">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="card">
+                    <div class="card" id="noDataInfo">
                         <g:message code="de.iteratec.osm.da.nodata.info"/>
                     </div>
                 </div>
