@@ -40,7 +40,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         //We set the multiStepFormat, because the new version can delivery single steps with the same format as the multi step results.
         try{
             log.debug("Attempt ${tries +1} to load JsonResponse from WptServer=${fetchJob.wptBaseURL} WptTestId=${fetchJob.wptTestId}")
-            return httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.wptTestId,requests: 1, multiStepFormat:1])
+            return httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.wptTestId,requests: 1, multistepFormat:1])
         } catch (ResponseParseException e){
             if(tries<3){
                 return loadJson(fetchJob, ++tries)
