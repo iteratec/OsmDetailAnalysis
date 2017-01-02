@@ -44,12 +44,16 @@ class AssetRequestPersistenceService {
                 //If there where a null value, we know that a mapping wasnt available and the whole result can be ignored.
                 assetGroups.each {
                     it.save(failOnError: true, flush: true)
-                    saveAssetGroupAsAggregatedAssetGroups(it)
+                    saveAssetGroupAsAggregatedAssetGroup(it)
                 }
             }
         }
     }
-    def saveAssetGroupAsAggregatedAssetGroups( AssetRequestGroup assetRequestGroup){
+    /**
+     * Saves an aggregation of the assets in a AssetRequestGroup used by dc.js.
+     * @param assetRequestGroup
+     */
+    def saveAssetGroupAsAggregatedAssetGroup( AssetRequestGroup assetRequestGroup){
         def groups = assetRequestGroup.assets.groupBy(
                 {it.mediaType},
                 {it.subtype},
@@ -371,7 +375,7 @@ class AssetRequestPersistenceService {
     }
 
     def List<AssetRequestGroup> getAssetRequestGroups(String wptBaseUrl, String wptTestId, String measuredEvent){
-        wptDetailResultConvertService.getEventName(measuredEvent)
-        return AssetRequestGroup.findAllByWptBaseUrlAndWptTestId(wptBaseUrl,wptTestId,measuredEvent)
+        measuredEvent = wptDetailResultConvertService.getEventName(measuredEvent)
+        return AssetRequestGroup.findAllByWptBaseUrlAndWptTestIdAndMeasuredEvent(wptBaseUrl,wptTestId,measuredEvent)
     }
 }

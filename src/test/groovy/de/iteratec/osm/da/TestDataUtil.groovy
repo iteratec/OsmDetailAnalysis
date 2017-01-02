@@ -1,11 +1,14 @@
 package de.iteratec.osm.da
 
+import de.iteratec.osm.da.asset.AssetRequest
+import de.iteratec.osm.da.wpt.LoadPhase
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.Step
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.instances.OsmInstance
+import grails.test.mixin.Mock
 import groovyx.net.http.RESTClient
 import org.apache.http.HttpHost
 import software.betamax.Configuration
@@ -15,11 +18,46 @@ import software.betamax.junit.RecorderRule
 import static org.apache.http.conn.params.ConnRoutePNames.DEFAULT_PROXY
 
 class TestDataUtil {
-    OsmInstance createOsmInstance(){
-
-        def instance = new OsmInstance(name: "TestInstance",url:"http://demo.openspeedmonitor.de")
-        return instance
+    static AssetRequestGroup createAssetRequestGroup() {
+        new AssetRequestGroup(
+                osmInstance: 1,
+                eventName:"Homepage_JuicyShop",
+                measuredEvent:1,
+                page:1,
+                jobId:1,
+                jobGroup:1,
+                location:1,
+                browser:1,
+                epochTimeStarted:1133,
+                mediaType:"Image",
+                isFirstViewInStep:true,
+                wptBaseUrl:"http://wpt.test.url.de",
+                wptTestId:"121212_9R_q0",
+                assets:[createAssetRequest()]
+        ).save(failOnError:true, flush:true)
     }
+
+    static def createAssetRequest() {
+        new AssetRequest(bytesIn:1002,
+                bytesOut:183,
+                connectTimeMs:523,
+                downloadTimeMs:334,
+                loadTimeMs:2223,
+                timeToFirstByteMs:1234,
+                indexWithinHar:1,
+                sslNegotiationTimeMs:72,
+                dnsMs:123123,
+                host:"werbeserver1.de",
+                url:"/mein/werbe/banner.jpg?mit=mehreren&unterschiedlichen=parametern",
+                mediaType: "image",
+                subtype: "jpeg",
+                urlWithoutParams:"/mein/werbe/banner.jpg",
+                startPhase: LoadPhase.DomTime,
+                endPhase: LoadPhase.DomTime
+        ).save(failOnError:true, flush:true)
+    }
+
+    static OsmInstance createOsmInstance(){return new OsmInstance(name: "TestInstance",url:"http://demo.openspeedmonitor.de").save(failOnError:true, flush:true)}
 
     /**
      * Creates a Result, of a test of 2 runs, with 2 steps. In Every step there will be a mimimum of one html and one jpg loaded.

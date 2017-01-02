@@ -24,7 +24,6 @@ class CallbackJobTest extends Specification {
         httpRequestService = Mock(HttpRequestService)
         callbackJob.httpRequestService = httpRequestService
     }
-    @Ignore
     def 'Test that invokation of execute does not do anything if there is not FetchBatch'() {
         given: 'There are no FetchBatches'
 
