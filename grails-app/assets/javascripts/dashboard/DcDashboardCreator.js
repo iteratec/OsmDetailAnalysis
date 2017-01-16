@@ -9,7 +9,6 @@
 function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     labels = labelsParam;
     ajaxUrl = ajaxUrlParam;
-    createChangeSelectionButton();
     if (data[0] == undefined) {
         //No data to show, so just stop here
         $("detailDataContainer").show();
@@ -461,23 +460,6 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
         hideDataTable();
         board.setAnimationTime(700);
     }
-}
-
-function createChangeSelectionButton() {
-    var linkText = document.createTextNode(OsmDetailMicroService.i18n.changeSelectionButtonText);
-    var element = document.createElement("a");
-    element.appendChild(linkText);
-    var currentUrl = window.location.href;
-    var newFunction = "eventResultDashboard/showAll";
-    var newUrl = currentUrl.replace("detailAnalysis/show", newFunction);
-    element.setAttribute("href", newUrl);
-    element.setAttribute("class", "btn btn-primary");
-    element.setAttribute("value", "ChangeSelection");
-    element.setAttribute("name", "ChangeSelection");
-    element.style.float = "right";
-    element.style.marginRight = "15px";
-    var selectionSummary = document.getElementById("selectionSummary");
-    selectionSummary.appendChild(element);
 }
 
 /**
