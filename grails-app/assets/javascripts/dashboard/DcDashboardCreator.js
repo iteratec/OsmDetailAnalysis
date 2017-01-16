@@ -24,95 +24,103 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
     showUniqueValues(dataCounts, data, labels);
 
     // BROWSER FILTER
-    // if (dataCounts['browser'] > 1) {
-        var browser = board.allData.dimension(function (d) {
-            return "" + d['browser'];
-        });
-        var browserGroup = browser.group().reduceSum(function (d) {
-            return d['count']
-        });
-        var browserLabelAccessor = function (d) {
-            return labels['browser'] ? labels['browser'][d.key] : d.key
-        };
-        charts["browser-chart"] = board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
-    // }
+    var browser = board.allData.dimension(function (d) {
+        return "" + d['browser'];
+    });
+    var browserGroup = browser.group().reduceSum(function (d) {
+        return d['count']
+    });
+    var browserLabelAccessor = function (d) {
+        return labels['browser'] ? labels['browser'][d.key] : d.key;
+    };
+    var browserPie = board.addPieChart('dcChart', 'browser-chart', browser, browserGroup, browserLabelAccessor);
+
+    browserPie.title(function (d) {
+        var label = labels['browser'] ? labels['browser'][d.key] : d.key;
+        return label + ": " + d.value;
+    });
+    charts["browser-chart"] = browserPie;
 
     // MEDIATYPE FILTER
-    // if (dataCounts['mediaType'] > 1) {
-        var mediaType = board.allData.dimension(function (d) {
-            return "" + d['mediaType'];
-        });
-        var mediaTypeGroup = mediaType.group().reduceSum(function (d) {
-            return d['count']
-        });
-        var mediaTypeLabelAccessor = function (d) {
-            return d.key
-        };
-        charts["mediaType-chart"] = board.addPieChart('dcChart', 'mediaType-chart', mediaType, mediaTypeGroup, mediaTypeLabelAccessor);
-    // }
+    var mediaType = board.allData.dimension(function (d) {
+        return "" + d['mediaType'];
+    });
+    var mediaTypeGroup = mediaType.group().reduceSum(function (d) {
+        return d['count']
+    });
+    var mediaTypeLabelAccessor = function (d) {
+        return d.key
+    };
+    charts["mediaType-chart"] = board.addPieChart('dcChart', 'mediaType-chart', mediaType, mediaTypeGroup, mediaTypeLabelAccessor);
 
     // SUBTYPE FILTER
-    // if (dataCounts['subtype'] > 1) {
-        var subtype = board.allData.dimension(function (d) {
-            return "" + d['subtype'];
-        });
-        var subtypeGroup = subtype.group().reduceSum(function (d) {
-            return d['count'];
-        });
-        var subtypeLabelAccessor = function (d) {
-            return d.key
-        };
-        charts["subtype-chart"] = board.addPieChart('dcChart', 'subtype-chart', subtype, subtypeGroup, subtypeLabelAccessor);
-    // }
+    var subtype = board.allData.dimension(function (d) {
+        return "" + d['subtype'];
+    });
+    var subtypeGroup = subtype.group().reduceSum(function (d) {
+        return d['count'];
+    });
+    var subtypeLabelAccessor = function (d) {
+        return d.key
+    };
+    charts["subtype-chart"] = board.addPieChart('dcChart', 'subtype-chart', subtype, subtypeGroup, subtypeLabelAccessor);
 
     // PAGE FILTER
-    // if (dataCounts['page'] > 1) {
-        var page = board.allData.dimension(function (d) {
-            return "" + d['page'];
-        });
-        var pageGroup = page.group().reduceSum(function (d) {
-            return d['count'];
-        });
-        var pageLabelAccessor = function (d) {
-            return labels['page'] ? labels['page'][d.key] : d.key
-        };
-        charts["page-chart"] = board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
-    // }
+    var page = board.allData.dimension(function (d) {
+        return "" + d['page'];
+    });
+    var pageGroup = page.group().reduceSum(function (d) {
+        return d['count'];
+    });
+    var pageLabelAccessor = function (d) {
+        return labels['page'] ? labels['page'][d.key] : d.key
+    };
+    var pagePie = board.addPieChart('dcChart', 'page-chart', page, pageGroup, pageLabelAccessor);
+    pagePie.title(function (d) {
+        var label = labels['page'] ? labels['page'][d.key] : d.key;
+        return label + ": " + d.value;
+    });
+    charts["page-chart"] = pagePie;
 
     //JOBGROUP FILTER
-    // if (dataCounts['jobGroup'] > 1) {
-        var jobGroup = board.allData.dimension(function (d) {
-            return "" + d['jobGroup']
-        });
-        var jobGroupGroup = jobGroup.group().reduceSum(function (d) {
-            return d['count'];
-        });
-        var jobGroupLabelAccessor = function (d) {
-            if (d.key < 0) {
-                return "undefined"
-            }
-            return labels['jobGroup'] ? labels['jobGroup'][d.key] : "" + d.key
-        };
-        charts["jobGroup-chart"] = board.addPieChart('dcChart', 'jobGroup-chart', jobGroup, jobGroupGroup, jobGroupLabelAccessor)
-    // }
+    var jobGroup = board.allData.dimension(function (d) {
+        return "" + d['jobGroup']
+    });
+    var jobGroupGroup = jobGroup.group().reduceSum(function (d) {
+        return d['count'];
+    });
+    var jobGroupLabelAccessor = function (d) {
+        if (d.key < 0) {
+            return "undefined"
+        }
+        return labels['jobGroup'] ? labels['jobGroup'][d.key] : "" + d.key
+    };
+    var jobGroupPie = board.addPieChart('dcChart', 'jobGroup-chart', jobGroup, jobGroupGroup, jobGroupLabelAccessor);
+    jobGroupPie.title(function (d) {
+        var label = labels['jobGroup'] ? labels['jobGroup'][d.key] : d.key;
+        return label + ": " + d.value;
+    });
+    charts["jobGroup-chart"] = jobGroupPie;
 
     // MEASURED EVENT FILTER
-    // if (dataCounts['measuredEvent'] > 1) {
-        var measuredEvent = board.allData.dimension(function (d) {
-            return "" + d['measuredEvent'];
-        });
-        var measuredEventGroup = measuredEvent.group().reduceSum(function (d) {
-            return d['count'];
-        });
-        var measuredEventLabelAccessor = function (d) {
-            if (d.key < 0) {
-                return "undefined"
-            }
-            return labels['measuredEvent'] ? labels['measuredEvent'][d.key] : "" + d.key
-        };
-        charts["measuredEvent-chart"] = board.addPieChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup,  measuredEventLabelAccessor);
-        // charts["measuredEvent-chart"] = board.addRowChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, dataCounts['measuredEvent'], measuredEventLabelAccessor);
-    // }
+    var measuredEvent = board.allData.dimension(function (d) {
+        return "" + d['measuredEvent'];
+    });
+    var measuredEventGroup = measuredEvent.group().reduceSum(function (d) {
+        return d['count'];
+    });
+    var measuredEventLabelAccessor = function (d) {
+        if (d.key < 0) {
+            return "undefined"
+        }
+        return labels['measuredEvent'] ? labels['measuredEvent'][d.key] : "" + d.key
+    };
+    var measuredEventPie = board.addPieChart('dcChart', 'measuredEvent-chart', measuredEvent, measuredEventGroup, measuredEventLabelAccessor);
+    measuredEventPie.title(function (d) {
+        var label = labels['measuredEvent'] ? labels['measuredEvent'][d.key] : d.key;
+        return label + ": " + d.value;
+    });
+    charts["measuredEvent-chart"] = measuredEventPie;
 
     // HOST FILTER
     if (dataCounts['host'] > 1) {
@@ -377,29 +385,29 @@ function createDashboard(data, labelsParam, from, to, ajaxUrlParam) {
 
     // Add onClick Listener
     $(document).on('change', 'input:checkbox[name="measurementCheckbox"]', function (event) {
-        $(this).parent().toggleClass( "btn-primary" );
-        $(this).parent().toggleClass( "btn-default" );
+        $(this).parent().toggleClass("btn-primary");
+        $(this).parent().toggleClass("btn-default");
         redrawCompositeChart();
-        $(this).parent().removeClass( "focus" );
+        $(this).parent().removeClass("focus");
     });
 
-    $(document).keyup(function(e) {
+    $(document).keyup(function (e) {
         if (e.keyCode == 27) {
             $(".card-modal").hide();
             $("#preselectedValuesContainer").hide();
         }
     });
 
-    $('.card-modal').click(function() {
+    $('.card-modal').click(function () {
         $(".card-modal").hide();
         $("#preselectedValuesContainer").hide();
     });
-    $('.card-header .close').click(function() {
+    $('.card-header .close').click(function () {
         $(".card-modal").hide();
         $("#preselectedValuesContainer").hide();
     });
 
-    $('.card-modal-inner').click(function(e) {
+    $('.card-modal-inner').click(function (e) {
         e.stopPropagation();
     });
 
@@ -511,7 +519,7 @@ function getDataCounts(data) {
     for (var i = 0; i < data.length; i++) {
         var current_entry = data[i];
         for (var key in current_entry) {
-            if (typeof  uniqueMap[key] == 'undefined')uniqueMap[key] = {};
+            if (typeof  uniqueMap[key] == 'undefined') uniqueMap[key] = {};
             uniqueMap[key][current_entry[key]] = true;
 
         }
@@ -604,7 +612,7 @@ function addOnClickListeners() {
                 var dataCount = getDataCounts(resp);
                 uniqueMap = createUniqueMapFromDataCount(dataCount, resp);
                 fillPreFilteredTable(resp, uniqueMap);
-                fillDataInAssetTable(resp, data,uniqueMap);
+                fillDataInAssetTable(resp, data, uniqueMap);
             }
         });
     });
@@ -618,13 +626,13 @@ function createWptUrl(resp) {
 
     var urlString = resp[0].wptBaseUrl;
     if (urlString.substr(-1) != '/') urlString += '/';
-    urlString += "result/"+ resp[0].wptTestId;
+    urlString += "result/" + resp[0].wptTestId;
 
     var linkText = document.createTextNode(labels['measuredEvent'][resp[0].measuredEvent]);
     wptUrl.appendChild(linkText);
     wptUrl.href = urlString;
 }
-function createUniqueMapFromDataCount(dataCount,data) {
+function createUniqueMapFromDataCount(dataCount, data) {
     var uniqueMap = {};
     for (var key in dataCount) {
         if (dataCount[key] <= 1) {
@@ -633,16 +641,16 @@ function createUniqueMapFromDataCount(dataCount,data) {
     }
     return uniqueMap;
 }
-function fillPreFilteredTable(data,uniqueMap) {
+function fillPreFilteredTable(data, uniqueMap) {
     var isEmpty = true;
     var preFilteredTable = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
     for (var key in uniqueMap) {
-            isEmpty=false;
-            var row = preFilteredTable.insertRow(0);
-            var cellKey = row.insertCell(0);
-            cellKey.innerHTML = key;
-            var cellValue = row.insertCell(1);
-            cellValue.innerHTML = getLable(key, uniqueMap[key])
+        isEmpty = false;
+        var row = preFilteredTable.insertRow(0);
+        var cellKey = row.insertCell(0);
+        cellKey.innerHTML = key;
+        var cellValue = row.insertCell(1);
+        cellValue.innerHTML = getLable(key, uniqueMap[key])
     }
 
 }
@@ -676,7 +684,7 @@ function removeAllRowsFromAssetDetailsTable() {
     }
 }
 
-function fillDataInAssetTable(resp, requestData,uniqueMap) {
+function fillDataInAssetTable(resp, requestData, uniqueMap) {
 
     $(".card-modal").show();
     var tableContainer = document.getElementById("assetDetailsContainer");
@@ -710,12 +718,12 @@ function fillDataInAssetTable(resp, requestData,uniqueMap) {
                 cells[columnsMapping.indexOf(k)].innerHTML = getLable(k, asset[k])
         }
     });
-    if(columnsMapping.length > 0) {
+    if (columnsMapping.length > 0) {
         $("#assetDetailsDatatableContainer").show();
         $("#preselectedValuesHeader").show();
         assetDataTable = $('#assetDetailsTable').DataTable({
             paging: true,
-            scrollX:true,
+            scrollX: true,
             language: {
                 "lengthMenu": OsmDetailMicroService.i18n.dataTableLengthMenu,
                 "zeroRecords": OsmDetailMicroService.i18n.dataTableZeroRecords,
