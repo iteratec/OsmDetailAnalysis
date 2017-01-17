@@ -23,28 +23,39 @@ node ('master'){
 
     withCredentials([
         [
-        $class: 'UsernamePasswordMultiBinding',
-        credentialsId: 'OSMDA_API_KEY_PROD_ITERATEC',
-        passwordVariable: 'OSMDA_API_KEY_PROD_ITERATEC',
-        usernameVariable: 'OSMDA_API_KEY_PROD_ITERATEC_VARNAME'
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'OSMDA_API_KEY_PROD_ITERATEC',
+            passwordVariable: 'OSMDA_API_KEY_PROD_ITERATEC',
+            usernameVariable: 'OSMDA_API_KEY_PROD_ITERATEC_VARNAME'
         ],
         [
-        $class: 'UsernamePasswordMultiBinding',
-        credentialsId: 'OSMDA_API_KEY_DEV_ITERATEC',
-        passwordVariable: 'OSMDA_API_KEY_DEV_ITERATEC',
-        usernameVariable: 'OSMDA_API_KEY_DEV_ITERATEC_VARNAME'
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'OSMDA_API_KEY_DEV_ITERATEC',
+            passwordVariable: 'OSMDA_API_KEY_DEV_ITERATEC',
+            usernameVariable: 'OSMDA_API_KEY_DEV_ITERATEC_VARNAME'
         ],
         [
-        $class: 'UsernamePasswordMultiBinding',
-        credentialsId: 'OSMDA_API_KEY_OTTO',
-        passwordVariable: 'OSMDA_API_KEY_OTTO',
-        usernameVariable: 'OSMDA_API_KEY_OTTO_VARNAME'
-        ]
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'OSMDA_API_KEY_OTTO',
+            passwordVariable: 'OSMDA_API_KEY_OTTO',
+            usernameVariable: 'OSMDA_API_KEY_OTTO_VARNAME'
+        ],
+        [
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'seu_jenkins_iteratec_at_osm_hh_iteratec_de',
+            passwordVariable: 'seu_jenkins_iteratec_at_osm_hh_iteratec_de',
+            usernameVariable: 'seu_jenkins_iteratec_at_osm_hh_iteratec_de_VARNAME'
+        ],
     ]){
 
         stage('prepare env file for compose on host'){
 
             sh './scripts/ci/deploy/prepare_compose_env_file.sh'
+
+        }
+        stage('run compose deployment on host'){
+
+            sh './scripts/ci/deploy/run_compose_deployment.sh'
 
         }
 
