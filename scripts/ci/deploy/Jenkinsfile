@@ -23,6 +23,13 @@ node ('master'){
         sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
     }
 
+    stage('prepare env file for compose on host'){
+
+        sh './scripts/ci/deploy/prepare_compose_env_file.sh'
+
+    }
+
+
   } catch(e) {
 
     currentBuild.result = "FAILED"
