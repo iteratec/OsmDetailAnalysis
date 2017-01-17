@@ -6,7 +6,16 @@ node ('master'){
 
     stage('SCM'){
 
-     git 'https://github.com/iteratec/OsmDetailAnalysis.git'
+     //git 'https://github.com/iteratec/OsmDetailAnalysis.git'
+
+        checkout([
+         $class: 'GitSCM',
+         branches: [[name: '*/develop']],
+         doGenerateSubmoduleConfigurations: false,
+         extensions: [],
+         submoduleCfg: [],
+         userRemoteConfigs: [[url: 'https://github.com/iteratec/OsmDetailAnalysis.git']]
+        ])
 
     }
 
