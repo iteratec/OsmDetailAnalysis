@@ -6,15 +6,13 @@ node ('master'){
 
     stage('SCM'){
 
-     //git 'https://github.com/iteratec/OsmDetailAnalysis.git'
-
         checkout([
-         $class: 'GitSCM',
-         branches: [[name: '*/develop']],
-         doGenerateSubmoduleConfigurations: false,
-         extensions: [],
-         submoduleCfg: [],
-         userRemoteConfigs: [[url: 'https://github.com/iteratec/OsmDetailAnalysis.git']]
+            $class: 'GitSCM',
+            branches: [[name: '*/develop']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'https://github.com/iteratec/OsmDetailAnalysis.git']]
         ])
 
     }
@@ -22,7 +20,7 @@ node ('master'){
     stage('Copy compose file to host'){
         sh 'pwd'
         sh 'ls -la'
-        //sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
+        sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
     }
 
   } catch(e) {
