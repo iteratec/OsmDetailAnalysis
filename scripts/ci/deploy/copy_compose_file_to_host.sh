@@ -9,6 +9,7 @@ echo "create directory for OsmDetailAnalysis on target host"
 echo "####################################################"
 echo "-> create directory $COMPOSE_BIN_FOLDER"
 ssh -p $osmda_host_ssh_port -o "StrictHostKeyChecking no" $osmda_host_os_username@$osmda_host /bin/bash <<EOT
+echo "" > /tmp/${stderr_file}
 if [ ! -d "$COMPOSE_BIN_FOLDER" ]; then
 	mkdir $COMPOSE_BIN_FOLDER
 fi 2> /tmp/${stderr_file}
