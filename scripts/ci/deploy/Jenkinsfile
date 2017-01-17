@@ -18,14 +18,35 @@ node ('master'){
     }
 
     stage('Copy compose file to host'){
-        sh 'pwd'
-        sh 'ls -la'
         sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
     }
 
-    stage('prepare env file for compose on host'){
+    withCredentials([
+        [
+        $class: 'UsernamePasswordMultiBinding',
+        credentialsId: 'OSMDA_API_KEY_PROD_ITERATEC',
+        passwordVariable: 'OSMDA_API_KEY_PROD_ITERATEC',
+        usernameVariable: 'OSMDA_API_KEY_PROD_ITERATEC_VARNAME'
+        ],
+        [
+        $class: 'UsernamePasswordMultiBinding',
+        credentialsId: 'OSMDA_API_KEY_DEV_ITERATEC',
+        passwordVariable: 'OSMDA_API_KEY_DEV_ITERATEC',
+        usernameVariable: 'OSMDA_API_KEY_DEV_ITERATEC_VARNAME'
+        ],
+        [
+        $class: 'UsernamePasswordMultiBinding',
+        credentialsId: 'OSMDA_API_KEY_OTTO',
+        passwordVariable: 'OSMDA_API_KEY_OTTO',
+        usernameVariable: 'OSMDA_API_KEY_OTTO_VARNAME'
+        ]
+    ]){
 
-        sh './scripts/ci/deploy/prepare_compose_env_file.sh'
+        stage('prepare env file for compose on host'){
+
+            sh './scripts/ci/deploy/prepare_compose_env_file.sh'
+
+        }
 
     }
 
