@@ -9,7 +9,9 @@ node ('master'){
     }
 
     stage('Copy compose file to host'){
-     sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
+        sh 'pwd'
+        sh 'ls -la'
+        //sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
     }
 
   } catch(e) {
