@@ -39,13 +39,7 @@ node ('master'){
             credentialsId: 'OSMDA_API_KEY_OTTO',
             passwordVariable: 'OSMDA_API_KEY_OTTO',
             usernameVariable: 'OSMDA_API_KEY_OTTO_VARNAME'
-        ],
-        [
-            $class: 'UsernamePasswordMultiBinding',
-            credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
-            passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
-            usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE_VARNAME'
-        ],
+        ]
     ]){
 
         stage('prepare env file for compose on host'){
@@ -53,13 +47,25 @@ node ('master'){
             sh './scripts/ci/deploy/prepare_compose_env_file.sh'
 
         }
-        stage('run compose deployment on host'){
-
-            sh './scripts/ci/deploy/run_compose_deployment.sh'
-
-        }
 
     }
+
+    withCredentials([
+            [
+                $class: 'UsernamePasswordMultiBinding',
+                credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
+                passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
+                usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE_VARNAME'
+            ],
+        ]){
+
+            stage('run compose deployment on host'){
+
+                sh './scripts/ci/deploy/run_compose_deployment.sh'
+
+            }
+
+        }
 
 
   } catch(e) {
