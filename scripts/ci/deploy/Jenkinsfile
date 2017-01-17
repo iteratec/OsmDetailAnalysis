@@ -61,7 +61,7 @@ node ('master'){
 
             stage('run compose deployment on host'){
 
-                sh './scripts/ci/deploy/run_compose_deployment.sh'
+                sh 'cat ./scripts/ci/deploy/run_compose_deployment.sh'
 
             }
 
