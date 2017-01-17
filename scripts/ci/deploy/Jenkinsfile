@@ -42,9 +42,9 @@ node ('master'){
         ],
         [
             $class: 'UsernamePasswordMultiBinding',
-            credentialsId: 'seu_jenkins_iteratec_at_osm_hh_iteratec_de',
-            passwordVariable: 'seu_jenkins_iteratec_at_osm_hh_iteratec_de',
-            usernameVariable: 'seu_jenkins_iteratec_at_osm_hh_iteratec_de_VARNAME'
+            credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
+            passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
+            usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE_VARNAME'
         ],
     ]){
 
