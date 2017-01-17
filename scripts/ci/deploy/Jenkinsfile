@@ -1,0 +1,35 @@
+#!groovy
+
+node ('master'){
+
+  try{
+
+    stage('SCM'){
+     git 'git@github.com:iteratec/OsmDetailAnalysis.git'
+    }
+
+    stage('Copy compose file to host'){
+     sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
+    }
+
+  } catch(e) {
+
+    currentBuild.result = "FAILED"
+    notifyFailed()
+    throw e
+
+  }
+
+}
+
+def notifyFailed() {
+  def subject = "${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def body = """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+  <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""
+
+  mail(
+   body: body,
+   subject: subject,
+   to: 'nils.kuhn@iteratec.de'
+  )
+}
