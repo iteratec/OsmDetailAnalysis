@@ -17,15 +17,13 @@ node ('master'){
 
     }
 
-    stage('Copy compose file to host'){
-        sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
-    }
-
-    withCredentials([[$class: 'StringBinding', credentialsId: '', variable: 'tra']]) {
-        // some block
-    }
-
     withCredentials([
+        [
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS',
+            passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_PASSWORD',
+            usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME'
+        ],
         [
             $class: 'StringBinding',
             credentialsId: 'OSMDA_API_KEY_PROD_ITERATEC',
@@ -42,37 +40,30 @@ node ('master'){
             variable: 'OSMDA_API_KEY_OTTO'
         ],
         [
-         $class: 'UsernamePasswordMultiBinding',
-         credentialsId: 'OSMDA_API_KEY_DEMO',
-         variable: 'OSMDA_API_KEY_DEMO'
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'OSMDA_API_KEY_DEMO',
+            variable: 'OSMDA_API_KEY_DEMO'
         ]
     ]){
 
-        stage('prepare env file for compose on host'){
+        stage('Copy compose file to host.'){
+            sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
+        }
+
+        stage('Prepare env file for compose on host.'){
 
             sh './scripts/ci/deploy/prepare_compose_env_file.sh'
 
         }
 
-    }
+        stage('Run compose deployment on host.'){
 
-    withCredentials([
-            [
-                $class: 'UsernamePasswordMultiBinding',
-                credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS',
-                passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_PASSWORD',
-                usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME'
-            ],
-        ]){
-
-            stage('run compose deployment on host'){
-
-                sh 'cat ./scripts/ci/deploy/run_compose_deployment.sh'
-                sh './scripts/ci/deploy/run_compose_deployment.sh'
-
-            }
+            sh 'cat ./scripts/ci/deploy/run_compose_deployment.sh'
+            sh './scripts/ci/deploy/run_compose_deployment.sh'
 
         }
+
+    }
 
 
   } catch(e) {
