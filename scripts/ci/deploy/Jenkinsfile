@@ -21,24 +21,30 @@ node ('master'){
         sh './scripts/ci/deploy/copy_compose_file_to_host.sh'
     }
 
+    withCredentials([[$class: 'StringBinding', credentialsId: '', variable: 'tra']]) {
+        // some block
+    }
+
     withCredentials([
         [
-            $class: 'UsernamePasswordMultiBinding',
+            $class: 'StringBinding',
             credentialsId: 'OSMDA_API_KEY_PROD_ITERATEC',
-            passwordVariable: 'OSMDA_API_KEY_PROD_ITERATEC',
-            usernameVariable: 'OSMDA_API_KEY_PROD_ITERATEC_VARNAME'
+            variable: 'OSMDA_API_KEY_PROD_ITERATEC'
         ],
         [
             $class: 'UsernamePasswordMultiBinding',
             credentialsId: 'OSMDA_API_KEY_DEV_ITERATEC',
-            passwordVariable: 'OSMDA_API_KEY_DEV_ITERATEC',
-            usernameVariable: 'OSMDA_API_KEY_DEV_ITERATEC_VARNAME'
+            variable: 'OSMDA_API_KEY_DEV_ITERATEC'
         ],
         [
             $class: 'UsernamePasswordMultiBinding',
             credentialsId: 'OSMDA_API_KEY_OTTO',
-            passwordVariable: 'OSMDA_API_KEY_OTTO',
-            usernameVariable: 'OSMDA_API_KEY_OTTO_VARNAME'
+            variable: 'OSMDA_API_KEY_OTTO'
+        ],
+        [
+         $class: 'UsernamePasswordMultiBinding',
+         credentialsId: 'OSMDA_API_KEY_DEMO',
+         variable: 'OSMDA_API_KEY_DEMO'
         ]
     ]){
 
@@ -53,9 +59,9 @@ node ('master'){
     withCredentials([
             [
                 $class: 'UsernamePasswordMultiBinding',
-                credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
-                passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE',
-                usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE_VARNAME'
+                credentialsId: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS',
+                passwordVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_PASSWORD',
+                usernameVariable: 'SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME'
             ],
         ]){
 

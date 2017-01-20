@@ -16,9 +16,12 @@ echo "OSMDA_INITIAL_OSM_URL1=http://dev.openspeedmonitor.wpt.iteratec.de" >> ./d
 echo "OSMDA_INITIAL_API_KEY2=$OSMDA_API_KEY_OTTO" >> ./docker/.env-osmda
 echo "OSMDA_INITIAL_OSM_URL2=https://iteraspeedmonitor.otto.wpt.iteratec.de" >> ./docker/.env-osmda
 
+echo "OSMDA_INITIAL_API_KEY3=$OSMDA_API_KEY_DEMO" >> ./docker/.env-osmda
+echo "OSMDA_INITIAL_OSM_URL3=http://demo.openspeedmonitor.org" >> ./docker/.env-osmda
+
 echo "OSMDA_JVM_XMS=1024m" >> ./docker/.env-osmda
 echo "OSMDA_JVM_XMX=8192m" >> ./docker/.env-osmda
 
 echo "copy environment-vars file to target host"
 echo "####################################################"
-scp -P $osmda_host_ssh_port -o "StrictHostKeyChecking no" ./docker/.env-osmda $osmda_host_os_username@$osmda_host:"${COMPOSE_BIN_FOLDER}/"
+scp -P $osmda_host_ssh_port -o "StrictHostKeyChecking no" ./docker/.env-osmda $SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME@$osmda_host:"${COMPOSE_BIN_FOLDER}/"
