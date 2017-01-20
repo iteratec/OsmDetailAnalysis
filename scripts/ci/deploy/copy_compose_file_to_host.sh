@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# set -e
+
+# Exit  immediately  if  a pipeline (which may consist of a single simple command), a list, or a compound command
+# (see SHELL GRAMMAR above),  exits with a non-zero status.
+set -e
+# After expanding each simple command, for command, case command, select command, or arithmetic for command,
+# display the expanded value of PS4, followed by the command and its expanded  arguments  or  associated word list.
+#set -x
 
 COMPOSE_BIN_FOLDER="~/OsmDetailAnalysis"
 stderr_file="osm_${osmda_host}_stderr.txt"
