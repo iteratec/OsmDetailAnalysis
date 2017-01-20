@@ -30,17 +30,17 @@ node ('master'){
             variable: 'OSMDA_API_KEY_PROD_ITERATEC'
         ],
         [
-            $class: 'UsernamePasswordMultiBinding',
+            $class: 'StringBinding',
             credentialsId: 'OSMDA_API_KEY_DEV_ITERATEC',
             variable: 'OSMDA_API_KEY_DEV_ITERATEC'
         ],
         [
-            $class: 'UsernamePasswordMultiBinding',
+            $class: 'StringBinding',
             credentialsId: 'OSMDA_API_KEY_OTTO',
             variable: 'OSMDA_API_KEY_OTTO'
         ],
         [
-            $class: 'UsernamePasswordMultiBinding',
+            $class: 'StringBinding',
             credentialsId: 'OSMDA_API_KEY_DEMO',
             variable: 'OSMDA_API_KEY_DEMO'
         ]
