@@ -10,10 +10,10 @@ echo "SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE=$SEU_JENKINS_ITERATEC_AT_OSM_HH
 ssh -p $osmda_host_ssh_port -o "StrictHostKeyChecking no" $osmda_host_os_username@$osmda_host /bin/bash <<EOT
 echo "" > /tmp/${stderr_file}
 cd $COMPOSE_BIN_FOLDER
-echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose stop 2> /tmp/${stderr_file}
-echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose rm -f 2> /tmp/${stderr_file}
-echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose pull 2> /tmp/${stderr_file}
-echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose up -d 2> /tmp/${stderr_file}
+#echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose stop 2> /tmp/${stderr_file}
+#echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose rm -f 2> /tmp/${stderr_file}
+#echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose pull 2> /tmp/${stderr_file}
+#echo "$SEU_JENKINS_ITERATEC_AT_OSM_HH_ITERATEC_DE" | sudo -S docker-compose up -d 2> /tmp/${stderr_file}
 EOT
 
 echo "get stderr from remote host"
