@@ -2,8 +2,8 @@ version: '2'
 services:
   osm_da:
     image: iteratec/osm-detail-analysis
-    networks:
-      - osmda-network
+#    networks:
+#      - osmda-network
     ports:
      - "8088:8081"
     links:
@@ -13,14 +13,14 @@ services:
 
   osm_mongodb:
     image:  mongo:3.2
-    networks:
-          - osmda-network
+#    networks:
+#          - osmda-network
     volumes:
       - osm_mongodb_data:/data/db
 
-networks:
-  osmda-network:
-    driver: default
+#networks:
+#  osmda-network:
+#    driver: default
 
 volumes:
   osm_mongodb_data:
