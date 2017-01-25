@@ -16,7 +16,7 @@ echo "####################################################"
 echo "-> create directory $COMPOSE_BIN_FOLDER"
 ssh -p $osmda_host_ssh_port -o "StrictHostKeyChecking no" $SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME@$osmda_host /bin/bash <<EOT
 echo "" > /tmp/${stderr_file}
-if [ ! -d "$COMPOSE_BIN_FOLDER" ]; then
+if [ ! -d $COMPOSE_BIN_FOLDER ]; then
 	mkdir $COMPOSE_BIN_FOLDER
 fi 2> /tmp/${stderr_file}
 EOT
