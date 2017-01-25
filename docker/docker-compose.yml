@@ -19,7 +19,8 @@ services:
       - osm_mongodb_data:/data/db
 
 networks:
-  driver: default
+  osmda-network:
+    driver: default
 
 volumes:
   osm_mongodb_data:
