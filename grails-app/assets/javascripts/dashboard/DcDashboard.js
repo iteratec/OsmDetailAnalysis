@@ -131,7 +131,24 @@ DcDashboard.prototype.addCompositeChart = function (dashboardIdentifier, chartId
         .elasticY(true)
         .elasticX(true)
         .yAxisLabel("ms")
-        .legend(dc.legend().x(20).y(450).itemHeight(13).gap(5).horizontal(true).autoItemWidth(true).legendWidth(1000))
+        .legend(dc.legend().x(20).y(450).itemHeight(13).gap(10).horizontal(true).autoItemWidth(true).legendWidth(1000).legendText(function (d) {
+            // calculate min / max / avg of visible data point and add this information to chart legend
+            var dataLabel;
+            var dataPoints = d.chart.data()[0].values.map(function (elem) {
+                return Number(elem.y)
+            });
+            if (d.name.toLowerCase().endsWith('max')) {
+                dataLabel = Math.max.apply(null, dataPoints);
+            } else if (d.name.toLowerCase().endsWith('min')) {
+                dataLabel = Math.min.apply(null, dataPoints);
+            } else {
+                var sum = dataPoints.reduce(function (a, b) {
+                    return a + b
+                }, 0);
+                dataLabel = parseFloat(Math.round(sum / dataPoints.length * 100) / 100).toFixed(2);
+            }
+            return d.name + " (" + dataLabel + ")";
+        }))
         .x(d3.time.scale().domain([from, to]))
         .xUnits(d3.time.days)
         .compose([]);
@@ -158,10 +175,10 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
         .colors(color)
         .elasticY(true);
 
-    if(unit == "bytes"){
+    if (unit == "bytes") {
         chart.useRightYAxis(true);
     }
-    window.onresize = function(event) {
+    window.onresize = function (event) {
         dc.renderAll();
         addOnClickListeners();
     };
@@ -171,13 +188,13 @@ DcDashboard.prototype.createLineChart = function (parent, dimension, group, colo
 };
 
 DcDashboard.prototype.setAnimationTime = function (time) {
-    for(var i = 0; i < this.allDashboardGraphs.length; i++) {
+    for (var i = 0; i < this.allDashboardGraphs.length; i++) {
         this.allDashboardGraphs[i].transitionDuration(time);
     }
 };
 
 DcDashboard.prototype.getTimeChart = function (dashboardIdentifier, chartIdentifier) {
-    if(!this.timeChart)
+    if (!this.timeChart)
         this.timeChart = dc.barChart('#' + dashboardIdentifier + ' #' + chartIdentifier);
     return this.timeChart
 };
@@ -201,7 +218,6 @@ DcDashboard.prototype.addTimeChart = function (dashboardIdentifier, chartIdentif
 
     chart.yAxis().ticks(5);
     chart.yAxisPadding("5%");
-
 
 
     dc.renderAll();
