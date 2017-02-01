@@ -1,26 +1,18 @@
 version: '2'
+
 services:
+
   osm_da:
-    image: iteratec/osm-detail-analysis
-#    networks:
-#      - osmda-network
+    image: iteratec/osm-detail-analysis:latest
     ports:
      - "8088:8081"
-    links:
-     - osm_mongodb
     env_file:
        - .env-osmda
 
   osm_mongodb:
     image:  mongo:3.2
-#    networks:
-#          - osmda-network
     volumes:
       - osm_mongodb_data:/data/db
-
-#networks:
-#  osmda-network:
-#    driver: default
 
 volumes:
   osm_mongodb_data:
