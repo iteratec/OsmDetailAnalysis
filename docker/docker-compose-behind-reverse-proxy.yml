@@ -5,7 +5,7 @@ services:
   osm_da:
     image: iteratec/osm-detail-analysis:latest
     env_file:
-       - .env-osmda-behind-reverse-proxy
+       - .env-osmda
 
   osm_mongodb:
     image:  mongo:3.2

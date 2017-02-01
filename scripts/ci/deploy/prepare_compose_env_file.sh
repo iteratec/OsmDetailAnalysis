@@ -29,6 +29,8 @@ echo "OSMDA_INITIAL_OSM_URL3=http://demo.openspeedmonitor.org" >> ./docker/.env-
 echo "OSMDA_JVM_XMS=1024m" >> ./docker/.env-osmda
 echo "OSMDA_JVM_XMX=8192m" >> ./docker/.env-osmda
 
+echo "VIRTUAL_HOST=$osmda_url" >> ./docker/.env-osmda
+
 echo "copy environment-vars file to target host"
 echo "####################################################"
 scp -P $osmda_host_ssh_port -o "StrictHostKeyChecking no" ./docker/.env-osmda $SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME@$osmda_host:"${COMPOSE_BIN_FOLDER}/"

@@ -29,4 +29,4 @@ echo "-> stderr create folder END"
 
 echo "copy compose file to target host"
 echo "####################################################"
-scp -P $osmda_host_ssh_port -o "StrictHostKeyChecking no" ./docker/docker-compose.yml $SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME@$osmda_host:"${COMPOSE_BIN_FOLDER}/"
+scp -P $osmda_host_ssh_port -o "StrictHostKeyChecking no" ./docker/docker-compose-behind-reverse-proxy.yml $SEU_JENKINS_ITERATEC_AT_OSM_HOSTS_USERNAME@$osmda_host:"${COMPOSE_BIN_FOLDER}/docker-compose.yml"
