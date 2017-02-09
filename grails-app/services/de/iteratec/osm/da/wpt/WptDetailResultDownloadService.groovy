@@ -1,102 +1,47 @@
 package de.iteratec.osm.da.wpt
 
-import de.iteratec.osm.da.asset.AssetRequestGroup
-import de.iteratec.osm.da.fetch.FailedFetchJob
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import de.iteratec.osm.da.wpt.resolve.WptDetailDataStrategyI
-import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
-import de.iteratec.osm.da.wpt.resolve.WptQueueFillWorker
-import de.iteratec.osm.da.wpt.resolve.WptWorker
+import de.iteratec.osm.da.wpt.resolve.*
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptVersionNotSupportedException
-import org.junit.internal.runners.statements.Fail
+import org.springframework.beans.factory.InitializingBean
 
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.PriorityBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
+
 /**
- * This service handles the downloading of the detail data from WPT.
+ * This wptDetailResultDownloadService handles the downloading of the detail data from WPT.
  * The downloading will be queued and therefore eventually persisted. The queue will be persisted.
- * All downloaded data will be passed to the persistence service and therefore will be persisted.
+ * All downloaded data will be passed to the persistence wptDetailResultDownloadService and therefore will be persisted.
  */
-class WptDetailResultDownloadService {
+class WptDetailResultDownloadService implements InitializingBean {
 
-    /**
-     * Number of workers which should download data from wpt.
-     * Not that if you change this value you have to disable and enable the worker again.
-     */
-    Integer NUMBER_OF_WORKERS = 10
-    /**
-     * This boolean should be false at start.
-     * It used to determine if the worker should be cancelled
-     */
-    boolean workerShouldRun = false
-    /**
-     * Maximum tries a FetchJob should get, until it will be ignored
-     */
-    int maxTryCount = 3
     /**
      * Maximum FetchJob which should be cached in each queue.
      */
-    int queueMaximumInMemory = 100
+    final static int QUEUE_MAXIMUM_IN_MEMORY = 100
+    /**
+     * Number of workers which should download data from wpt.
+     */
+    final static int NUMBER_OF_DOWNLOAD_WORKER_THREADS = 10
+    final static int keepAliveTimeInSeconds = 5
+    final static int FILL_QUEUE_INTERVAL_IN_SEC = 30
+    final BlockingQueue<WptDownloadTask> queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY);
+
+    ThreadPoolExecutor downloadTaskExecutorService
+    private ScheduledExecutorService scheduler
+
+    /**
+     * Maximum tries a FetchJob should get, until it will be ignored
+     */
+    static int MAX_TRY_COUNT = 3
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
     FailedFetchJobService failedFetchJobService
-
-    /**
-     * This List will cache FetchJobs and will be used from WptQueueDownloadWorker to get new Jobs to fetch.
-     * WptQueueFillWorker will fill the queues from the database in background.
-     */
-    final HashMap<Priority, PriorityBlockingQueue<FetchJob>> queueHashMap = [(Priority.Low):createQueue(),
-                                                                             (Priority.Normal):createQueue(),
-                                                                             (Priority.High):createQueue()]
-    /**
-     * Every worker will take a FetchJob from the normalPriorityQueue. If this happens we have to note that in this list,
-     * so the WptFillQueFillWorker will know that this FetchJob is still in progress and should't be added to the queues again.
-     */
-    final HashSet<FetchJob> inProgress = []
-    /**
-     * This pool is used for multiple WptDownloadWorker to download WPTResults. We add one additional Thread to fill the queues.
-     */
-    ThreadPoolExecutor executor = Executors.newFixedThreadPool(NUMBER_OF_WORKERS + 1) as ThreadPoolExecutor
-    List<WptWorker> workerList = []
-
-
-    /**
-     * Stops all worker. All currently running will finish their current job and
-     */
-    void disableWorker() {
-        workerShouldRun = false
-    }
-
-    /**
-     * Starts the worker. This will only has an effect, if the worker weren't running
-     */
-    void startWorker() {
-        if (!workerShouldRun) {
-            workerShouldRun = true
-            NUMBER_OF_WORKERS.times {
-                WptDownloadWorker worker = new WptDownloadWorker(this)
-                executor.execute(worker)
-                workerList << worker
-            }
-            WptQueueFillWorker fillWorker = new WptQueueFillWorker(this)
-            executor.execute(fillWorker)
-            workerList << fillWorker
-        }
-    }
-
-    private PriorityBlockingQueue<FetchJob> createQueue(){
-        return new PriorityBlockingQueue<>(queueMaximumInMemory, Collections.reverseOrder())
-    }
 
     /**
      * Add a Job to the normalPriorityQueue, so the assets will be downloaded eventually
@@ -108,13 +53,13 @@ class WptDetailResultDownloadService {
      * @param priority
      * @param fetchBatch
      */
-    public int addNewFetchJobToQueue(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority, FetchBatch fetchBatch = null) {
+    int createNewFetchJob(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority, FetchBatch fetchBatch = null) {
         int numberOfNewFetchJobs = 0
 
         log.debug("Persist ${wptTestIds.size()} wptTestIds as FetchJobs.")
 
-        wptTestIds.each {String wptTestId ->
-            FetchJob fetchJob = new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+        wptTestIds.each { String wptTestId ->
+            new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
                     wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch: fetchBatch).save(flush: true, failOnError: true)
             numberOfNewFetchJobs++
             log.debug("Created a FetchJob for WptId=$wptTestId")
@@ -123,77 +68,33 @@ class WptDetailResultDownloadService {
         return numberOfNewFetchJobs
     }
 
-    private void addToQueue(FetchJob fetchJob, Priority priority){
-        synchronized (queueHashMap[priority]) {
-            if (queueHashMap[priority].size() < queueMaximumInMemory) {
-                log.debug("Add the following FetchJob to queueHashMap with priority ${priority}:\n${fetchJob}")
-                queueHashMap[priority].offer(fetchJob)
-            }
-        }
-    }
-
-    public void addExistingFetchJobToQueue(List<FetchJob> jobsToAdd, Priority priority){
-        jobsToAdd.each {queueHashMap[priority].put(it)}
-        log.info("Added ${jobsToAdd.size()} jobs to $priority queue")
-    }
-
     /**
      * Marks a job as failed and removes it from progress
      * @param job
      */
-    public void markJobAsFailed(FetchJob job, Exception e){
-
-        if(job) {
-            job.withNewSession {
-                job.tryCount++
-                log.debug("Try ${job.tryCount} for Job ${job.id}")
-                if (job.tryCount >= maxTryCount) {
-                    if (job.fetchBatch) {
-                        synchronized (job.fetchBatch) {
-                            job.fetchBatch.addFailure(job)
-                            job.fetchBatch = null
+    void markJobAsFailed(FetchJob job, Exception e) {
+        if (job) {
+            try {
+                job.withNewSession {
+                    job.tryCount++
+                    log.debug("Try ${job.tryCount} for Job ${job.id}")
+                    if (job.tryCount >= MAX_TRY_COUNT) {
+                        if (job.fetchBatch) {
+                            synchronized (job.fetchBatch) {
+                                job.fetchBatch.addFailure(job)
+                                job.fetchBatch = null
+                            }
                         }
                     }
+                    job.save(failOnError: true, flush: true)
                 }
-                job.save(failOnError: true, flush: true)
+                if (job.tryCount >= MAX_TRY_COUNT) {
+                    failedFetchJobService.markJobAsFailed(job, e)
+                }
+            } catch (Exception exception) {
+                log.debug("caught exception while marking job as failed: ${exception.getMessage()}")
             }
-            if (job.tryCount >= maxTryCount) {
-                failedFetchJobService.markJobAsFailed(job, e)
-            }
-            inProgress.remove(job)
         }
-    }
-
-    /**
-     * Deletes a job and removes it from progress
-     * @param job
-     */
-    public void deleteJob(FetchJob job) {
-        log.debug("delete job ${job.id}")
-        job.delete(flush: true)
-        inProgress.remove(job)
-    }
-    /**
-     * Retrievs a job from the qeue and adds it to progress
-     * @return
-     */
-    public synchronized FetchJob getNextJob() {
-        FetchJob currentJob = null
-        while(!currentJob){
-            currentJob = queueHashMap[Priority.High].poll(2, TimeUnit.SECONDS)
-            if(!currentJob) currentJob = queueHashMap[Priority.Normal].poll(500, TimeUnit.MILLISECONDS)
-            if(!currentJob) currentJob = queueHashMap[Priority.Low].poll(500, TimeUnit.MILLISECONDS)
-        }
-        inProgress << currentJob
-        return currentJob
-    }
-
-    public List<Priority> getAvailablePriorities(){
-        return queueHashMap.keySet().collect()
-    }
-
-    public int getJobCountInQueueByPriority(Priority priority){
-        return queueHashMap[priority].size()
     }
 
     /**
@@ -204,9 +105,28 @@ class WptDetailResultDownloadService {
      */
     public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
         WptDetailDataStrategyI strategy = wptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
-        if(!strategy){
-            throw new WptVersionNotSupportedException(fetchJob.wptBaseURL,fetchJob.wptTestId, fetchJob.wptVersion)
+        if (!strategy) {
+            throw new WptVersionNotSupportedException(fetchJob.wptBaseURL, fetchJob.wptTestId, fetchJob.wptVersion)
         }
         return strategy.getResult(fetchJob)
+    }
+
+    int getActiveThreadCount() {
+        return downloadTaskExecutorService.getActiveCount()
+    }
+
+    int getQueuedJobCount() {
+        return QUEUE_MAXIMUM_IN_MEMORY - downloadTaskExecutorService.getQueue().remainingCapacity()
+    }
+
+    @Override
+    void afterPropertiesSet() throws Exception {
+        downloadTaskExecutorService = new ThreadPoolExecutor(
+                NUMBER_OF_DOWNLOAD_WORKER_THREADS, NUMBER_OF_DOWNLOAD_WORKER_THREADS,
+                keepAliveTimeInSeconds, TimeUnit.SECONDS,
+                queue);
+
+        scheduler = Executors.newScheduledThreadPool(1)
+        scheduler.scheduleAtFixedRate(new WptDownloadTaskCreator(downloadTaskExecutorService, this), FILL_QUEUE_INTERVAL_IN_SEC, FILL_QUEUE_INTERVAL_IN_SEC, TimeUnit.SECONDS);
     }
 }

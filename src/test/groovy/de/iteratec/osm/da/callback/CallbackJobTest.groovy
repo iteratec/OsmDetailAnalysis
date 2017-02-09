@@ -5,12 +5,8 @@ import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.fetch.Priority
 import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
 import org.joda.time.DateTime
-import org.junit.Ignore
 import spock.lang.Specification
-
-import javax.persistence.criteria.Fetch
 
 /**
  * Created by marko on 07.09.16.

@@ -4,10 +4,11 @@ class FailedFetchJob {
 
     FetchFailReason reason
     String message
-    @Delegate FetchJob originalJob
+    @Delegate
+    FetchJob originalJob
     static constraints = {
         reason nullable: false
-        message nullable: false
+        message nullable: true
         fetchBatch nullable: true
     }
 }

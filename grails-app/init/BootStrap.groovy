@@ -12,7 +12,6 @@ class BootStrap {
     def init = { servletContext ->
         initOsmInstances()
         MigrationUtil.executeChanges()
-        wptDetailResultDownloadService.startWorker()
     }
 
     private void initOsmInstances() {

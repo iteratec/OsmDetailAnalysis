@@ -1,12 +1,8 @@
 package de.iteratec.osm.da.api
 
-import de.iteratec.osm.da.fetch.Priority
-import de.iteratec.osm.da.instances.OsmInstance
+import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
-import de.iteratec.osm.da.wpt.data.WPTVersion
-import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
 import grails.converters.JSON
-import grails.validation.Validateable
 
 class StatusRestApiController {
 
@@ -24,29 +20,12 @@ class StatusRestApiController {
         render message
     }
 
+    def getFetchJobStatus() {
+        StatusDTO statusDTO = new StatusDTO()
+        statusDTO.activeThreads = wptDetailResultDownloadService.getActiveThreadCount()
+        statusDTO.jobsInDB = FetchJob.countByTryCountLessThan(wptDetailResultDownloadService.MAX_TRY_COUNT)
 
-    def getQueueStatus(){
-        Map<String, Integer> sizes = [:]
-        Priority.values().each {
-            sizes[it.name()] = wptDetailResultDownloadService.getJobCountInQueueByPriority(it)
-        }
-        sendJSONResponseAsStream(200, sizes as JSON)
-    }
-
-    def getWorkerStatus(){
-        List<Map<String, Object>> map = []
-
-        wptDetailResultDownloadService.workerList.each {
-            map << ["Type":it.type.toString(),
-                    "id":it.id,
-                    "LastTimeStartWaiting":it.lastTimeStartWaiting,
-                    "LastTimeEndOfAction":it.lastEndOfAction]
-        }
-        sendJSONResponseAsStream(200, map as JSON)
-    }
-
-    def getActiveWorkerThreads(){
-        Map<String, String> map = ["ActiveThreads":wptDetailResultDownloadService.executor.getActiveCount()]
-        sendJSONResponseAsStream(200, map as JSON)
+        statusDTO.queuedJobs = wptDetailResultDownloadService.getQueuedJobCount()
+        sendJSONResponseAsStream(200, statusDTO as JSON)
     }
 }

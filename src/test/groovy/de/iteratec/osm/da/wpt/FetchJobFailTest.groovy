@@ -8,7 +8,7 @@ import de.iteratec.osm.da.fetch.*
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
-import de.iteratec.osm.da.wpt.resolve.WptDownloadWorker
+import de.iteratec.osm.da.wpt.resolve.WptDownloadTask
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.junit.Rule
@@ -33,12 +33,11 @@ class FetchJobFailTest extends Specification{
         createServices()
         createOsmInstance()
         int failedJobsBefore = FailedFetchJob.list().size()
-        WptDownloadWorker worker = new WptDownloadWorker(service)
-        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
 
         when: "We start the fetching process"
-        worker.fetch()
+        wptDownloadTask.run()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobs = FailedFetchJob.list()
@@ -53,11 +52,11 @@ class FetchJobFailTest extends Specification{
         createServices()
         createOsmInstance()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        WptDownloadWorker worker = new WptDownloadWorker(service)
-        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
+
         when: "We start the fetching process"
-        worker.fetch()
+        wptDownloadTask.run()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
@@ -72,11 +71,11 @@ class FetchJobFailTest extends Specification{
         createServices()
         createOsmInstance()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        WptDownloadWorker worker = new WptDownloadWorker(service)
-        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
+
         when: "We start the fetching process"
-        worker.fetch()
+        wptDownloadTask.run()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
@@ -90,28 +89,29 @@ class FetchJobFailTest extends Specification{
         createServices()
         new OsmInstance(name:"TestInstance", url:"http://localhost:8080").save()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        WptDownloadWorker worker = new WptDownloadWorker(service)
-        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
+
         when: "We start the fetching process"
-        worker.fetch()
+        wptDownloadTask.run()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
         failedFetchJobDifference.size() == 1
         failedFetchJobDifference[0].reason == FetchFailReason.MAPPINGS_NOT_AVAILABLE
     }
+
     @Betamax(tape="test_not_found")
     def "Job should fail if test doesnt exist"(){
         given: "A FetchJob with no steps"
         createServices()
         new OsmInstance(name:"TestInstance", url:"http://localhost:8080").save()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        WptDownloadWorker worker = new WptDownloadWorker(service)
-        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D3"],"2.19", Priority.Normal)
-        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D3"],"2.19", Priority.Normal)
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
+
         when: "We start the fetching process"
-        worker.fetch()
+        wptDownloadTask.run()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
@@ -126,11 +126,11 @@ class FetchJobFailTest extends Specification{
         createServices()
         new OsmInstance(name:"TestInstance", url:"http://localhost:8080").save()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        WptDownloadWorker worker = new WptDownloadWorker(service)
-        service.addNewFetchJobToQueue(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addExistingFetchJobToQueue([FetchJob.get(1)],Priority.Normal)
+        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
+
         when: "We start the fetching process"
-        worker.fetch()
+        wptDownloadTask.run()
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
@@ -151,8 +151,6 @@ class FetchJobFailTest extends Specification{
     }
 
     private void createServices(){
-        service.disableWorker()
-        service.executor.shutdownNow()
         HttpRequestService httpRequestService = new HttpRequestService()
         TestDataUtil.mockHttpRequestServiceToUseBetamax(httpRequestService)
         service.wptDetailDataStrategyService = new WptDetailDataStrategyService()
@@ -163,14 +161,6 @@ class FetchJobFailTest extends Specification{
         service.assetRequestPersistenceService.wptDetailResultConvertService = new WptDetailResultConvertService()
         service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService = new MappingService()
         service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService.httpRequestService = httpRequestService
-        service.maxTryCount = 1
+        WptDetailResultDownloadService.MAX_TRY_COUNT = 1
     }
-
-    private WptDownloadWorker createWorker(){
-        WptDetailResultDownloadService downloadService = new WptDetailResultDownloadService(failedFetchJobService: service,
-                assetRequestPersistenceService: new AssetRequestPersistenceService(wptDetailResultConvertService:new WptDetailResultConvertService()))
-        WptDownloadWorker worker = new WptDownloadWorker(downloadService)
-        return worker
-    }
-
 }

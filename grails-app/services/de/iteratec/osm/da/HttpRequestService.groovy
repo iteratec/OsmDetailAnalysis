@@ -80,7 +80,7 @@ class HttpRequestService {
 
     /**
      * Turn a String representation of the query from a URL into a map of parameter
-     * which can be used with other Methods from this service
+     * which can be used with other Methods from this wptDetailResultDownloadService
      * @param query
      * @return
      */

@@ -53,7 +53,7 @@ class RestApiController {
             sendSimpleResponseAsStream(400,"WPT Version ${command.wptVersion} is not valid")
             return
         }
-        wptDetailResultDownloadService.addNewFetchJobToQueue(osmInstanceId,command.jobId, command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion, Priority.Normal)
+        wptDetailResultDownloadService.createNewFetchJob(osmInstanceId,command.jobId, command.jobGroupId,command.wptServerBaseUrl,command.wptTestId, command.wptVersion, Priority.Normal)
         sendSimpleResponseAsStream(200,"Added to normalPriorityQueue")
     }
     def persistAssetsBatchJob(PersistenceBatchCommand command){
@@ -76,7 +76,7 @@ class RestApiController {
         FetchBatch fetchBatch = new FetchBatch(callbackUrl:command.callbackUrl,osmUrl:command.osmUrl,callBackId:command.callbackJobId)
         int numberOfFetchJobs = 0
         command.persistanceJobList.each{
-            numberOfFetchJobs+=wptDetailResultDownloadService.addNewFetchJobToQueue(osmInstanceId,it.jobId, it.jobGroupId,it.wptServerBaseUrl,[it.wptTestId], it.wptVersion,Priority.Normal, fetchBatch)
+            numberOfFetchJobs+=wptDetailResultDownloadService.createNewFetchJob(osmInstanceId,it.jobId, it.jobGroupId,it.wptServerBaseUrl,[it.wptTestId], it.wptVersion,Priority.Normal, fetchBatch)
         }
         fetchBatch.countFetchJobs = numberOfFetchJobs
         fetchBatch.queuingDone = true
