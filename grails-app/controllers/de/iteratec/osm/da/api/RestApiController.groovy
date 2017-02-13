@@ -190,7 +190,7 @@ public class PersistenceCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
@@ -226,7 +226,7 @@ public class PersistenceBatchCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
@@ -244,7 +244,7 @@ public class UrlUpdateCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
@@ -267,7 +267,7 @@ public class MappingCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.url == cmd.osmUrl) validApiKey = it
+                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true

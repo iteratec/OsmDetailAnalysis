@@ -1,3 +1,4 @@
+import de.iteratec.osm.da.HttpRequestService
 import de.iteratec.osm.da.api.ApiKey
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
@@ -7,7 +8,6 @@ import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 
 class BootStrap {
     def grailsApplication
-    WptDetailResultDownloadService wptDetailResultDownloadService
 
     def init = { servletContext ->
         initOsmInstances()
@@ -19,17 +19,18 @@ class BootStrap {
         apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
             boolean apiKeyIsKnown = false
             List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
+            String configOsmUrl = OsmInstance.ensureUrlHasTrailingSlash(apiKeyOsmTupel.osmUrl)
+
             apiKeys.each { ApiKey apiKey ->
-                if (apiKey.osmInstance.url == apiKeyOsmTupel.osmUrl) {
+                if (apiKey.osmInstance.urlEqual(configOsmUrl)) {
                     apiKeyIsKnown = true
                 }
             }
             if (!apiKeyIsKnown) {
-                def osmUrl = apiKeyOsmTupel.osmUrl.endsWith("/") ? apiKeyOsmTupel.osmUrl : apiKeyOsmTupel.osmUrl + "/"
-                OsmInstance osmInstance = OsmInstance.findByUrl(osmUrl)
+                OsmInstance osmInstance = OsmInstance.findByUrl(configOsmUrl)
                 if (!osmInstance) {
-                    osmInstance = new OsmInstance([name                : osmUrl,
-                                                   url                 : osmUrl,
+                    osmInstance = new OsmInstance([name                : configOsmUrl,
+                                                   url                 : configOsmUrl,
                                                    jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
                                                    locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
                                                    measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),

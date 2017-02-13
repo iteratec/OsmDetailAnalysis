@@ -28,34 +28,33 @@ package de.iteratec.osm.da.api
  */
 class RestApiInterceptor {
 
-    public RestApiInterceptor(){
+    public RestApiInterceptor() {
         match(controller: "restApi", action: ~/securedViaApiKey.*/)
 //        match(controller: "detailAnalysisDashboard", action: ~/.*/)
 
     }
 
     boolean before() {
-        if( params.apiKey == null || params.osmUrl == null) {
+        if (params.apiKey == null || params.osmUrl == null) {
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
         List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(params.apiKey)
-        if( !apiKeys ) {
+        if (!apiKeys) {
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
         def apiKey
-        def osmUrlParam = params.osmUrl.endsWith("/")?params.osmUrl:params.osmUrl+"/"
-        apiKeys.each{
-            if(it.osmInstance.url == osmUrlParam){
-                apiKey= it
+        apiKeys.each {
+            if (it.osmInstance.urlEqual(params.osmUrl)) {
+                apiKey = it
             }
         }
-        if(!apiKey){
+        if (!apiKey) {
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
-        if( !apiKey.valid ) {
+        if (!apiKey.valid) {
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
@@ -65,11 +64,11 @@ class RestApiInterceptor {
 
     private void prepareErrorResponse(javax.servlet.http.HttpServletResponse response, Integer httpStatus, String message) {
         response.setContentType('text/plain;charset=UTF-8')
-        response.status=httpStatus
+        response.status = httpStatus
 
         Writer textOut = new OutputStreamWriter(response.getOutputStream())
         textOut.write(message)
-        response.status=httpStatus
+        response.status = httpStatus
 
         textOut.flush()
         response.getOutputStream().flush()

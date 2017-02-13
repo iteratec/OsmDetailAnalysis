@@ -7,21 +7,15 @@ import de.iteratec.osm.da.mapping.OsmDomain
  *
  * Example:
  *
- * {
- *     name:OsmDemo
+ *{*     name:OsmDemo
  *     url:demo.openspeedmonitor.org
- *     jobGroupMapping:{
- *         domain: "JobGroup"
- *         mapping: {
- *             1: "A Job"
+ *     jobGroupMapping:{*         domain: "JobGroup"
+ *         mapping: {*             1: "A Job"
  *             2: "Another Job"
  *             ...
- *         }
- *     }
- *     locationMapping...
+ *}*}*     locationMapping...
  *     ...
- * }
- *
+ *}*
  */
 class OsmInstance {
 
@@ -40,26 +34,35 @@ class OsmInstance {
     OsmMapping browserMapping = new OsmMapping(domain: OsmDomain.Browser)
     OsmMapping pageMapping = new OsmMapping(domain: OsmDomain.Page)
     OsmMapping jobMapping = new OsmMapping(domain: OsmDomain.Job)
-    static embedded = ['jobGroupMapping','locationMapping','measuredEventMapping','browserMapping', 'pageMapping', 'jobMapping']
+    static embedded = ['jobGroupMapping', 'locationMapping', 'measuredEventMapping', 'browserMapping', 'pageMapping', 'jobMapping']
 
     static constraints = {
     }
 
-    static String ensureUrlHasTrailingSlash(String url){
+    static String ensureUrlHasTrailingSlash(String url) {
         url = url.endsWith('/') ? url : url + '/'
         return url
     }
 
-    void setUrl(String url) {
-        this.url = ensureUrlHasTrailingSlash(url)
+    def beforeInsert() {
+        this.url = ensureUrlHasTrailingSlash(this.url)
     }
-/**
+
+    def beforeUpdate() {
+        this.url = ensureUrlHasTrailingSlash(this.url)
+    }
+
+    boolean urlEqual(String otherUrl) {
+        return this.url.equals(ensureUrlHasTrailingSlash(otherUrl))
+    }
+
+    /**
      * Get the right map for a OsmDomain
      * @param domain
      * @return OsmMapping
      */
-    public OsmMapping getMapping(OsmDomain domain){
-        switch (domain){
+    public OsmMapping getMapping(OsmDomain domain) {
+        switch (domain) {
             case OsmDomain.Browser: return browserMapping
             case OsmDomain.MeasuredEvent: return measuredEventMapping
             case OsmDomain.Location: return locationMapping
