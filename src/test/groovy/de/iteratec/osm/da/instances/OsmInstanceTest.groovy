@@ -1,15 +1,22 @@
 package de.iteratec.osm.da.instances
 
+import grails.test.mixin.Mock
 import spock.lang.Specification
 import spock.lang.Unroll
 
+@Mock([OsmInstance])
 class OsmInstanceTest extends Specification {
 
     @Unroll("Test that a OsmInstance with url #givenUrl will return the url #expectedUrl")
     def "Test URLs with trailing slash"() {
         given:
-        expect:
-        new OsmInstance(url: givenUrl).url == expectedUrl
+        String instanceName = "testInstance"
+
+        when:
+        new OsmInstance(name: instanceName, url: givenUrl).save(failOnError: true)
+
+        then: "url has trailing slash after saving"
+        OsmInstance.findByName(instanceName).url == expectedUrl
 
         where:
         givenUrl                 | expectedUrl
