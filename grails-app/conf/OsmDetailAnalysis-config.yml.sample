@@ -9,6 +9,7 @@ grails:
                     apiKeys:
                         list:
                         # apiKeys for openspeedmonitor-instances.
-                        # if key contains special characters it must be quoted with single quotes, e.g. 'key$%/'. It must NOT be quoted with ""!
+                        # if key contains special characters it must be quoted with single quotes, e.g. 'key-123'. It must NOT be quoted with ""!
+                        # apiKey should only have alphanumerical characters and dashes [a-zA-Z0-9\-]+
                         -   key: abc
                             osmUrl: "http://localhost:8080"
