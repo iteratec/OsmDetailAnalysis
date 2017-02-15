@@ -43,6 +43,9 @@ class DetailAnalysisDashboardController {
     Map<String, Object> show(DetailAnalysisDashboardCommand cmd) {
         log.debug("Got DetailAnalysisDashboardCommand ... start collecting data")
         if (cmd.hasErrors()) {
+            if(cmd.errors.hasFieldErrors('apiKey')) {
+                sendSimpleResponseAsStream(403, "apiKey not valid")
+            }
             StringWriter sw = new StringWriter()
             cmd.errors.getFieldErrors().each { fieldError ->
                 sw << "Error field ${fieldError.getField()}: ${fieldError.getCode()}\n"
