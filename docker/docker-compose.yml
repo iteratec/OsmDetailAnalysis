@@ -6,8 +6,12 @@ services:
     image: iteratec/osm-detail-analysis:latest
     ports:
      - "8088:8081"
-    env_file:
-       - .env-osmda
+    environment:
+      OSMDA_MONGODB_HOST: osm_mongodb
+      OSMDA_INITIAL_API_KEY: api_key_osm_da
+      OSMDA_INITIAL_OSM_URL: http://localhost:8080
+      OSMDA_JVM_XMS: 1024m
+      OSMDA_JVM_XMX: 4096m
 
   osm_mongodb:
     image:  mongo:3.2
