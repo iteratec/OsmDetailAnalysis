@@ -43,6 +43,11 @@ node ('master'){
             $class: 'StringBinding',
             credentialsId: 'OSMDA_API_KEY_DEMO',
             variable: 'OSMDA_API_KEY_DEMO'
+        ],
+        [
+            $class: 'StringBinding',
+            credentialsId: 'OSMDA_API_KEY_LHT',
+            variable: 'OSMDA_API_KEY_LHT'
         ]
     ]){
 

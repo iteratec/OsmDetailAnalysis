@@ -26,6 +26,9 @@ echo "OSMDA_INITIAL_OSM_URL2=https://iteraspeedmonitor.otto.wpt.iteratec.de" >> 
 echo "OSMDA_INITIAL_API_KEY3=$OSMDA_API_KEY_DEMO" >> ./docker/.env-osmda
 echo "OSMDA_INITIAL_OSM_URL3=http://demo.openspeedmonitor.org" >> ./docker/.env-osmda
 
+echo "OSMDA_INITIAL_API_KEY4=$OSMDA_API_KEY_LHT" >> ./docker/.env-osmda
+echo "OSMDA_INITIAL_OSM_URL4=http://lht.openspeedmonitor.wpt.iteratec.de" >> ./docker/.env-osmda
+
 echo "OSMDA_JVM_XMS=1024m" >> ./docker/.env-osmda
 echo "OSMDA_JVM_XMX=8192m" >> ./docker/.env-osmda
 
