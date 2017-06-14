@@ -112,6 +112,16 @@ class DetailAnalysisDashboardCommand extends OsmCommand {
             if (manualTimeframe && currentTo == null) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.to.nullWithManualSelection']
             else if (manualTimeframe && currentTo != null && cmd.from != null && currentTo.isBefore(cmd.from)) return ['de.iteratec.isr.EventResultDashboardController$ShowAllCommand.to.beforeFromDate']
         })
+
+        selectedFolder(nullable: true)
+        selectedPages(nullable: true)
+        selectedBrowsers(nullable: true)
+        selectedMeasuredEventIds(nullable: true)
+        selectedLocations(nullable: true)
+        bandwidthDown(nullable: true)
+        packetloss(nullable: true)
+        latency(nullable: true)
+        bandwidthUp(nullable: true)
     }
 
     Interval createTimeFrameInterval() {
