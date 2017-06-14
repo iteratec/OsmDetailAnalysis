@@ -5,20 +5,17 @@ import com.mongodb.MongoClient
 import com.mongodb.client.AggregateIterable
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
-import com.mongodb.util.JSON
 import de.iteratec.osm.da.asset.AggregatedAssetGroup
 import de.iteratec.osm.da.asset.AssetRequest
-import de.iteratec.osm.da.instances.OsmInstance
-
-import static com.mongodb.client.model.Accumulators.*
 import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
+import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.wpt.WptDetailResultConvertService
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import grails.transaction.Transactional
 import groovy.json.JsonOutput
 import org.bson.Document
 
+import static com.mongodb.client.model.Accumulators.*
 import static com.mongodb.client.model.Aggregates.*
 import static com.mongodb.client.model.Filters.*
 
@@ -142,20 +139,16 @@ class AssetRequestPersistenceService {
             List<Long> jobGroups,
             List<Long> pages,
             List<Long> browsers,
-            boolean selectedAllBrowsers,
             List<Long> locations,
-            boolean selectedAllLocations,
-            boolean selectedAllConnectivityProfiles,
             Integer bandwidthUp,
             Integer bandwidthDown,
             Integer latency,
             Integer packetloss,
             List<Long> measuredEvents,
-            boolean selectedAllMeasuredEvents,
             String osmUrl
 
     ){
-        log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} selectedAllBrowsers = ${selectedAllBrowsers} locations = ${locations} selectedAllLocations = ${selectedAllLocations} selectedAllConnectivityProfiles = ${selectedAllConnectivityProfiles} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents} selectedAllMeasuredEvents = ${selectedAllMeasuredEvents}")
+        log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} locations = ${locations} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents}")
         List aggregateList = []
         List matchList = []
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
@@ -168,15 +161,13 @@ class AssetRequestPersistenceService {
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
         if (jobGroups) matchList << Filters.in("jobGroup", jobGroups)
         if (pages) matchList << Filters.in("page", pages)
-        if (!selectedAllBrowsers && browsers) matchList << Filters.in("browser", browsers)
-        if (!selectedAllLocations && locations) matchList << Filters.in("location", locations)
-        if (!selectedAllMeasuredEvents && measuredEvents) matchList << Filters.in("measuredEvent", measuredEvents)
-        if (!selectedAllConnectivityProfiles) {
-            if (bandwidthUp) matchList << eq("bandwidthUp", bandwidthUp)
-            if (bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)
-            if (packetloss) matchList << eq("packetLoss", packetloss)
-            if (latency) matchList << eq("latency", latency)
-        }
+        if (browsers) matchList << Filters.in("browser", browsers)
+        if (locations) matchList << Filters.in("location", locations)
+        if (measuredEvents) matchList << Filters.in("measuredEvent", measuredEvents)
+        if (bandwidthUp) matchList << eq("bandwidthUp", bandwidthUp)
+        if (bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)
+        if (packetloss) matchList << eq("packetLoss", packetloss)
+        if (latency) matchList << eq("latency", latency)
         matchList << eq ("osmInstance", OsmInstance.findByUrl(osmUrlParam).id)
         aggregateList << match(and(matchList)) //filter out unwanted assets
         AggregateIterable<Document> resultList = db.getCollection("aggregatedAssetGroup").aggregate(aggregateList).allowDiskUse(true)

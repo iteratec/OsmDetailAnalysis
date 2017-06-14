@@ -24,18 +24,12 @@ import grails.converters.JSON
 import grails.web.mapping.LinkGenerator
 import groovyx.net.http.ContentType
 import org.joda.time.DateTime
-
-import java.text.SimpleDateFormat
-import java.util.zip.GZIPOutputStream
-
+import org.joda.time.Interval
 /**
  * DetailAnalysisDashboardController
  * A controller class handles incoming web requests and performs actions such as redirects, rendering views and so on.
  */
 class DetailAnalysisDashboardController {
-
-    public static final String DATE_TIME_FORMAT_STRING = 'dd.MM.yyyy'
-
     AssetRequestPersistenceService assetRequestPersistenceService
     MappingService mappingService
     LinkGenerator grailsLinkGenerator
@@ -87,23 +81,7 @@ class DetailAnalysisDashboardController {
     }
 
     private void fillWithDashboardData(Map<String, Object> modelToRender, DetailAnalysisDashboardCommand cmd) {
-        Date from
-        Date to
-        if(!cmd.toDate || !cmd.fromDate) {
-            println(cmd.toDate)
-            println(cmd.fromDate)
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm")
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
-            def toHour = 0
-            if (cmd.toHour) toHour = simpleDateFormat.parse(cmd.toHour).time
-            def fromHour = 0
-            if (cmd.fromHour) fromHour = simpleDateFormat.parse(cmd.fromHour).time
-            from = new Date(cmd.from.time + fromHour)
-            to = new Date(cmd.to.time + toHour)
-        }else{
-            from = cmd.fromDate
-            to = cmd.toDate
-        }
+        Interval selectedTimeFrame = cmd.createTimeFrameInterval()
         List<Long> jobGroupIds = cmd.selectedFolder as List
         List<Long> pageIds = cmd.selectedPages as List
         List<Long> browserIds = cmd.selectedBrowsers as List
@@ -114,36 +92,28 @@ class DetailAnalysisDashboardController {
         Integer packetloss = cmd.packetloss
         List<Long> measuredEventIds = cmd.selectedMeasuredEventIds as List
 
-        boolean selectedAllBrowsers = cmd.selectedAllBrowsers
-        boolean selectedAllLocations = cmd.selectedAllLocations
-        boolean selectedAllConnectivityProfiles = cmd.selectedAllConnectivityProfiles
-        boolean selectedAllMeasuredEvents = cmd.selectedAllMeasuredEvents
-
-
+        Date fromDate = selectedTimeFrame.start.toDate()
+        Date toDate = selectedTimeFrame.end.toDate()
 
         def graphData = assetRequestPersistenceService.getRequestAssetsAsJson(
-                from,
-                to,
+                fromDate,
+                toDate,
                 jobGroupIds,
                 pageIds,
                 browserIds,
-                selectedAllBrowsers,
                 locationIds,
-                selectedAllLocations,
-                selectedAllConnectivityProfiles,
                 bandwidthUp,
                 bandwidthDown,
                 latency,
                 packetloss,
                 measuredEventIds,
-                selectedAllMeasuredEvents,
                 cmd.osmUrl)
 
         modelToRender.put('graphData', graphData)
-        modelToRender.put('fromDateInMillis', from.time)
-        modelToRender.put('toDateInMillis', to.time)
-        modelToRender.put('fromDate', from)
-        modelToRender.put('toDate', to)
+        modelToRender.put('fromDateInMillis', selectedTimeFrame.startMillis)
+        modelToRender.put('toDateInMillis', selectedTimeFrame.endMillis)
+        modelToRender.put('fromDate', fromDate)
+        modelToRender.put('toDate', toDate)
 
         fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
         fillWithI18N(modelToRender)
