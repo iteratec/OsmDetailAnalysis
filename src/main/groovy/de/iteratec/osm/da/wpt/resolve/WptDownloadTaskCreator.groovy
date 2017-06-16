@@ -37,7 +37,10 @@ class WptDownloadTaskCreator implements Runnable {
             idsToIgnore << it.fetchJob.id
         }
 
+        log.debug("Get jobs from database to fill executor queue (remaining capacity:${currentQueue.remainingCapacity()}, " +
+                  "elements in queue: ${currentQueue.size()}")
         Set<FetchJob> fetchJobsToQueue = loadJobsFromDatabase(currentQueue.remainingCapacity(), idsToIgnore, WptDetailResultDownloadService.MAX_TRY_COUNT)
+        log.debug("Got ${fetchJobsToQueue.size()} jobs from the database to queue.")
         fetchJobsToQueue.each {
             try {
                 executorService.execute(new WptDownloadTask(it, wptDetailResultDownloadService))
@@ -61,6 +64,7 @@ class WptDownloadTaskCreator implements Runnable {
 
         def notAddedJobsButStillJobsInDB = true
         while (notAddedJobsButStillJobsInDB) {  //needed in case we have a lot of duplicates in the mongobd
+            log.debug("Trying to get maximum of ${maximumAmount} queued jobs from the database")
             FetchJob.withNewSession {
                 List<FetchJob> jobsToAdd = FetchJob.createCriteria().list(max: maximumAmount) {
                     and {
@@ -75,10 +79,19 @@ class WptDownloadTaskCreator implements Runnable {
 
                 if (jobsToAdd?.size() > 0) {
                     jobsToAdd.each { FetchJob fetchJob ->
-                        int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstance(fetchJob.wptBaseURL, fetchJob.wptTestId, fetchJob.osmInstance)
-                        int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(fetchJob.wptBaseURL, fetchJob.wptTestId, fetchJob.osmInstance)
+                        int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstance(
+                                fetchJob.wptBaseURL,
+                                fetchJob.wptTestId,
+                                fetchJob.osmInstance
+                        )
+                        int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(
+                                fetchJob.wptBaseURL,
+                                fetchJob.wptTestId,
+                                fetchJob.osmInstance
+                        )
 
                         if (identicalFetchJobs > 1 || alreadyLoadedAssetGroups > 0) {
+                            log.debug("Job ${fetchJob.toString()} is a duplicated, deleting it.")
                             fetchJob.delete(failOnError: true)// It's not necessary to download the assets twice
                         } else {
                             notAddedJobsButStillJobsInDB = false

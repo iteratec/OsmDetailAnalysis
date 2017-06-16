@@ -124,9 +124,10 @@ class WptDetailResultDownloadService implements InitializingBean {
         downloadTaskExecutorService = new ThreadPoolExecutor(
                 NUMBER_OF_DOWNLOAD_WORKER_THREADS, NUMBER_OF_DOWNLOAD_WORKER_THREADS,
                 keepAliveTimeInSeconds, TimeUnit.SECONDS,
-                queue);
+                queue)
 
         scheduler = Executors.newScheduledThreadPool(1)
-        scheduler.scheduleAtFixedRate(new WptDownloadTaskCreator(downloadTaskExecutorService, this), FILL_QUEUE_INTERVAL_IN_SEC, FILL_QUEUE_INTERVAL_IN_SEC, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(new WptDownloadTaskCreator(downloadTaskExecutorService, this),
+                FILL_QUEUE_INTERVAL_IN_SEC, FILL_QUEUE_INTERVAL_IN_SEC, TimeUnit.SECONDS)
     }
 }
