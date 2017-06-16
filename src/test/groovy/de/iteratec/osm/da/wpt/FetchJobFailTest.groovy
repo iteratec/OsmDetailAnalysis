@@ -42,6 +42,7 @@ class FetchJobFailTest extends Specification{
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobs = FailedFetchJob.list()
         failedFetchJobs.size()  - failedJobsBefore == 1
+        FetchJob.count() == 0
         failedFetchJobs[0].reason == FetchFailReason.NO_STEPS_FOUND
     }
 
@@ -61,6 +62,7 @@ class FetchJobFailTest extends Specification{
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
         failedFetchJobDifference.size() == 1
+        FetchJob.count() == 0
         failedFetchJobDifference[0].reason == FetchFailReason.WPT_TEST_WAS_CANCELLED
     }
 
@@ -80,6 +82,7 @@ class FetchJobFailTest extends Specification{
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
         failedFetchJobDifference.size() == 1
+        FetchJob.count() == 0
         failedFetchJobDifference[0].reason == FetchFailReason.WPT_NOT_AVAILABLE
     }
 
@@ -98,6 +101,7 @@ class FetchJobFailTest extends Specification{
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
         failedFetchJobDifference.size() == 1
+        FetchJob.count() == 0
         failedFetchJobDifference[0].reason == FetchFailReason.MAPPINGS_NOT_AVAILABLE
     }
 
@@ -116,6 +120,7 @@ class FetchJobFailTest extends Specification{
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
         failedFetchJobDifference.size() == 1
+        FetchJob.count() == 0
         failedFetchJobDifference[0].reason == FetchFailReason.WPT_TEST_ID_DOESNT_EXIST
     }
 
@@ -135,6 +140,7 @@ class FetchJobFailTest extends Specification{
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobDifference = FailedFetchJob.list() - failedJobsBefore
         failedFetchJobDifference.size() == 1
+        FetchJob.count() == 0
         failedFetchJobDifference[0].reason == FetchFailReason.MISSING_VALUES
     }
 
