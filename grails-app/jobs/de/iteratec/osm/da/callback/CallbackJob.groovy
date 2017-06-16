@@ -12,7 +12,7 @@ class CallbackJob {
     HttpRequestService httpRequestService
 
     def execute(){
-        FetchBatch.findAllByQueuingDone(false).each { FetchBatch fetchBatch ->
+        FetchBatch.findAllByQueuingDone(true).each { FetchBatch fetchBatch ->
             fetchBatch.withNewSession {
                 log.debug("Start logging of FetchBatch ${fetchBatch.id} to OSM with url ${fetchBatch.osmUrl}.")
                 int countAssets = fetchBatch.countFetchJobs
