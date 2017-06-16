@@ -22,11 +22,12 @@ class WptDetailResultDownloadService implements InitializingBean {
     /**
      * Maximum FetchJob which should be cached in each queue.
      */
-    final static int QUEUE_MAXIMUM_IN_MEMORY = 100
+    final static int QUEUE_MAXIMUM_IN_MEMORY = 200
     /**
      * Number of workers which should download data from wpt.
      */
-    final static int NUMBER_OF_DOWNLOAD_WORKER_THREADS = 10
+    final static int CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS = 20
+    final static int MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS = 40
     final static int keepAliveTimeInSeconds = 5
     final static int FILL_QUEUE_INTERVAL_IN_SEC = 30
     final BlockingQueue<WptDownloadTask> queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY);
@@ -122,9 +123,8 @@ class WptDetailResultDownloadService implements InitializingBean {
     @Override
     void afterPropertiesSet() throws Exception {
         downloadTaskExecutorService = new ThreadPoolExecutor(
-                NUMBER_OF_DOWNLOAD_WORKER_THREADS, NUMBER_OF_DOWNLOAD_WORKER_THREADS,
-                keepAliveTimeInSeconds, TimeUnit.SECONDS,
-                queue)
+                CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS, MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS,
+                keepAliveTimeInSeconds, TimeUnit.SECONDS, queue)
 
         scheduler = Executors.newScheduledThreadPool(1)
         scheduler.scheduleAtFixedRate(new WptDownloadTaskCreator(downloadTaskExecutorService, this),
