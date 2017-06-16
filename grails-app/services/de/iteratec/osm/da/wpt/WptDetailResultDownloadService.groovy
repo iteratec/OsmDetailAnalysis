@@ -22,7 +22,7 @@ class WptDetailResultDownloadService implements InitializingBean {
     /**
      * Maximum FetchJob which should be cached in each queue.
      */
-    final static int QUEUE_MAXIMUM_IN_MEMORY = 200
+    final static int QUEUE_MAXIMUM_IN_MEMORY = 1000
     /**
      * Number of workers which should download data from wpt.
      */
