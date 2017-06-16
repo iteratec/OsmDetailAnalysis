@@ -112,7 +112,7 @@ class CallbackJobTest extends Specification {
 
     }
 
-    def 'Test that the FetchBatch is deactivated after there was no change for 15 min'() {
+    def 'Test that the FetchBatch is deactivated after there was no change for more than 15 min'() {
         given: 'There are two FetchJobs and the queueing is done'
 
         FetchBatch fetchBatch = new FetchBatch(callbackUrl:"TestCallbackUrl", osmUrl: "TestOsmUrl", callBackId: 1, countFetchJobs:2, lastValue:1,queuingDone:true).save()
@@ -132,8 +132,8 @@ class CallbackJobTest extends Specification {
         FetchBatch.list().size() == 1
         fetchBatch.queuingDone == true // job is still active
 
-        when: "Last update was 15 min ago"
-        fetchBatch.lastUpdate = new DateTime().minusMinutes(15).toDate()
+        when: "Last update was 16 min ago"
+        fetchBatch.lastUpdate = new DateTime().minusMinutes(16).toDate()
 //        fetchBatch.save()
         callbackJob.execute()
 
