@@ -42,7 +42,7 @@ class WptDownloadTaskCreator implements Runnable {
             try {
                 executorService.execute(new WptDownloadTask(it, wptDetailResultDownloadService))
             } catch (Exception e) {
-                log.debug("an exception occured while trying to queue fetchJob ${it}: ${e.getMessage()}")
+                log.error("an exception occured while trying to queue fetchJob ${it}: ${e.getMessage()}", e)
             }
         }
         log.debug("${fetchJobsToQueue.size()} fetchJobs queued")
