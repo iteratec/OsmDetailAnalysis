@@ -3,11 +3,7 @@ package de.iteratec.osm.da.wpt
 import de.iteratec.osm.da.fetch.FailedFetchJob
 import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.wpt.data.Request
-import de.iteratec.osm.da.wpt.data.Step
-import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultProcessingException
-import grails.transaction.Transactional
 
 class FailedFetchJobService {
 
@@ -22,6 +18,7 @@ class FailedFetchJobService {
         log.error("Job with id ${job?.id} encountert an error while trying to get the following result:\n" +
                     "'${job.getWptBaseURL()}/jsonResult.php?test=${job.wptTestId}&requests=1&multiStepFormat=1'."+
                     "Reason: ${failedFetchJob.reason}, Message: ${failedFetchJob.message}")
+        job.delete(failOnError: true)
         return failedFetchJob
     }
 
