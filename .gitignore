@@ -39,6 +39,7 @@
 # node/bower build files
 /node_modules
 bower_components
+.asscache
 
 # ignore intellij-specifics
 *.iml
