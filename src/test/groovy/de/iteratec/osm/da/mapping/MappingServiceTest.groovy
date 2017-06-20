@@ -1,21 +1,16 @@
 package de.iteratec.osm.da.mapping
 
 import de.iteratec.osm.da.HttpRequestService
-import de.iteratec.osm.da.TestDataUtil
 import de.iteratec.osm.da.instances.OsmInstance
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+import groovy.json.JsonSlurper
 import groovy.mock.interceptor.StubFor
-import org.junit.Rule
-import software.betamax.junit.Betamax
-import software.betamax.junit.RecorderRule
 import spock.lang.Specification
 
 @TestFor(MappingService)
 @Mock([OsmInstance])
 class MappingServiceTest extends Specification {
-
-    @Rule public RecorderRule recorder = TestDataUtil.getDefaultBetamaxRecorder()
 
     def "Test update of one mapping"() {
         given:
@@ -51,7 +46,7 @@ class MappingServiceTest extends Specification {
         given:
         boolean httpCall = false
         def stub = new StubFor(HttpRequestService)
-        stub.demand.getJsonResponse {String baseUrl, String path, queryParams ->
+        stub.demand.getJsonResponse {String baseUrl, String path, Map queryParams ->
             httpCall = true
         }
         service.httpRequestService = stub.proxyInstance()
@@ -218,11 +213,13 @@ class MappingServiceTest extends Specification {
         browserMappings["2"] == "Job 2"
     }
 
-    @Betamax(tape="mappingUpdateOneDomain")
     def "Test get IdUpdate with one domain"(){
         given:
-        service.httpRequestService = new HttpRequestService()
-        TestDataUtil.mockHttpRequestServiceToUseBetamax(service.httpRequestService)
+        service.httpRequestService = Stub(HttpRequestService){
+            getJsonResponse(_, _, _) >> new JsonSlurper().parseText(
+                '{"target":{"Job":{"1":"TestJob","2":"AnotherTestJob"}}}'
+            )
+        }
         Map<String,List<Long>> neededUpdates = ["${OsmDomain.Job}":[1],
                                                 "${OsmDomain.Job}":[2]]
         OsmInstance instance = createInstance()
@@ -237,15 +234,17 @@ class MappingServiceTest extends Specification {
         update[0].updateCount() == 2
     }
 
-    @Betamax(tape="mappingUpdateMultipleDomains")
     def "Test get IdUpdate with multiple domain"(){
         given:
-        service.httpRequestService = new HttpRequestService()
-        TestDataUtil.mockHttpRequestServiceToUseBetamax(service.httpRequestService)
-        Map<String,List<Long>> neededUpdates = ["${OsmDomain.Job}":[1],
-                                                "${OsmDomain.Job}":[2],
-                                                "${OsmDomain.JobGroup}":[1],
-                                                "${OsmDomain.JobGroup}":[2]]
+        service.httpRequestService = Stub(HttpRequestService){
+            getJsonResponse(_, _, _) >> new JsonSlurper().parseText(
+                    '{"target":{"Job":{"1":"Chrome_Testsuite_Multistep","2":"Firefox_Testsuite_Multistep"},"JobGroup":{"1":"undefined","2":"perf-test-suite"}}}'
+            )
+        }
+        Map<String,List<Long>> neededUpdates = [
+            "${OsmDomain.Job}":[1,2],
+            "${OsmDomain.JobGroup}":[1,2]
+        ]
         OsmInstance instance = createInstance()
 
         when:

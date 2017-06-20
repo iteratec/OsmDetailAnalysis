@@ -1,35 +1,25 @@
 package de.iteratec.osm.da.wpt.resolve
 
 import de.iteratec.osm.da.HttpRequestService
-import de.iteratec.osm.da.TestDataUtil
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import org.junit.Rule
-import software.betamax.junit.Betamax
-import software.betamax.junit.RecorderRule
+import groovy.json.JsonSlurper
 import spock.lang.Specification
-
-
-/**
- * Note that all numbers which are used to compare the result are from the already downloaded betamax tape.
- * This means that this tests will be successful if the values are the same as in the file,
- * regardless if the wpt result itself was correct.
- */
 
 class WptDetailDataDefaultStrategyTest extends Specification {
 
-    @Rule public RecorderRule recorder = TestDataUtil.getDefaultBetamaxRecorder()
-
     static final String testId = "160810_A7_4D"
     static final String wptBaseUrl = "http://dev.server01.wpt.iteratec.de/"
+    static final File WPT_RESULT_JSON = new File('src/test/resources/jsonResponses/devServer01_160810_A7_4D.json')
 
-    @Betamax(tape="devServer01_160810_A7_4D")
     def "Test result download"(){
         given: "A FetchJob"
-        HttpRequestService httpRequestService = new HttpRequestService()
-        TestDataUtil.mockHttpRequestServiceToUseBetamax(httpRequestService)
-        WptDetailDataDefaultStrategy strategy = new WptDetailDataDefaultStrategy(httpRequestService: httpRequestService)
+        WptDetailDataDefaultStrategy strategy = new WptDetailDataDefaultStrategy(
+            httpRequestService: Stub(HttpRequestService){
+                    getJsonResponse(_, _, _) >> new JsonSlurper().parse(WPT_RESULT_JSON)
+            }
+        )
         FetchJob fetchJob = new FetchJob(osmInstance: 1,jobId: 2, jobGroupId: 3, wptBaseURL: wptBaseUrl, wptTestId: [testId], wptVersion:"2.19")
 
         when: "We want to download the given id from the fetchjob"
@@ -39,10 +29,13 @@ class WptDetailDataDefaultStrategyTest extends Specification {
         result.steps.size() == 4
     }
 
-    @Betamax(tape="devServer01_160810_A7_4D")
     def "Test if downloaded meta informations are correct"(){
         given: "A FetchJob"
-        WptDetailDataDefaultStrategy strategy = new WptDetailDataDefaultStrategy(httpRequestService: new HttpRequestService())
+        WptDetailDataDefaultStrategy strategy = new WptDetailDataDefaultStrategy(
+                httpRequestService: Stub(HttpRequestService){
+                    getJsonResponse(_, _, _) >> new JsonSlurper().parse(WPT_RESULT_JSON)
+                }
+        )
         FetchJob fetchJob = new FetchJob(osmInstance: 1,jobId: 2, jobGroupId: 3, wptBaseURL: wptBaseUrl, wptTestId: [testId], wptVersion:"2.19")
 
         when: "We want to download the given id from the fetchjob"
@@ -62,10 +55,13 @@ class WptDetailDataDefaultStrategyTest extends Specification {
         result.wptBaseUrl == wptBaseUrl
     }
 
-    @Betamax(tape="devServer01_160810_A7_4D")
     def "Test if downloaded steps are correct"(){
         given: "A FetchJob"
-        WptDetailDataDefaultStrategy strategy = new WptDetailDataDefaultStrategy(httpRequestService: new HttpRequestService())
+        WptDetailDataDefaultStrategy strategy = new WptDetailDataDefaultStrategy(
+                httpRequestService: Stub(HttpRequestService){
+                    getJsonResponse(_, _, _) >> new JsonSlurper().parse(WPT_RESULT_JSON)
+                }
+        )
         FetchJob fetchJob = new FetchJob(osmInstance: 1,jobId: 2, jobGroupId: 3, wptBaseURL: wptBaseUrl, wptTestId: [testId], wptVersion:"2.19")
 
         when: "We want to download the given id from the fetchjob"

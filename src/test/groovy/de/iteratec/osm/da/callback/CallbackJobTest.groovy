@@ -8,9 +8,6 @@ import grails.test.mixin.Mock
 import org.joda.time.DateTime
 import spock.lang.Specification
 
-/**
- * Created by marko on 07.09.16.
- */
 @Mock([FetchBatch, FetchJob])
 class CallbackJobTest extends Specification {
     CallbackJob callbackJob
@@ -134,7 +131,6 @@ class CallbackJobTest extends Specification {
 
         when: "Last update was 16 min ago"
         fetchBatch.lastUpdate = new DateTime().minusMinutes(16).toDate()
-//        fetchBatch.save()
         callbackJob.execute()
 
         then: 'The FetchBatch is deactivated'
