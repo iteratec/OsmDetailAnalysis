@@ -40,6 +40,10 @@
 /node_modules
 bower_components
 
-# idea specific files
-/.idea/
-.asscache
+# ignore intellij-specifics
+*.iml
+*.ipr
+*.iws
+projectFilesBackup
+.idea
+.slcache/
