@@ -22,7 +22,6 @@ import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import grails.converters.JSON
 import grails.web.mapping.LinkGenerator
-import groovyx.net.http.ContentType
 import org.joda.time.DateTime
 import org.joda.time.Interval
 /**
@@ -75,7 +74,7 @@ class DetailAnalysisDashboardController {
         }
         def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.host,browsers ,request.JSON.mediaType,request.JSON.subtype,jobGroups,pages)
 
-        response.setContentType(ContentType.JSON.toString())
+        response.setContentType('JSON')
         response.status = 200
         render result
     }

@@ -2,14 +2,11 @@ package de.iteratec.osm.da.wpt
 
 import de.iteratec.osm.da.asset.AssetRequest
 import de.iteratec.osm.da.asset.AssetRequestGroup
-import de.iteratec.osm.da.fetch.FailedFetchJob
-import de.iteratec.osm.da.fetch.FetchFailReason
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import grails.transaction.Transactional
 
 class WptDetailResultConvertService {
 

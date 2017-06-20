@@ -5,7 +5,7 @@ import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
 import de.iteratec.osm.da.wpt.resolve.exceptions.OsmMappingDoesntExistException
 import de.iteratec.osm.da.wpt.resolve.exceptions.OsmNotAvailableException
-import grails.transaction.Transactional
+import groovy.json.JsonBuilder
 
 class MappingService {
 
@@ -112,7 +112,11 @@ class MappingService {
      * @return A map with the answer from the osm instance
      */
     private List<MappingUpdate> getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
-        def updateJson = httpRequestService.getJsonResponseFromOsm( instance.url,"/rest/domain/namesForIds/", idsToUpdate)
+
+        //TODO: Should be removed if OSM rest api is refactored (see IT-1742)
+        String json = new JsonBuilder(idsToUpdate).toString()
+
+        def updateJson = httpRequestService.getJsonResponse( instance.url,"/rest/domain/namesForIds/${json}", idsToUpdate)
         return MappingUpdate.createMappingList(updateJson)
     }
 
@@ -123,7 +127,11 @@ class MappingService {
      * @return A map with the answer from the osm instance
      */
     private def getNameUpdate(Map<String, List<String>> namesToUpdate, OsmInstance instance){
-        def jsonResult = httpRequestService.getJsonResponseFromOsm(instance.url,"/rest/domain/idsForNames/", namesToUpdate)
+
+        //TODO: Should be removed if OSM rest api is refactored (see IT-1742)
+        String json = new JsonBuilder(idsToUpdate).toString()
+
+        def jsonResult = httpRequestService.getJsonResponse(instance.url,"/rest/domain/idsForNames/${json}", namesToUpdate)
         return MappingUpdate.createMappingList(jsonResult)
     }
     Long getOSMInstanceId(String url){

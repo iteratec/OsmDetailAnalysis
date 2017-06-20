@@ -1,22 +1,13 @@
 package de.iteratec.osm.da.wpt.resolve
 
-import de.iteratec.osm.da.fetch.FetchFailReason
+import de.iteratec.osm.da.HttpRequestService
+import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.data.Request
 import de.iteratec.osm.da.wpt.data.Step
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
-import de.iteratec.osm.da.HttpRequestService
-import de.iteratec.osm.da.fetch.FetchJob
-import de.iteratec.osm.da.wpt.resolve.exceptions.WptNotAvailableException
-import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultMissingValueException
-import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestIdDoesntExistException
-import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasCancelledException
-import de.iteratec.osm.da.wpt.resolve.exceptions.WptTestWasEmptyException
-import grails.util.Holders
-import groovyx.net.http.ResponseParseException
+import de.iteratec.osm.da.wpt.resolve.exceptions.*
 import org.apache.commons.logging.LogFactory
-import org.springframework.beans.factory.annotation.Autowired
-
 /**
  * Use this strategy for versions >= 2.19
  */
@@ -40,8 +31,12 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         //We set the multiStepFormat, because the new version can delivery single steps with the same format as the multi step results.
         try{
             log.debug("Attempt ${tries +1} to load JsonResponse from WptServer=${fetchJob.wptBaseURL} WptTestId=${fetchJob.wptTestId}")
-            return httpRequestService.getJsonResponse(fetchJob.wptBaseURL, "jsonResult.php", [test:fetchJob.wptTestId,requests: 1, multistepFormat:1])
-        } catch (ResponseParseException e){
+            return httpRequestService.getJsonResponse(
+                fetchJob.wptBaseURL,
+                "/jsonResult.php",
+                [test: fetchJob.wptTestId,requests: 1, multistepFormat: 1]
+            )
+        } catch (Exception e){
             if(tries<3){
                 return loadJson(fetchJob, ++tries)
             } else{
@@ -63,7 +58,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         return result
     }
 
-    static private  ensurePresenceOfAllValues(WptDetailResult result ){
+    static private  ensurePresenceOfAllValues(WptDetailResult result){
         def missingValues = [:]
         if (!(result.bandwidthDown >= 0))missingValues["bandwidthDown"]= result.bandwidthDown
         if (!(result.bandwidthUp >= 0))missingValues["bandwidthUp"]= result.bandwidthUp
