@@ -9,17 +9,18 @@ import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.WptDetailDataDefaultStrategy
+import de.iteratec.osm.da.wpt.resolve.WptDownloadTask
 import de.iteratec.osm.da.wpt.resolve.exceptions.OsmMappingDoesntExistException
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptNotAvailableException
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptResultMissingValueException
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import groovy.json.JsonSlurper
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import static de.iteratec.osm.da.fetch.FetchFailReason.*
+
 @Unroll
 @TestFor(WptDetailResultDownloadService)
 @Mock([OsmInstance, FetchJob, FailedFetchJob, FetchBatch, AssetRequestGroup, AggregatedAssetGroup])
@@ -27,23 +28,13 @@ class FetchJobFailTest extends Specification{
 
     def setup(){
         createServicesCommonToAllTests()
-        createOsmInstance()
+        createTestdataCommonToAllTests()
     }
 
     def "Job should fail for json response #resultJsonFile with reason #fetchFailReason"(){
-    @Ignore("Fails because of this: https://github.com/betamaxteam/betamax/issues/232")
         given: "A FetchJob with no steps"
         int failedJobsBefore = FailedFetchJob.list().size()
-        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addNewFetchJobToQueue(
-            1l,
-            1l,
-            1l,
-            "http://dev.server01.wpt.iteratec.de/",
-            ["160810_A7_4D"],
-            "2.19",
-            Priority.Normal
-        )
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
         service.wptDetailDataStrategyService = Stub(WptDetailDataStrategyService){
             getStrategyForVersion(_) >> new WptDetailDataDefaultStrategy(
                 httpRequestService: Stub(HttpRequestService){
@@ -57,9 +48,8 @@ class FetchJobFailTest extends Specification{
 
         then: "The Job should't exist anymore and a FailedFetchJob with the correct reason should exist"
         List<FailedFetchJob> failedFetchJobs = FailedFetchJob.list()
-        failedFetchJobs.size()  - failedJobsBefore == 1
+        failedFetchJobs.size() - failedJobsBefore == 1
         failedFetchJobs[0].reason == fetchFailReason
-    @Ignore("Fails because of this: https://github.com/betamaxteam/betamax/issues/232")
 
         where:
         resultJsonFile                              || fetchFailReason
@@ -68,20 +58,10 @@ class FetchJobFailTest extends Specification{
         'test_not_found'                            || WPT_TEST_ID_DOESNT_EXIST
     }
 
-    @Ignore("Fails because of this: https://github.com/betamaxteam/betamax/issues/232")
     def "Job should fail if wpt was not available"(){
         given: "A FetchJob with no steps"
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addNewFetchJobToQueue(
-            1l,
-            1l,
-            1l,
-            "http://dev.server01.wpt.iteratec.de/",
-            ["160810_A7_4D"],
-            "2.19",
-            Priority.Normal
-        )
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
         service.wptDetailDataStrategyService = Spy(WptDetailDataStrategyService){
             getStrategyForVersion(_) >> Spy(WptDetailDataDefaultStrategy){
                 loadJson(_, _) >> {FetchJob fetchJob, int tries = 0 ->
@@ -100,22 +80,11 @@ class FetchJobFailTest extends Specification{
 
     def "Job should fail if osm was not available"(){
         given: "A regular FetchJob but mocked method to save detail data throws OsmMappingDoesntExistException"
-        new OsmInstance(name:"TestInstance", url:"http://localhost:8080").save()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addNewFetchJobToQueue(
-            1l,
-            1l,
-            1l,
-            "http://dev.server01.wpt.iteratec.de/",
-            ["160810_A7_4D"],
-            "2.19",
-            Priority.Normal
-        )
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
         service.assetRequestPersistenceService = Spy(AssetRequestPersistenceService){
             saveDetailDataForJobResult(_, _) >> {WptDetailResult result, FetchJob fetchJob ->
                 throw new OsmMappingDoesntExistException()
-        FetchJob.count() == 0
             }
         }
 
@@ -128,21 +97,10 @@ class FetchJobFailTest extends Specification{
         failedFetchJobDifference[0].reason == FetchFailReason.MAPPINGS_NOT_AVAILABLE
     }
 
-    @Ignore("Fails because of this: https://github.com/betamaxteam/betamax/issues/232")
     def "Job should fail if values are invalid"(){
         given: "A FetchJob with no steps"
-        new OsmInstance(name:"TestInstance", url:"http://localhost:8080").save()
         List<FailedFetchJob> failedJobsBefore = FailedFetchJob.list()
-        service.createNewFetchJob(1l,1l,1l,"http://dev.server01.wpt.iteratec.de/",["160810_A7_4D"],"2.19", Priority.Normal)
-        service.addNewFetchJobToQueue(
-            1l,
-            1l,
-            1l,
-            "http://dev.server01.wpt.iteratec.de/",
-            ["160810_A7_4D"],
-            "2.19",
-            Priority.Normal
-        )
+        WptDownloadTask wptDownloadTask = new WptDownloadTask(FetchJob.get(1), service)
         service.wptDetailDataStrategyService = Spy(WptDetailDataStrategyService){
             getStrategyForVersion(_) >> Spy(WptDetailDataDefaultStrategy){
                 getResult(_) >> { FetchJob fetchJob ->
@@ -161,18 +119,6 @@ class FetchJobFailTest extends Specification{
         failedFetchJobDifference[0].reason == FetchFailReason.MISSING_VALUES
     }
 
-    private OsmInstance createOsmInstance(){
-        OsmInstance instance = new OsmInstance(name:"TestInstance", url:"http://localhost:8080")
-        instance.browserMapping.mapping.put(1l,"Chrome")
-        instance.pageMapping.mapping.put(1l,"undefined")
-        instance.measuredEventMapping.mapping.put(1l,"esprit_infrontofotto")
-        instance.measuredEventMapping.mapping.put(2l,"google_infrontofotto")
-        instance.locationMapping.mapping.put(1l,"iteratec-dev-hetzner-win7:Chrome")
-        instance.jobGroupMapping.mapping.put(1l,"JobGroup")
-        instance.jobMapping.mapping.put(1l,"Job")
-        return instance.save()
-    }
-
     private void createServicesCommonToAllTests(){
         service.wptDetailDataStrategyService = new WptDetailDataStrategyService()
         service.failedFetchJobService = new FailedFetchJobService()
@@ -184,5 +130,30 @@ class FetchJobFailTest extends Specification{
         HttpRequestService httpRequestService = new HttpRequestService()
         service.wptDetailDataStrategyService.httpRequestService = httpRequestService
         service.assetRequestPersistenceService.wptDetailResultConvertService.mappingService.httpRequestService = httpRequestService
+    }
+
+    private createTestdataCommonToAllTests(){
+        createOsmInstance()
+        service.createNewFetchJob(
+                1l,
+                1l,
+                1l,
+                "http://dev.server01.wpt.iteratec.de/",
+                ["160810_A7_4D"],
+                "2.19",
+                Priority.Normal
+        )
+    }
+
+    private OsmInstance createOsmInstance(){
+        OsmInstance instance = new OsmInstance(name:"TestInstance", url:"http://localhost:8080")
+        instance.browserMapping.mapping.put(1l,"Chrome")
+        instance.pageMapping.mapping.put(1l,"undefined")
+        instance.measuredEventMapping.mapping.put(1l,"esprit_infrontofotto")
+        instance.measuredEventMapping.mapping.put(2l,"google_infrontofotto")
+        instance.locationMapping.mapping.put(1l,"iteratec-dev-hetzner-win7:Chrome")
+        instance.jobGroupMapping.mapping.put(1l,"JobGroup")
+        instance.jobMapping.mapping.put(1l,"Job")
+        return instance.save()
     }
 }
