@@ -113,6 +113,8 @@ class MappingService {
      */
     private List<MappingUpdate> getIdUpdate(Map<String, List<Long>> idsToUpdate, OsmInstance instance){
 
+        log.info("Trying to update osm mapping. idsToUpdate=${idsToUpdate} for osmInstance: ${instance}")
+
         //TODO: Should be removed if OSM rest api is refactored (see IT-1742)
         String json = new JsonBuilder(idsToUpdate).toString()
 
@@ -129,7 +131,7 @@ class MappingService {
     private def getNameUpdate(Map<String, List<String>> namesToUpdate, OsmInstance instance){
 
         //TODO: Should be removed if OSM rest api is refactored (see IT-1742)
-        String json = new JsonBuilder(idsToUpdate).toString()
+        String json = new JsonBuilder(namesToUpdate).toString()
 
         def jsonResult = httpRequestService.getJsonResponse(instance.url,"/rest/domain/idsForNames/${json}", namesToUpdate)
         return MappingUpdate.createMappingList(jsonResult)

@@ -1,31 +1,29 @@
 package de.iteratec.osm.da
 
 import static groovyx.net.http.ContentTypes.URLENC
-import static groovyx.net.http.ContentTypes.JSON
 import static groovyx.net.http.HttpBuilder.configure
 
 class HttpRequestService {
 
     private getHttpBuilder(String baseUrl) {
         return configure {
-            request.uri = baseUrl
+            request.uri = baseUrl.endsWith('/') ? baseUrl : "${baseUrl}/"
         }
     }
 
     def getJsonResponse(String baseUrl, String path, Map queryParams = [:]) {
+        log.info("getJson: baseUrl=${baseUrl}|path=${path}|queryParams=${queryParams}")
         return getHttpBuilder(baseUrl).get {
-            request.contentType = JSON
-            request.headers['Accept'] = 'application/json'
-            request.uri.path = path
+            request.uri.path = path.startsWith('/') ? path : "/${path}"
             request.uri.query = queryParams
         }
     }
 
-    def postCallback(String callbackUrl, int countAssets, int loadedAssets, int callBackId, String osmUrl, int failureCount) {
-        return configure {
-            request.uri = callbackUrl
+    def postCallback(String callbackPath, int countAssets, int loadedAssets, int callBackId, String osmUrl, int failureCount) {
+        log.info("POST callback to ${osmUrl}${callbackPath}")
+        return getHttpBuilder(osmUrl).post {
             request.contentType = URLENC
-        }.post {
+            request.uri.path = callbackPath.startsWith('/') ? callbackPath : "/${callbackPath}"
             request.uri.query = [countAssets: countAssets, loadedAssets: loadedAssets, callBackId: callBackId, failureCount: failureCount]
         }
     }
