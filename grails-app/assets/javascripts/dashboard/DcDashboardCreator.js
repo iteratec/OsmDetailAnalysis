@@ -648,17 +648,13 @@ function getLable(key, value) {
 function removeAllRowsFromAssetDetailsTable() {
     var loadingIndicatorTable = document.getElementById("loadingIndicatorTable");
     loadingIndicatorTable.style.display = 'none';
-    if (typeof assetDataTable != 'undefined') {
+    if (typeof assetDataTable != 'undefined' && assetDataTable !== null) {
         assetDataTable.clear();
         assetDataTable.destroy();
-    }
-    var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
-    if (tableHead.rows.length > 0) {
-        tableHead.deleteRow(0);
-    }
-    var tableBody = document.getElementById("assetDetailsTable").getElementsByTagName('tbody')[0];
-    while (tableBody.rows.length > 0) {
-        tableBody.deleteRow(0);
+        var tableHead = document.getElementById("assetDetailsTable").getElementsByTagName('thead')[0];
+        if (tableHead.rows.length > 0) {
+            tableHead.deleteRow(0);
+        }
     }
     var preFilterTableBody = document.getElementById("preFilterTable").getElementsByTagName('tbody')[0];
     while (preFilterTableBody.rows.length > 0) {
@@ -683,24 +679,25 @@ function fillDataInAssetTable(resp, requestData, uniqueMap) {
         columnsMapping.push(k);
     }
     columnsMapping.sort();
-    var headRow = tableHead.insertRow(0);
-    columnsMapping.forEach(function (d, i) {
-        var cell = headRow.insertCell(i);
-        cell.innerHTML = d;
-    });
-    resp.forEach(function (asset) {
-        var row = tableBody.insertRow(0);
-        var cells = {};
-        var i = 0;
-        for (var k in columnsMapping) {
-            cells[i] = row.insertCell(i++);
-        }
-        for (var k in asset) {
-            if (columnsMapping.indexOf(k) != -1)
-                cells[columnsMapping.indexOf(k)].innerHTML = getLable(k, asset[k])
-        }
-    });
     if (columnsMapping.length > 0) {
+        var headRow = tableHead.insertRow(0);
+        columnsMapping.forEach(function (d, i) {
+            var cell = headRow.insertCell(i);
+            cell.innerHTML = d;
+        });
+        resp.forEach(function (asset) {
+            var row = tableBody.insertRow(0);
+            var cells = {};
+            var i = 0;
+            for (var k in columnsMapping) {
+                cells[i] = row.insertCell(i++);
+            }
+            for (var k in asset) {
+                if (columnsMapping.indexOf(k) != -1)
+                    cells[columnsMapping.indexOf(k)].innerHTML = getLable(k, asset[k])
+            }
+        });
+
         $("#assetDetailsDatatableContainer").show();
         $("#preselectedValuesHeader").show();
         assetDataTable = $('#assetDetailsTable').DataTable({
@@ -721,6 +718,8 @@ function fillDataInAssetTable(resp, requestData, uniqueMap) {
             }
         });
         $(".card-modal").show();
+    } else {
+        assetDataTable = null;
     }
 
 }
