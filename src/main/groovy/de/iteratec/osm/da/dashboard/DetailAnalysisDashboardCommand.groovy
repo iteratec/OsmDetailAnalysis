@@ -98,7 +98,7 @@ class DetailAnalysisDashboardCommand extends OsmCommand {
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
+                if (it.osmInstance.domainPath == cmd.domainPath) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToDisplayResults) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true

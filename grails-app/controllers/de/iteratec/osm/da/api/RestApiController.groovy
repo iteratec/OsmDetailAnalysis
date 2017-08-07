@@ -44,7 +44,7 @@ class RestApiController {
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }
-        Long osmInstanceId = mappingService.getOSMInstanceId(command.osmUrl)
+        Long osmInstanceId = mappingService.getOSMInstanceId(command.domainPath)
         if(!osmInstanceId){
             sendSimpleResponseAsStream(400, "Osm with URL ${command.osmUrl} isn't registered")
             return
@@ -68,7 +68,7 @@ class RestApiController {
             return
         }
 
-        Long osmInstanceId = mappingService.getOSMInstanceId(command.osmUrl)
+        Long osmInstanceId = mappingService.getOSMInstanceId(command.domainPath)
         if(!osmInstanceId){
             sendSimpleResponseAsStream(400, "Osm with URL ${command.osmUrl} isn't registered")
             return
@@ -118,7 +118,7 @@ class RestApiController {
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }
-        OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
+        OsmInstance instance = OsmInstance.findByDomainPath(command.domainPath)
         if(command.Browser) mappingService.updateMapping(instance,new MappingUpdate(domain: OsmDomain.Browser, update: command.Browser))
         if(command.JobGroup) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.JobGroup, update: command.JobGroup))
         if(command.Location) mappingService.updateMapping(instance, new MappingUpdate(domain: OsmDomain.Location, update: command.Location))
@@ -136,7 +136,7 @@ class RestApiController {
             sendSimpleResponseAsStream(400, sw.toString())
             return
         }
-        OsmInstance instance = OsmInstance.findByUrl(command.osmUrl)
+        OsmInstance instance = OsmInstance.findByDomainPath(command.domainPath)
         mappingService.updateOsmUrl(instance, command.newOsmUrl)
         sendSimpleResponseAsStream(200,"Url updated to $command.newOsmUrl")
     }
@@ -168,6 +168,7 @@ class RestApiController {
 public class OsmCommand implements Validateable{
     String apiKey
     String osmUrl
+    String domainPath
 
     static constraints = {
         osmUrl(nullable:false)
@@ -175,6 +176,7 @@ public class OsmCommand implements Validateable{
 
     void setOsmUrl(String url) {
         this.osmUrl = OsmInstance.ensureUrlHasTrailingSlash(url)
+        this.domainPath = this.osmUrl.replace("https://","").replace("http://","")
     }
 }
 
@@ -190,7 +192,7 @@ public class PersistenceCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
+                if (it.osmInstance.domainPath == cmd.domainPath) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
@@ -226,7 +228,7 @@ public class PersistenceBatchCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
+                if (it.osmInstance.domainPath == cmd.domainPath) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToTriggerFetchJobs) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
@@ -244,7 +246,7 @@ public class UrlUpdateCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
+                if (it.osmInstance.domainPath  == cmd.domainPath) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToUpdateOsmUrl) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true
@@ -267,7 +269,7 @@ public class MappingCommand extends OsmCommand{
             List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(currentKey)
             ApiKey validApiKey
             apiKeys.each {
-                if (it.osmInstance.urlEqual(cmd.osmUrl)) validApiKey = it
+                if (it.osmInstance.domainPath == cmd.domainPath) validApiKey = it
             }
             if (!validApiKey||!validApiKey.allowedToUpdateMapping) return [RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE]
             else return true

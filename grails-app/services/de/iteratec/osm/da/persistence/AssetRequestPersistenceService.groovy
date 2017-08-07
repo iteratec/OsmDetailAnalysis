@@ -145,7 +145,7 @@ class AssetRequestPersistenceService {
             Integer latency,
             Integer packetloss,
             List<Long> measuredEvents,
-            String osmUrl
+            String osmDomainPath
 
     ){
         log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} locations = ${locations} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents}")
@@ -154,7 +154,6 @@ class AssetRequestPersistenceService {
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
-        def osmUrlParam = osmUrl.endsWith("/")?osmUrl:osmUrl+"/"
         matchList << gte("epochTimeStarted", from.getTime() / 1000 as Long)
         matchList << lte("epochTimeStarted", to.getTime() / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
@@ -168,7 +167,7 @@ class AssetRequestPersistenceService {
         if (bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)
         if (packetloss) matchList << eq("packetLoss", packetloss)
         if (latency) matchList << eq("latency", latency)
-        matchList << eq ("osmInstance", OsmInstance.findByUrl(osmUrlParam).id)
+        matchList << eq ("osmInstance", OsmInstance.findByDomainPath(osmDomainPath).id)
         aggregateList << match(and(matchList)) //filter out unwanted assets
         AggregateIterable<Document> resultList = db.getCollection("aggregatedAssetGroup").aggregate(aggregateList).allowDiskUse(true)
         def numberOfResults = resultList.size()
@@ -191,7 +190,7 @@ class AssetRequestPersistenceService {
             Integer packetloss,
             List<Long> measuredEvents,
             boolean selectedAllMeasuredEvents,
-            String osmUrl
+            String osmDomainPath
     ){
         log.debug("Querying for from = ${from} to = ${to} jobGroups = ${jobGroups} pages = ${pages} browsers = ${browsers} selectedAllBrowsers = ${selectedAllBrowsers} locations = ${locations} selectedAllLocations = ${selectedAllLocations} selectedAllConnectivityProfiles = ${selectedAllConnectivityProfiles} bandwidthUp = ${bandwidthUp} bandwidthDown = ${bandwidthDown} latency = ${latency} packetloss = ${packetloss} measuredEvents = ${measuredEvents} selectedAllMeasuredEvents = ${selectedAllMeasuredEvents}")
         List aggregateList = []
@@ -199,7 +198,6 @@ class AssetRequestPersistenceService {
         def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
         databaseName = databaseName?databaseName:"OsmDetailAnalysis"
         MongoDatabase db = mongo.getDatabase(databaseName)
-        def osmUrlParam = osmUrl.endsWith("/")?osmUrl:osmUrl+"/"
         matchList << gte("epochTimeStarted", from.getTime() / 1000 as Long)
         matchList << lte("epochTimeStarted", to.getTime() / 1000 as Long)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
@@ -209,7 +207,7 @@ class AssetRequestPersistenceService {
         if (!selectedAllBrowsers && browsers) matchList << Filters.in("browser", browsers)
         if (!selectedAllLocations && locations) matchList << Filters.in("location", locations)
         if (!selectedAllMeasuredEvents && measuredEvents) matchList << Filters.in("measuredEvent", measuredEvents)
-        matchList << eq ("osmInstance", OsmInstance.findByUrl(osmUrlParam).id)
+        matchList << eq ("osmInstance", OsmInstance.findByDomainPath(osmDomainPath).id)
         if (!selectedAllConnectivityProfiles) {
             if (bandwidthUp) matchList << eq("bandwidthUp", bandwidthUp)
             if (bandwidthDown) matchList << eq("bandwidthDown", bandwidthDown)

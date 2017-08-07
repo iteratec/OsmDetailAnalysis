@@ -26,6 +26,13 @@ class OsmInstance {
     String url
 
     /**
+     * Used as an identifier
+     */
+    String domainPath
+
+    String protocol
+
+    /**
      * For every domain there should be a OsmMapping, which maps ids to names
      */
     OsmMapping jobGroupMapping = new OsmMapping(domain: OsmDomain.JobGroup)
@@ -45,15 +52,36 @@ class OsmInstance {
     }
 
     def beforeInsert() {
-        this.url = ensureUrlHasTrailingSlash(this.url)
+        this.domainPath = ensureUrlHasTrailingSlash(this.domainPath)
     }
 
     def beforeUpdate() {
-        this.url = ensureUrlHasTrailingSlash(this.url)
+        this.domainPath = ensureUrlHasTrailingSlash(this.domainPath)
     }
 
-    boolean urlEqual(String otherUrl) {
-        return this.url.equals(ensureUrlHasTrailingSlash(otherUrl))
+    String getUrl(){
+        if(protocol) return "$protocol://$domainPath"
+        return domainPath
+    }
+
+    String setUrl(String url){
+        url = ensureUrlHasTrailingSlash(url)
+        String path = ""
+        String protocol = ""
+        switch (url){
+            case ~/http:\/\/.+/:
+                path = url.replace("http://","")
+                protocol = "http"
+                break
+            case ~/https:\/\/.+/:
+                path = url.replace("https://","")
+                protocol = "https"
+                break
+            default:
+                path = url
+        }
+        this.domainPath = path
+        this.protocol = protocol
     }
 
     /**

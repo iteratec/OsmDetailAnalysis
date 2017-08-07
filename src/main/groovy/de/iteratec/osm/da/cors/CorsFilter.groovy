@@ -32,7 +32,8 @@ public class CorsFilter extends OncePerRequestFilter {
             resp.addHeader("Access-Control-Max-Age", "3600");
         }
         def osmUrl = origin && origin.endsWith("/")?origin:origin+"/"
-        def corrsepondingOsmInstance =  OsmInstance.findByUrl(osmUrl)
+        def domainPath = osmUrl.replace("https://","").replace("http://","")
+        def corrsepondingOsmInstance =  OsmInstance.findByDomainPath(domainPath)
         if(corrsepondingOsmInstance) {
             resp.addHeader("Access-Control-Allow-Origin",  origin);
             resp.addHeader("Access-Control-Allow-Credentials", "true");

@@ -8,8 +8,8 @@ class BootStrap {
     def grailsApplication
 
     def init = { servletContext ->
-        initOsmInstances()
         MigrationUtil.executeChanges()
+        initOsmInstances()
     }
 
     private void initOsmInstances() {
@@ -18,17 +18,29 @@ class BootStrap {
             boolean apiKeyIsKnown = false
             List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
             String configOsmUrl = OsmInstance.ensureUrlHasTrailingSlash(apiKeyOsmTupel.osmUrl)
-
+            String path = ""
+            String protocol = ""
+            switch (configOsmUrl){
+                case ~/http:\/\/.+/:
+                    path = configOsmUrl.replace("http://","")
+                    protocol = "http"
+                    break
+                case ~/https:\/\/.+/:
+                    path = configOsmUrl.replace("https://","")
+                    protocol = "https"
+                    break
+            }
             apiKeys.each { ApiKey apiKey ->
-                if (apiKey.osmInstance.urlEqual(configOsmUrl)) {
+                if (apiKey.osmInstance.domainPath == path) {
                     apiKeyIsKnown = true
                 }
             }
             if (!apiKeyIsKnown) {
-                OsmInstance osmInstance = OsmInstance.findByUrl(configOsmUrl)
+                OsmInstance osmInstance = OsmInstance.findByDomainPath(configOsmUrl)
                 if (!osmInstance) {
-                    osmInstance = new OsmInstance([name                : configOsmUrl,
-                                                   url                 : configOsmUrl,
+                    osmInstance = new OsmInstance([name                : path,
+                                                   domainPath          : path,
+                                                   protocol            : protocol,
                                                    jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
                                                    locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
                                                    measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),

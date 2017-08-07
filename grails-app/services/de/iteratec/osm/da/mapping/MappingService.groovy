@@ -45,7 +45,7 @@ class MappingService {
                 applyUpdates(updates,instance,domainsToUpdate)
             } catch (ConnectException e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
-                throw new OsmNotAvailableException(instance.url)
+                throw new OsmNotAvailableException(instance.domainPath)
             }
         }
         return allUpdatesDone
@@ -74,7 +74,7 @@ class MappingService {
                 throw e
             }catch (Exception e){
                 log.error("Could't connect to osm instance $instanceId to get a mapping update. \n $e")
-                throw new OsmNotAvailableException(instance.url)
+                throw new OsmNotAvailableException(instance.domainPath)
             }
         }
         return allUpdatesDone
@@ -118,7 +118,7 @@ class MappingService {
         //TODO: Should be removed if OSM rest api is refactored (see IT-1742)
         String json = new JsonBuilder(idsToUpdate).toString()
 
-        def updateJson = httpRequestService.getJsonResponse( instance.url,"/rest/domain/namesForIds/${json}", idsToUpdate)
+        def updateJson = httpRequestService.getJsonResponse( instance.getUrl(),"/rest/domain/namesForIds/${json}", idsToUpdate)
         return MappingUpdate.createMappingList(updateJson)
     }
 
@@ -133,11 +133,11 @@ class MappingService {
         //TODO: Should be removed if OSM rest api is refactored (see IT-1742)
         String json = new JsonBuilder(namesToUpdate).toString()
 
-        def jsonResult = httpRequestService.getJsonResponse(instance.url,"/rest/domain/idsForNames/${json}", namesToUpdate)
+        def jsonResult = httpRequestService.getJsonResponse(instance.getUrl(),"/rest/domain/idsForNames/${json}", namesToUpdate)
         return MappingUpdate.createMappingList(jsonResult)
     }
-    Long getOSMInstanceId(String url){
-        return OsmInstance.findByUrl(url)?.id
+    Long getOSMInstanceId(String domainPath){
+        return OsmInstance.findByDomainPath(domainPath)?.id
     }
 
     Map<Long, String> getOsmMapping(OsmDomain domain, OsmInstance osmInstance) {

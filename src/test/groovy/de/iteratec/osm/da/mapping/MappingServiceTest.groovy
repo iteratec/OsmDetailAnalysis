@@ -68,7 +68,7 @@ class MappingServiceTest extends Specification {
         createInstance()
 
         when:
-        def id = service.getOSMInstanceId("http://localhost:8080/")
+        def id = service.getOSMInstanceId("localhost:8080/")
 
         then:
         id > -1

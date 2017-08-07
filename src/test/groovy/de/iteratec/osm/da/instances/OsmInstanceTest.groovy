@@ -16,16 +16,25 @@ class OsmInstanceTest extends Specification {
         new OsmInstance(name: instanceName, url: givenUrl).save(failOnError: true)
 
         then: "url has trailing slash after saving"
-        OsmInstance.findByName(instanceName).url == expectedUrl
+        OsmInstance.findByName(instanceName).domainPath == expectedUrl
 
         where:
         givenUrl                 | expectedUrl
         "localhost"              | "localhost/"
         "localhost/"             | "localhost/"
         "localhost/path/"        | "localhost/path/"
-        "http://localhost"       | "http://localhost/"
-        "http://localhost/"      | "http://localhost/"
-        "http://localhost/path"  | "http://localhost/path/"
-        "http://localhost/path/" | "http://localhost/path/"
+    }
+
+    def "Test url setter"(){
+        given:
+        String url = "http://test.de"
+
+        when:
+        OsmInstance instance = new OsmInstance(url: url)
+
+        then:
+        instance.domainPath == "test.de/"
+        instance.protocol == "http"
+        instance.url == url+"/"
     }
 }

@@ -17,6 +17,9 @@
 
 package de.iteratec.osm.da.dashboard
 
+import com.mongodb.BasicDBObject
+import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
@@ -106,7 +109,7 @@ class DetailAnalysisDashboardController {
                 latency,
                 packetloss,
                 measuredEventIds,
-                cmd.osmUrl)
+                cmd.domainPath)
 
         modelToRender.put('graphData', graphData)
         modelToRender.put('fromDateInMillis', selectedTimeFrame.startMillis)
@@ -114,7 +117,7 @@ class DetailAnalysisDashboardController {
         modelToRender.put('fromDate', fromDate)
         modelToRender.put('toDate', toDate)
 
-        fillWithLabelAliases(modelToRender, OsmInstance.findByUrl(cmd.osmUrl))
+        fillWithLabelAliases(modelToRender, OsmInstance.findByDomainPath(cmd.domainPath))
         fillWithI18N(modelToRender)
 
     }

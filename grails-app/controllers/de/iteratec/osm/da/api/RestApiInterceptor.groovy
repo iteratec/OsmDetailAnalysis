@@ -45,8 +45,9 @@ class RestApiInterceptor {
             return false
         }
         def apiKey
+        String domainPath = params.osmUrl.replace("https://","").replace("http://","")
         apiKeys.each {
-            if (it.osmInstance.urlEqual(params.osmUrl)) {
+            if (it.osmInstance.domainPath == domainPath) {
                 apiKey = it
             }
         }
