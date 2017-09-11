@@ -9,5 +9,5 @@ Compatibility with OpenSpeedMonitor:
 | Version OpenSpeedMonitor  | Compatible version OsmDetailAnalysis |
 | ------------------------- |:------------------------------------:|
 | 4.1.1                     | 1.0                                  |
-| \>=4.1.2                  | 1.1                                  |
+| \>=4.1.2                  | 1.1.3                                  |
  
