@@ -5,7 +5,7 @@ import com.mongodb.MongoClient
 import com.mongodb.client.MongoDatabase
 import de.iteratec.osm.da.migration.ChangeSet
 
-class DA_V110_2017_08_07 extends ChangeSet {
+class DA_V112_2017_08_07 extends ChangeSet {
     MongoClient mongo
     def grailsApplication
 
