@@ -20,10 +20,6 @@ import de.iteratec.osm.da.mapping.OsmDomain
 class OsmInstance {
 
     String name
-    /**
-     * URL to the REST-API to get further informations
-     */
-    String url
 
     /**
      * Used as an identifier
