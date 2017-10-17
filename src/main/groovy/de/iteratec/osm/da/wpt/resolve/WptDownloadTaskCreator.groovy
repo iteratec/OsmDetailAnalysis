@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 
-
 class WptDownloadTaskCreator implements Runnable {
 
     ThreadPoolExecutor executorService
@@ -52,54 +51,51 @@ class WptDownloadTaskCreator implements Runnable {
     }
 
     /**
-     * Loads FetchJobs from Database which doesn't have a id in the given list.
+     * Loads FetchJobs from Database which doesn't have an id in the given list.
      * The returned list will has a maximum size of maximumAmount.
+     *
      * @param maximumAmount
      * @param idsToIgnore
      * @param maximumTries amount which should be succeed from FetchJobs
-     * @param priority the priority which should be loaded
      */
     Set<FetchJob> loadJobsFromDatabase(int maximumAmount, List<Integer> idsToIgnore, int maximumTries) {
+
         Set<FetchJob> fetchJobs = new HashSet<>()
 
-        def notAddedJobsButStillJobsInDB = true
-        while (notAddedJobsButStillJobsInDB) {  //needed in case we have a lot of duplicates in the mongobd
-            log.debug("Trying to get maximum of ${maximumAmount} queued jobs from the database")
-            FetchJob.withNewSession {
-                List<FetchJob> jobsToAdd = FetchJob.createCriteria().list(max: maximumAmount) {
-                    and {
-                        not {
-                            'in'("id", idsToIgnore)
-                        }
-                        lt('tryCount', maximumTries)
-                        order('priority', 'desc')
-                        order('created', 'asc')
+        log.debug("Trying to get maximum of ${maximumAmount} queued jobs from the database")
+        FetchJob.withNewSession {
+            List<FetchJob> jobsToAdd = FetchJob.createCriteria().list(max: maximumAmount) {
+                and {
+                    not {
+                        'in'("id", idsToIgnore)
                     }
+                    lt('tryCount', maximumTries)
+                    order('priority', 'desc')
+                    order('created', 'asc')
                 }
+            }
 
-                if (jobsToAdd?.size() > 0) {
-                    jobsToAdd.each { FetchJob fetchJob ->
-                        int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstance(
-                                fetchJob.wptBaseURL,
-                                fetchJob.wptTestId,
-                                fetchJob.osmInstance
-                        )
-                        int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(
-                                fetchJob.wptBaseURL,
-                                fetchJob.wptTestId,
-                                fetchJob.osmInstance
-                        )
+            jobsToAdd?.each { FetchJob fetchJob ->
+                int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstance(
+                        fetchJob.wptBaseURL,
+                        fetchJob.wptTestId,
+                        fetchJob.osmInstance
+                )
+                int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(
+                        fetchJob.wptBaseURL,
+                        fetchJob.wptTestId,
+                        fetchJob.osmInstance
+                )
 
-                        if (identicalFetchJobs > 1 || alreadyLoadedAssetGroups > 0) {
-                            log.debug("Job ${fetchJob.toString()} is a duplicated, deleting it.")
-                            fetchJob.delete(failOnError: true)// It's not necessary to download the assets twice
-                        } else {
-                            notAddedJobsButStillJobsInDB = false
-                            fetchJobs.add(fetchJob)
-                        }
+                if (identicalFetchJobs > 1 || alreadyLoadedAssetGroups > 0) {
+                    log.debug("Job ${fetchJob.toString()} is a duplicated, deleting it.")
+                    try {
+                        fetchJob.delete(failOnError: true)
+                    } catch (Exception e) {
+                        log.error("Duplicate FetchJob ${fetchJob} can't be deleted.", e)
                     }
                 } else {
-                    notAddedJobsButStillJobsInDB = false
+                    fetchJobs.add(fetchJob)
                 }
             }
         }
