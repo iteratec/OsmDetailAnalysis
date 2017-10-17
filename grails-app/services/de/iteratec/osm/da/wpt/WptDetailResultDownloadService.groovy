@@ -29,7 +29,7 @@ class WptDetailResultDownloadService implements InitializingBean {
     final static int CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS = 20
     final static int MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS = 40
     final static int keepAliveTimeInSeconds = 5
-    final static int FILL_QUEUE_INTERVAL_IN_SEC = 30
+    final static int FILL_QUEUE_INTERVAL_IN_SEC = 10
     final BlockingQueue<WptDownloadTask> queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY);
 
     ThreadPoolExecutor downloadTaskExecutorService
@@ -127,7 +127,11 @@ class WptDetailResultDownloadService implements InitializingBean {
                 keepAliveTimeInSeconds, TimeUnit.SECONDS, queue)
 
         scheduler = Executors.newScheduledThreadPool(1)
-        scheduler.scheduleAtFixedRate(new WptDownloadTaskCreator(downloadTaskExecutorService, this),
-                FILL_QUEUE_INTERVAL_IN_SEC, FILL_QUEUE_INTERVAL_IN_SEC, TimeUnit.SECONDS)
+        scheduler.scheduleAtFixedRate(
+            new WptDownloadTaskCreator(downloadTaskExecutorService, this),
+            FILL_QUEUE_INTERVAL_IN_SEC,
+            FILL_QUEUE_INTERVAL_IN_SEC,
+            TimeUnit.SECONDS
+        )
     }
 }
