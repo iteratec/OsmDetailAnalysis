@@ -51,7 +51,7 @@ class WptDetailResultConvertService {
     private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted){
         boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, pageName, fetchJob.jobGroupId, fetchJob.jobId)
         if(!allUpdatesDone){
-            fetchJob.delete(flush: true)
+            fetchJob.delete(failOnError: true, flush: true)
             return null
         }
         long measuredEvent = mappingService.getIdForMeasuredEventName(fetchJob.osmInstance, eventName)

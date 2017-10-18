@@ -47,9 +47,10 @@ class WptDownloadTask implements Runnable {
         try {
             log.debug(this.toString() + " FetchJob with id $fetchJob.id: saveDetailDataForJobResult")
             wptDetailResultDownloadService.assetRequestPersistenceService.saveDetailDataForJobResult(result, fetchJob)
-
-            log.debug(this.toString() + " FetchJob with id $fetchJob.id: SUCCESS -> get deleted now")
-            fetchJob.delete(failOnError: true)
+            FetchJob.withNewTransaction {
+                log.debug(this.toString() + " FetchJob with id $fetchJob.id: SUCCESS -> get deleted now")
+                fetchJob.delete(failOnError: true, flush: true)
+            }
         } catch (Exception e) {
             log.debug(this.toString() + " caught exception during handling of Job(${fetchJob.id}): ${e}")
             wptDetailResultDownloadService.markJobAsFailed(fetchJob, e)

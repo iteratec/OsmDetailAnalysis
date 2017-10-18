@@ -90,7 +90,7 @@ class WptDownloadTaskCreator implements Runnable {
                 if (identicalFetchJobs > 1 || alreadyLoadedAssetGroups > 0) {
                     log.debug("Job ${fetchJob.toString()} is a duplicated, deleting it.")
                     try {
-                        fetchJob.delete(failOnError: true)
+                        fetchJob.delete(failOnError: true, flush: true)
                     } catch (Exception e) {
                         log.error("Duplicate FetchJob ${fetchJob} can't be deleted.", e)
                     }

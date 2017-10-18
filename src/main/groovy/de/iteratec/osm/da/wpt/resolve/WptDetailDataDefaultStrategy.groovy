@@ -24,7 +24,6 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         def jsonResponse = loadJson(fetchJob)
         log.debug("Finished loading of JsonResult for fetchJob=${fetchJob.id}. Size is ${jsonResponse.size()}. Starting to createResult")
         return createResult(fetchJob, jsonResponse)
-        log.debug("Finished to createResult for fetchJob=${fetchJob.id}.")
     }
 
     def loadJson(FetchJob fetchJob, int tries = 0){
@@ -55,6 +54,7 @@ class WptDetailDataDefaultStrategy implements WptDetailDataStrategyI{
         setSteps(result,fetchJob,jsonResponse)
         result.calculateAdditionalInformations()
         ensurePresenceOfAllValues(result)
+        log.debug("Finished to createResult for fetchJob=${fetchJob.id}.")
         return result
     }
 
