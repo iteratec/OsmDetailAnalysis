@@ -76,10 +76,11 @@ class WptDownloadTaskCreator implements Runnable {
             }
 
             jobsToAdd?.each { FetchJob fetchJob ->
-                int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstance(
+                int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstanceAndTryCountLessThan(
                         fetchJob.wptBaseURL,
                         fetchJob.wptTestId,
-                        fetchJob.osmInstance
+                        fetchJob.osmInstance,
+                        maximumTries
                 )
                 int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(
                         fetchJob.wptBaseURL,
