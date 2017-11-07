@@ -13,5 +13,5 @@ else
         -Djavax.net.ssl.trustStore=${KEYSTORE} \
         -Djavax.net.ssl.trustStorePassword=${KEYSTORE_PASSWORD} \
         -Xms${OSMDA_JVM_XMS} -Xmx${OSMDA_JVM_XMX} \
-        -jar ${OSM_DA_HOME}/OsmDetailAnalysis.warelse
+        -jar ${OSM_DA_HOME}/OsmDetailAnalysis.war
 fi
