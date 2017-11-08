@@ -1,6 +1,7 @@
 package de.iteratec.osm.da.instances
 
 import de.iteratec.osm.da.mapping.OsmDomain
+import de.iteratec.osm.da.util.UrlUtil
 
 /**
  * Representation of an OpenSpeedMonitor-Instance which uses this Service.
@@ -42,17 +43,12 @@ class OsmInstance {
     static constraints = {
     }
 
-    static String ensureUrlHasTrailingSlash(String url) {
-        url = url.endsWith('/') ? url : url + '/'
-        return url
-    }
-
     def beforeInsert() {
-        this.domainPath = ensureUrlHasTrailingSlash(this.domainPath)
+        this.domainPath = UrlUtil.appendTrailingSlash(this.domainPath)
     }
 
     def beforeUpdate() {
-        this.domainPath = ensureUrlHasTrailingSlash(this.domainPath)
+        this.domainPath = UrlUtil.appendTrailingSlash(this.domainPath)
     }
 
     String getUrl(){
@@ -61,7 +57,7 @@ class OsmInstance {
     }
 
     String setUrl(String url){
-        url = ensureUrlHasTrailingSlash(url)
+        url = UrlUtil.appendTrailingSlash(url)
         String path = ""
         String protocol = ""
         switch (url){

@@ -3,6 +3,7 @@ import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.migration.MigrationUtil
+import de.iteratec.osm.da.util.UrlUtil
 
 class BootStrap {
     def grailsApplication
@@ -17,7 +18,7 @@ class BootStrap {
         apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
             boolean apiKeyIsKnown = false
             List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
-            String configOsmUrl = OsmInstance.ensureUrlHasTrailingSlash(apiKeyOsmTupel.osmUrl)
+            String configOsmUrl = UrlUtil.appendTrailingSlash(apiKeyOsmTupel.osmUrl)
             String path = ""
             String protocol = ""
             switch (configOsmUrl){

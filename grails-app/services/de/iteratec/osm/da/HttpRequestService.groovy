@@ -1,5 +1,7 @@
 package de.iteratec.osm.da
 
+import de.iteratec.osm.da.util.UrlUtil
+
 import static groovyx.net.http.ContentTypes.URLENC
 import static groovyx.net.http.HttpBuilder.configure
 
@@ -7,7 +9,7 @@ class HttpRequestService {
 
     private getHttpBuilder(String baseUrl) {
         return configure {
-            request.uri = baseUrl.endsWith('/') ? baseUrl : "${baseUrl}/"
+            request.uri = UrlUtil.appendTrailingSlash(baseUrl)
         }
     }
 

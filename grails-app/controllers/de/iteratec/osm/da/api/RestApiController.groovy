@@ -6,6 +6,7 @@ import de.iteratec.osm.da.fetch.Priority
 import de.iteratec.osm.da.mapping.MappingUpdate
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
+import de.iteratec.osm.da.util.UrlUtil
 import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
@@ -175,7 +176,7 @@ public class OsmCommand implements Validateable{
     }
 
     void setOsmUrl(String url) {
-        this.osmUrl = OsmInstance.ensureUrlHasTrailingSlash(url)
+        this.osmUrl = UrlUtil.appendTrailingSlash(url)
         this.domainPath = this.osmUrl.replace("https://","").replace("http://","")
     }
 }

@@ -16,6 +16,8 @@
 */
 package de.iteratec.osm.da.api
 
+import de.iteratec.osm.da.util.UrlUtil
+
 /**
  * Checks whether ...
  * <ul>
@@ -36,29 +38,35 @@ class RestApiInterceptor {
 
     boolean before() {
         if (params.apiKey == null || params.osmUrl == null) {
+            log.error("Secured API call failed cause of missing apiKey or osmUrl")
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
         List<ApiKey> apiKeys = ApiKey.findAllBySecretKey(params.apiKey)
         if (!apiKeys) {
+            log.error("Secured API call failed cause no apiKey was found for given secret")
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
         def apiKey
-        String domainPath = params.osmUrl.replace("https://","").replace("http://","")
+        String domainPath = UrlUtil.appendTrailingSlash(UrlUtil.removeHypertextProtocols(params.osmUrl))
         apiKeys.each {
+            log.error("it.osmInstance.domainPath=${it.osmInstance.domainPath}")
             if (it.osmInstance.domainPath == domainPath) {
                 apiKey = it
             }
         }
         if (!apiKey) {
+            log.error("Secured API call failed cause no apiKey was found for given secret and osmUrl")
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
         if (!apiKey.valid) {
+            log.error("Secured API call failed cause apiKey is invalid")
             prepareErrorResponse(response, 403, RestApiController.DEFAULT_ACCESS_DENIED_MESSAGE)
             return false
         }
+        log.debug("Secured API passed apiKey filter successfully")
         params['validApiKey'] = apiKey
         return true
     }
