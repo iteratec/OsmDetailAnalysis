@@ -35,6 +35,7 @@
 
 # build files
 /build/
+/out/
 
 # node/bower build files
 /node_modules
