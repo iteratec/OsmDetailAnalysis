@@ -61,6 +61,9 @@ dependencies {
     compile 'xml-apis:xml-apis:1.4.01'
     compile 'com.bertramlabs.plugins:less-asset-pipeline:2.9.4'
     compile 'io.github.http-builder-ng:http-builder-ng-core:0.16.1'
+    compile 'io.dropwizard.metrics:metrics-core:3.2.3'
+    compile 'io.dropwizard.metrics:metrics-graphite:3.2.3'
+    compile 'io.dropwizard.metrics:metrics-jvm:3.2.3'
 
     runtime 'org.grails.plugins:grails-console:2.0.5'
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"

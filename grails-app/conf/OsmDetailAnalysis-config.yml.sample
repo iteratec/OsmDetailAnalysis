@@ -6,6 +6,10 @@ grails:
         iteratec:
             osm:
                 da:
+                    report.external:
+                        graphiteServer:
+                            serverAddress: [your.graphites.carbon.url, e.g. my.graphite.com]
+                            carbonPort: [your graphites carbon port, e.g. 2003]
                     apiKeys:
                         list:
                         # apiKeys for openspeedmonitor-instances.

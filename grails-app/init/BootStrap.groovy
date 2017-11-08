@@ -3,14 +3,21 @@ import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
 import de.iteratec.osm.da.mapping.OsmDomain
 import de.iteratec.osm.da.migration.MigrationUtil
+import de.iteratec.osm.da.report.external.GraphiteServer
+import de.iteratec.osm.da.report.external.HealthReportService
 import de.iteratec.osm.da.util.UrlUtil
 
 class BootStrap {
+
     def grailsApplication
+    HealthReportService healthReportService
 
     def init = { servletContext ->
         MigrationUtil.executeChanges()
         initOsmInstances()
+        initHealthReporting()
+    }
+    def destroy = {
     }
 
     private void initOsmInstances() {
@@ -58,6 +65,18 @@ class BootStrap {
 
         }
     }
-    def destroy = {
+    def initHealthReporting(){
+        String serverAddress = grailsApplication.config.grails.de.iteratec.osm.da.report.external.graphiteServer.serverAddress
+        String carbonPort = grailsApplication.config.grails.de.iteratec.osm.da.report.external.graphiteServer.carbonPort
+        if (serverAddress && carbonPort){
+            GraphiteServer graphiteServer = GraphiteServer.findByServerAddressAndPort(serverAddress, carbonPort) ?: new GraphiteServer(
+                serverAddress: serverAddress,
+                port: carbonPort
+            ).save(failOnError: true)
+            if (graphiteServer){
+                log.info("Starting health metric reporting for osmda to Graphite instance:\n${graphiteServer}")
+                healthReportService.handleGraphiteServer(graphiteServer)
+            }
+        }
     }
 }

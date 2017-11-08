@@ -10,6 +10,10 @@ grails:
         iteratec:
             osm:
                 da:
+                    report.external:
+                        graphiteServer:
+                            serverAddress: {{ default .Env.GRAPHITE_CARBON_URL null }}
+                            carbonPort: {{ default .Env.GRAPHITE_CARBON_PORT null }}
                     apiKeys:
                         list:
                         -   key: {{ default .Env.OSMDA_INITIAL_API_KEY "myapikey" }}
