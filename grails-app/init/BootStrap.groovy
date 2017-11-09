@@ -76,6 +76,8 @@ class BootStrap {
             if (graphiteServer){
                 log.info("Starting health metric reporting for osmda to Graphite instance:\n${graphiteServer}")
                 healthReportService.handleGraphiteServer(graphiteServer)
+            } else {
+                log.error("Graphite server couldn't be created: ${graphiteServer}")
             }
         }
     }
