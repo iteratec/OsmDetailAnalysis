@@ -25,16 +25,18 @@ class WptDetailResultConvertService {
      * Will convert a result to a AssetGroup. Note that there can be null values in this list, if a mapping wasn't available
      * @param result
      * @param fetchJob
+     * @param date
      * @return
      */
     public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
         List<AssetRequestGroup> assetGroups = []
+        Date dateOfPersistence = new Date() // Make sure that every Group has the same date, so later they will all deleted together
         result.steps.each {step ->
             Map<String, List<Request>> mediaTypeMap = step.requests.groupBy {
                 getMediaType(it.contentType)
             }
             mediaTypeMap.each {key, value ->
-                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted)
+                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted, dateOfPersistence)
                 //If there was no group created, we just skip this group
                 if(!assetGroup) return
                 List<AssetRequest> assets = []
@@ -48,7 +50,7 @@ class WptDetailResultConvertService {
         return assetGroups
     }
 
-    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted){
+    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted, Date dateOfPersistence){
         boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, pageName, fetchJob.jobGroupId, fetchJob.jobId)
         if(!allUpdatesDone){
             fetchJob.delete(failOnError: true, flush: true)
@@ -62,7 +64,7 @@ class WptDetailResultConvertService {
                 bandwithUp: result.bandwidthUp, bandwidhtDown: result.bandwidthDown, latency: result.latency,
                 packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
                 browser: browser, epochTimeStarted: epochTimeStarted, mediaType: mediaType,
-                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView)
+                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView, dateOfPersistence: dateOfPersistence)
     }
 
     /**

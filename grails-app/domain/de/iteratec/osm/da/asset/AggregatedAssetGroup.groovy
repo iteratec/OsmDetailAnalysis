@@ -37,6 +37,7 @@ class AggregatedAssetGroup {
     int bytesOut_min
     int bytesOut_max
     int count
+    Date dateOfPersistence
 
     static constraints = {
     }

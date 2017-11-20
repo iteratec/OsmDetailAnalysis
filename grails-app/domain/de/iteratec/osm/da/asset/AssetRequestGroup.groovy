@@ -39,6 +39,7 @@ class AssetRequestGroup {
     long epochTimeStarted
     String mediaType
     boolean isFirstViewInStep
+    Date dateOfPersistence
 
     //To identify if the result is already present
     String wptBaseUrl
