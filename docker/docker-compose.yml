@@ -12,6 +12,7 @@ services:
       OSMDA_INITIAL_OSM_URL: http://localhost:8080
       OSMDA_JVM_XMS: 1024m
       OSMDA_JVM_XMX: 4096m
+      OSMDA_DAYS_TO_KEEP: 60
 
   osm_mongodb:
     image:  mongo:3.2
