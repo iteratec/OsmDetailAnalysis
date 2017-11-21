@@ -21,6 +21,11 @@ class DA_V119_2017_11_16 extends ChangeSet {
         updateFields.append("\$set", new BasicDBObject().append("dateOfPersistence",currentDate))
         assetRequestGroup.updateMany(new BasicDBObject(), updateFields)
         aggregatedAssetGroup.updateMany(new BasicDBObject(), updateFields)
+
+        db.getCollection("failedFetchJob").drop()
+        db.getCollection("failedFetchJob.next_id").drop()
+        db.getCollection("fetchFailure").drop()
+        db.getCollection("fetchFailure.next_id").drop()
         return true
     }
 }

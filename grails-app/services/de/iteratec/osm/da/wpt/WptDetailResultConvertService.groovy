@@ -19,8 +19,6 @@ class WptDetailResultConvertService {
     /** EventName can contain information of tested pages and teststep-number. Both informations are delimited through this. **/
     public static final String STEPNAME_DELIMITTER = ':::'
 
-    FailedFetchJobService failedFetchJobService
-
     /**
      * Will convert a result to a AssetGroup. Note that there can be null values in this list, if a mapping wasn't available
      * @param result

@@ -18,7 +18,7 @@ class CallbackJob {
                 int countAssets = fetchBatch.countFetchJobs
                 int loadedAssets = countAssets - fetchBatch.fetchJobs.size()
                 def callbackUrl = fetchBatch.callbackUrl
-                def failureCount = fetchBatch.failureList.size()
+                def failureCount = fetchBatch.failures
                 if(fetchBatch.lastValue == loadedAssets){
                     if((new DateTime().minusMinutes(15).millis - fetchBatch.lastUpdate.time) > 0){ // after 15 min without any update, the FetchBatch has failed and can be closed
                         fetchBatch.queuingDone = false
