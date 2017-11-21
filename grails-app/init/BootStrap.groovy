@@ -21,6 +21,9 @@ class BootStrap {
     }
 
     private void initOsmInstances() {
+        log.debug("remove old api keys")
+        ApiKey.list()*.delete(flush: true)
+        def amount = 0
         def apiKeyOsmMap = grailsApplication.config.grails.de.iteratec.osm.da.apiKeys
         apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
             boolean apiKeyIsKnown = false
@@ -60,10 +63,11 @@ class BootStrap {
                 new ApiKey([secretKey            : apiKeyOsmTupel.key, description: "Key generated from initial properties",
                             osmInstance          : osmInstance, valid: true, allowedToTriggerFetchJobs: true, allowedToDisplayResults: true,
                             allowedToUpdateOsmUrl: true, allowedToUpdateMapping: true, allowedToCreateApiKeys: true]).save(failOnError: true, flush: true)
-
+                ++amount
             }
 
         }
+        log.debug("created $amount API keys from config")
     }
     def initHealthReporting(){
         String serverAddress = grailsApplication.config.grails.de.iteratec.osm.da.report.external.graphiteServer.serverAddress
