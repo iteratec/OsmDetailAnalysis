@@ -6,16 +6,19 @@ import de.iteratec.osm.da.migration.MigrationUtil
 import de.iteratec.osm.da.report.external.GraphiteServer
 import de.iteratec.osm.da.report.external.HealthReportService
 import de.iteratec.osm.da.util.UrlUtil
+import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 
 class BootStrap {
 
     def grailsApplication
     HealthReportService healthReportService
+    WptDetailResultDownloadService wptDetailResultDownloadService
 
     def init = { servletContext ->
         MigrationUtil.executeChanges()
         initOsmInstances()
         initHealthReporting()
+        wptDetailResultDownloadService.startQueueExecution()
     }
     def destroy = {
     }
