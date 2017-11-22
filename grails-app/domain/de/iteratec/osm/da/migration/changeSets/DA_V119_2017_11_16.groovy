@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoDatabase
 import de.iteratec.osm.da.migration.ChangeSet
+import org.bson.BasicBSONObject
 
 class DA_V119_2017_11_16 extends ChangeSet {
     MongoClient mongo
@@ -22,10 +23,15 @@ class DA_V119_2017_11_16 extends ChangeSet {
         assetRequestGroup.updateMany(new BasicDBObject(), updateFields)
         aggregatedAssetGroup.updateMany(new BasicDBObject(), updateFields)
 
+        //remove unused collections
         db.getCollection("failedFetchJob").drop()
         db.getCollection("failedFetchJob.next_id").drop()
         db.getCollection("fetchFailure").drop()
         db.getCollection("fetchFailure.next_id").drop()
+
+        //remove fetchJobs which already failed 3 times
+        db.getCollection("fetchJob").remove(new BasicDBObject("tryCount",3))
+
         return true
     }
 }
