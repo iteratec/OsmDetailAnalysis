@@ -17,7 +17,7 @@ import java.util.concurrent.*
  * The downloading will be queued and therefore eventually persisted. The queue will be persisted.
  * All downloaded data will be passed to the persistence wptDetailResultDownloadService and therefore will be persisted.
  */
-class WptDetailResultDownloadService implements InitializingBean {
+class WptDetailResultDownloadService {
 
     /**
      * Maximum FetchJob which should be cached in each queue.
@@ -34,6 +34,7 @@ class WptDetailResultDownloadService implements InitializingBean {
 
     ThreadPoolExecutor downloadTaskExecutorService
     private ScheduledExecutorService scheduler
+    private started = false
 
     /**
      * Maximum tries a FetchJob should get, until it will be ignored
@@ -112,25 +113,29 @@ class WptDetailResultDownloadService implements InitializingBean {
     }
 
     int getActiveThreadCount() {
-        return downloadTaskExecutorService.getActiveCount()
+        return downloadTaskExecutorService?.getActiveCount() ?: 0
     }
 
     int getQueuedJobCount() {
-        return QUEUE_MAXIMUM_IN_MEMORY - downloadTaskExecutorService.getQueue().remainingCapacity()
+        return downloadTaskExecutorService ? QUEUE_MAXIMUM_IN_MEMORY - downloadTaskExecutorService.getQueue().remainingCapacity() : 0
     }
 
-    @Override
-    void afterPropertiesSet() throws Exception {
+    def startQueueExecution() throws Exception {
+        if (started) {
+            return
+        }
+        started = true
         downloadTaskExecutorService = new ThreadPoolExecutor(
                 CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS, MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS,
                 keepAliveTimeInSeconds, TimeUnit.SECONDS, queue)
 
         scheduler = Executors.newScheduledThreadPool(1)
         scheduler.scheduleAtFixedRate(
-            new WptDownloadTaskCreator(downloadTaskExecutorService, this),
-            FILL_QUEUE_INTERVAL_IN_SEC,
-            FILL_QUEUE_INTERVAL_IN_SEC,
-            TimeUnit.SECONDS
+                new WptDownloadTaskCreator(downloadTaskExecutorService, this),
+                FILL_QUEUE_INTERVAL_IN_SEC,
+                FILL_QUEUE_INTERVAL_IN_SEC,
+                TimeUnit.SECONDS
         )
+        log.debug("Download Threads started")
     }
 }
