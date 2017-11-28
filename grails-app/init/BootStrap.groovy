@@ -11,10 +11,9 @@ import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 
 class BootStrap {
 
-    def grailsApplication
     HealthReportService healthReportService
-    WptDetailResultDownloadService wptDetailResultDownloadService
     ConfigService configService
+    WptDetailResultDownloadService wptDetailResultDownloadService
 
     def init = { servletContext ->
         MigrationUtil.executeChanges()

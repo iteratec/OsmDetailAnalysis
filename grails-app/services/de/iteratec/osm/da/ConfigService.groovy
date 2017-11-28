@@ -12,6 +12,8 @@ class ConfigService {
 
     final String DEFAULT_MONGODB_DATABASE_NAME = "OsmDetailAnalysis"
     final int DEFAULT_GRAPHITE_PORT = 203
+    final int DEFAULT_DOWNLOAD_THREADS = 40
+    final int DEFAULT_QUEUE_MAXIMUM = 1000
 
     String getGraphiteServerAddress(){
         return graphiteConfig.serverAddress
@@ -27,5 +29,15 @@ class ConfigService {
 
     String getMongoDbDatabaseName(){
         return mongodbConfig?.databaseName?:DEFAULT_MONGODB_DATABASE_NAME
+    }
+
+    int getDownloadThreadCount(){
+        def amount = config?.da?.downloadThreads
+        if (amount == 0) return amount
+        return amount?:DEFAULT_DOWNLOAD_THREADS
+    }
+
+    int getDownloadQueueMaximum(){
+        return config?.da?.downloadQueueMaximumSize?:DEFAULT_QUEUE_MAXIMUM
     }
 }

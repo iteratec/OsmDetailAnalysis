@@ -19,3 +19,5 @@ grails:
                             osmUrl: "http://localhost:8080"
                     mongodb:
                         databaseName: "OsmDetailAnalysis"
+                    downloadThreads: 40
+                    downloadQueueMaximumSize: 1000

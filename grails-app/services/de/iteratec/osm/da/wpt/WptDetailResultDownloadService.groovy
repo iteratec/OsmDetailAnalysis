@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.wpt
 
+import de.iteratec.osm.da.ConfigService
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.fetch.Priority
@@ -8,7 +9,6 @@ import de.iteratec.osm.da.wpt.data.WPTVersion
 import de.iteratec.osm.da.wpt.data.WptDetailResult
 import de.iteratec.osm.da.wpt.resolve.*
 import de.iteratec.osm.da.wpt.resolve.exceptions.WptVersionNotSupportedException
-import org.springframework.beans.factory.InitializingBean
 
 import java.util.concurrent.*
 
@@ -19,18 +19,17 @@ import java.util.concurrent.*
  */
 class WptDetailResultDownloadService {
 
+    ConfigService configService
     /**
      * Maximum FetchJob which should be cached in each queue.
      */
-    final static int QUEUE_MAXIMUM_IN_MEMORY = 1000
+    int QUEUE_MAXIMUM_IN_MEMORY
     /**
      * Number of workers which should download data from wpt.
      */
-    final static int CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS = 20
-    final static int MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS = 40
     final static int keepAliveTimeInSeconds = 5
     final static int FILL_QUEUE_INTERVAL_IN_SEC = 10
-    final BlockingQueue<WptDownloadTask> queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY);
+    BlockingQueue<WptDownloadTask> queue
 
     ThreadPoolExecutor downloadTaskExecutorService
     private ScheduledExecutorService scheduler
@@ -57,7 +56,6 @@ class WptDetailResultDownloadService {
      */
     int createNewFetchJob(long osmInstance, long jobId, long jobGroupId, String wptBaseUrl, List<String> wptTestIds, String wptVersion, Priority priority, FetchBatch fetchBatch = null) {
         int numberOfNewFetchJobs = 0
-
         log.debug("Persist ${wptTestIds.size()} wptTestIds as FetchJobs.")
 
         wptTestIds.each { String wptTestId ->
@@ -105,7 +103,7 @@ class WptDetailResultDownloadService {
      * @param fetchJob
      * @return WptDetailResult
      */
-    public WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
+    WptDetailResult downloadWptDetailResultFromWPTInstance(FetchJob fetchJob) {
         WptDetailDataStrategyI strategy = wptDetailDataStrategyService.getStrategyForVersion(WPTVersion.get(fetchJob.wptVersion))
         if (!strategy) {
             throw new WptVersionNotSupportedException(fetchJob.wptBaseURL, fetchJob.wptTestId, fetchJob.wptVersion)
@@ -126,8 +124,12 @@ class WptDetailResultDownloadService {
             return
         }
         started = true
+        QUEUE_MAXIMUM_IN_MEMORY = configService.getDownloadQueueMaximum()
+        queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY)
+        int numberOfThreads = configService.getDownloadThreadCount()
+        int coreNumberOfThreads = (numberOfThreads / 2) + 1
         downloadTaskExecutorService = new ThreadPoolExecutor(
-                CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS, MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS,
+                coreNumberOfThreads, numberOfThreads,
                 keepAliveTimeInSeconds, TimeUnit.SECONDS, queue)
 
         scheduler = Executors.newScheduledThreadPool(1)

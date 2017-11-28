@@ -68,4 +68,43 @@ class ConfigServiceSpec extends Specification {
         expect: "the keys"
         service.getApiKeys() == keys
     }
+
+    void "test default download thread count"(){
+        given: "No thread amount given"
+        service.config.da.downloadThreads = null
+        expect: "The default"
+        service.getDownloadThreadCount() == service.DEFAULT_DOWNLOAD_THREADS
+    }
+
+    void "test 0 download thread count"(){
+        given: "0 Threads"
+        service.config.da.downloadThreads = 0
+        expect: "Not the default, but actually 0"
+        service.getDownloadThreadCount() == 0
+    }
+
+    void "test a specified amount of threads"(){
+        given: "A thread count"
+        int count = 8
+        service.config.da.downloadThreads = count
+        expect: "The given count"
+        service.getDownloadThreadCount() == count
+    }
+
+    void "test default download queue size"(){
+        given: "No size specified"
+        service.config.da.downloadQueueMaximumSize = null
+        expect: "The given count"
+        service.getDownloadQueueMaximum() == service.getDEFAULT_QUEUE_MAXIMUM()
+    }
+
+    void "test a specified queue maximum"(){
+        given: "A queue maximum"
+        int maximum = 8
+        service.config.da.downloadQueueMaximumSize = maximum
+        expect: "The given amount"
+        service.getDownloadThreadCount() == maximum
+    }
+
+
 }
