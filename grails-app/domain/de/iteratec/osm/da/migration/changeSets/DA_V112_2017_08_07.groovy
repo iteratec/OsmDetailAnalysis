@@ -3,16 +3,16 @@ package de.iteratec.osm.da.migration.changeSets
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoDatabase
+import de.iteratec.osm.da.ConfigService
 import de.iteratec.osm.da.migration.ChangeSet
 
 class DA_V112_2017_08_07 extends ChangeSet {
     MongoClient mongo
-    def grailsApplication
+    ConfigService configService
 
     @Override
     Boolean execute() {
-        def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
-        databaseName = databaseName ? databaseName : "OsmDetailAnalysis"
+        def databaseName = configService.getMongoDbDatabaseName()
         MongoDatabase db = mongo.getDatabase(databaseName)
         def collection = db.getCollection("osmInstance")
         collection.find().each{

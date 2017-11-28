@@ -1,3 +1,4 @@
+import de.iteratec.osm.da.ConfigService
 import de.iteratec.osm.da.api.ApiKey
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
@@ -13,6 +14,7 @@ class BootStrap {
     def grailsApplication
     HealthReportService healthReportService
     WptDetailResultDownloadService wptDetailResultDownloadService
+    ConfigService configService
 
     def init = { servletContext ->
         MigrationUtil.executeChanges()
@@ -24,7 +26,7 @@ class BootStrap {
     }
 
     private void initOsmInstances() {
-        def apiKeyOsmMap = grailsApplication.config.grails.de.iteratec.osm.da.apiKeys
+        def apiKeyOsmMap = configService.getApiKeys()
         apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
             boolean apiKeyIsKnown = false
             List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
@@ -69,8 +71,8 @@ class BootStrap {
         }
     }
     def initHealthReporting(){
-        String serverAddress = grailsApplication.config.grails.de.iteratec.osm.da.report.external.graphiteServer.serverAddress
-        String carbonPort = grailsApplication.config.grails.de.iteratec.osm.da.report.external.graphiteServer.carbonPort
+        String serverAddress = configService.getGraphiteServerAddress()
+        int carbonPort = configService.getGraphiteCarbonPort()
         if (serverAddress && carbonPort){
             GraphiteServer graphiteServer = GraphiteServer.findByServerAddressAndPort(serverAddress, carbonPort) ?: new GraphiteServer(
                 serverAddress: serverAddress,
