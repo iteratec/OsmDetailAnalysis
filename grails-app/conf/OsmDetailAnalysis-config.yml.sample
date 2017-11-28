@@ -17,3 +17,5 @@ grails:
                         # apiKey should only have alphanumerical characters and dashes [a-zA-Z0-9\-]+
                         -   key: abc
                             osmUrl: "http://localhost:8080"
+                    mongodb:
+                        databaseName: "OsmDetailAnalysis"
