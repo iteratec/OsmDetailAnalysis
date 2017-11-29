@@ -128,9 +128,11 @@ class WptDetailResultDownloadService {
         queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY)
         int numberOfThreads = configService.getDownloadThreadCount()
         int coreNumberOfThreads = (numberOfThreads / 2) + 1
+        log.debug("Starting download threadpool with $numberOfThreads threads and a queue size of $QUEUE_MAXIMUM_IN_MEMORY")
         downloadTaskExecutorService = new ThreadPoolExecutor(
                 coreNumberOfThreads, numberOfThreads,
-                keepAliveTimeInSeconds, TimeUnit.SECONDS, queue)
+                keepAliveTimeInSeconds, TimeUnit.SECONDS, queue, new ThreadPoolExecutor.DiscardPolicy())
+
 
         scheduler = Executors.newScheduledThreadPool(1)
         scheduler.scheduleAtFixedRate(
