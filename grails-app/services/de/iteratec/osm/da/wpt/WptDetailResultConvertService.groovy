@@ -23,18 +23,17 @@ class WptDetailResultConvertService {
      * Will convert a result to a AssetGroup. Note that there can be null values in this list, if a mapping wasn't available
      * @param result
      * @param fetchJob
-     * @param date
      * @return
      */
     public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
         List<AssetRequestGroup> assetGroups = []
-        Date dateOfPersistence = new Date() // Make sure that every Group has the same date, so later they will all deleted together
+        Date persistenceDataOfAllGroups = new Date()
         result.steps.each {step ->
             Map<String, List<Request>> mediaTypeMap = step.requests.groupBy {
                 getMediaType(it.contentType)
             }
             mediaTypeMap.each {key, value ->
-                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted, dateOfPersistence)
+                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted, persistenceDataOfAllGroups)
                 //If there was no group created, we just skip this group
                 if(!assetGroup) return
                 List<AssetRequest> assets = []
