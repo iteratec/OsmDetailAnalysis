@@ -21,9 +21,6 @@ class WptDetailResultConvertService {
 
     /**
      * Will convert a result to a AssetGroup. Note that there can be null values in this list, if a mapping wasn't available
-     * @param result
-     * @param fetchJob
-     * @return
      */
     public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
         List<AssetRequestGroup> assetGroups = []
