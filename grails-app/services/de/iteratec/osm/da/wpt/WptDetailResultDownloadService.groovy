@@ -124,7 +124,6 @@ class WptDetailResultDownloadService {
         if (started) {
             return
         }
-        started = true
         downloadTaskExecutorService = new ThreadPoolExecutor(
                 CORE_NUMBER_OF_DOWNLOAD_WORKER_THREADS, MAXIMUM_NUMBER_OF_DOWNLOAD_WORKER_THREADS,
                 keepAliveTimeInSeconds, TimeUnit.SECONDS, queue)
@@ -136,6 +135,7 @@ class WptDetailResultDownloadService {
                 FILL_QUEUE_INTERVAL_IN_SEC,
                 TimeUnit.SECONDS
         )
+        started = true
         log.debug("Download Threads started")
     }
 }
