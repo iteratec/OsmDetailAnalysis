@@ -25,63 +25,59 @@ class BootStrap {
     }
 
     private void initOsmInstances() {
-        def apiKeyOsmMap = configService.getApiKeys()
         log.debug("remove old api keys")
         ApiKey.list()*.delete(flush: true)
+        def apiKeyOsmMap = configService.getApiKeys()
+        HashSet<Map> apiSet = [] as HashSet
+        apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTup ->
+            if (!apiSet.add(apiKeyOsmTup)) log.debug("Removed duplicate key $apiKeyOsmTup")
+        }
+
         def amount = 0
-        apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
-            boolean apiKeyIsKnown = false
-            List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
+        apiSet.each { apiKeyOsmTupel ->
             String configOsmUrl = UrlUtil.appendTrailingSlash(apiKeyOsmTupel.osmUrl)
             String path = ""
             String protocol = ""
-            switch (configOsmUrl){
+            switch (configOsmUrl) {
                 case ~/http:\/\/.+/:
-                    path = configOsmUrl.replace("http://","")
+                    path = configOsmUrl.replace("http://", "")
                     protocol = "http"
                     break
                 case ~/https:\/\/.+/:
-                    path = configOsmUrl.replace("https://","")
+                    path = configOsmUrl.replace("https://", "")
                     protocol = "https"
                     break
             }
-            apiKeys.each { ApiKey apiKey ->
-                if (apiKey.osmInstance.domainPath == path) {
-                    apiKeyIsKnown = true
-                }
-            }
-            if (!apiKeyIsKnown) {
-                OsmInstance osmInstance = OsmInstance.findByDomainPath(configOsmUrl)
-                if (!osmInstance) {
-                    osmInstance = new OsmInstance([name                : path,
-                                                   domainPath          : path,
-                                                   protocol            : protocol,
-                                                   jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
-                                                   locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
-                                                   measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),
-                                                   browserMapping      : new OsmMapping([domain: OsmDomain.Browser]),
-                                                   pageMapping         : new OsmMapping([domain: OsmDomain.Page]),
-                                                   jobMapping          : new OsmMapping([domain: OsmDomain.Job])]).save(failOnError: true, flush: true)
+            OsmInstance osmInstance = OsmInstance.findByDomainPath(configOsmUrl)
+            if (!osmInstance) {
+                osmInstance = new OsmInstance([name                : path,
+                                               domainPath          : path,
+                                               protocol            : protocol,
+                                               jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
+                                               locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
+                                               measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),
+                                               browserMapping      : new OsmMapping([domain: OsmDomain.Browser]),
+                                               pageMapping         : new OsmMapping([domain: OsmDomain.Page]),
+                                               jobMapping          : new OsmMapping([domain: OsmDomain.Job])]).save(failOnError: true, flush: true)
 
-                }
-                new ApiKey([secretKey            : apiKeyOsmTupel.key, description: "Key generated from initial properties",
-                            osmInstance          : osmInstance, valid: true, allowedToTriggerFetchJobs: true, allowedToDisplayResults: true,
-                            allowedToUpdateOsmUrl: true, allowedToUpdateMapping: true, allowedToCreateApiKeys: true]).save(failOnError: true, flush: true)
-                ++amount
             }
-
+            new ApiKey([secretKey            : apiKeyOsmTupel.key, description: "Key generated from initial properties",
+                        osmInstance          : osmInstance, valid: true, allowedToTriggerFetchJobs: true, allowedToDisplayResults: true,
+                        allowedToUpdateOsmUrl: true, allowedToUpdateMapping: true, allowedToCreateApiKeys: true]).save(failOnError: true, flush: true)
+            ++amount
         }
         log.debug("created $amount API keys from config")
     }
-    def initHealthReporting(){
+
+    def initHealthReporting() {
         String serverAddress = configService.getGraphiteServerAddress()
         int carbonPort = configService.getGraphiteCarbonPort()
-        if (serverAddress && carbonPort){
+        if (serverAddress && carbonPort) {
             GraphiteServer graphiteServer = GraphiteServer.findByServerAddressAndPort(serverAddress, carbonPort) ?: new GraphiteServer(
-                serverAddress: serverAddress,
-                port: carbonPort
+                    serverAddress: serverAddress,
+                    port: carbonPort
             ).save(failOnError: true)
-            if (graphiteServer){
+            if (graphiteServer) {
                 log.info("Starting health metric reporting for osmda to Graphite instance:\n${graphiteServer}")
                 healthReportService.handleGraphiteServer(graphiteServer)
             } else {
