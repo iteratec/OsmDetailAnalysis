@@ -29,7 +29,6 @@ class BootStrap {
         log.debug("remove old api keys")
         ApiKey.list()*.delete(flush: true)
         def amount = 0
-        def apiKeyOsmMap = grailsApplication.config.grails.de.iteratec.osm.da.apiKeys
         apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTupel ->
             boolean apiKeyIsKnown = false
             List apiKeys = ApiKey.findAllBySecretKey(apiKeyOsmTupel.key)
