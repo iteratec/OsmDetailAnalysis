@@ -23,7 +23,7 @@ class WptDetailResultDownloadService {
     /**
      * Maximum FetchJob which should be cached in each queue.
      */
-    int QUEUE_MAXIMUM_IN_MEMORY
+    int queueMaximumInMemory
     /**
      * Number of workers which should download data from wpt.
      */
@@ -115,18 +115,18 @@ class WptDetailResultDownloadService {
     }
 
     int getQueuedJobCount() {
-        return downloadTaskExecutorService ? QUEUE_MAXIMUM_IN_MEMORY - downloadTaskExecutorService.getQueue().remainingCapacity() : 0
+        return downloadTaskExecutorService ? queueMaximumInMemory - downloadTaskExecutorService.getQueue().remainingCapacity() : 0
     }
 
     def startQueueExecution() throws Exception {
         if (started) {
             return
         }
-        QUEUE_MAXIMUM_IN_MEMORY = configService.getDownloadQueueMaximum()
-        queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY)
+        queueMaximumInMemory = configService.getDownloadQueueMaximum()
+        queue = new ArrayBlockingQueue<>(queueMaximumInMemory)
         int numberOfThreads = configService.getDownloadThreadCount()
         int coreNumberOfThreads = (numberOfThreads / 2) + 1
-        log.debug("Starting download threadpool with $numberOfThreads threads and a queue size of $QUEUE_MAXIMUM_IN_MEMORY")
+        log.debug("Starting download threadpool with $numberOfThreads threads and a queue size of $queueMaximumInMemory")
         downloadTaskExecutorService = new ThreadPoolExecutor(
                 coreNumberOfThreads, numberOfThreads,
                 keepAliveTimeInSeconds, TimeUnit.SECONDS, queue, new ThreadPoolExecutor.DiscardPolicy())
