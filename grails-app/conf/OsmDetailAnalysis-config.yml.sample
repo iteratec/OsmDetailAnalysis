@@ -6,6 +6,10 @@ grails:
         iteratec:
             osm:
                 da:
+                    cleanup:
+                        #asset data older then the specified days will be deleted every night
+                        #set to -1 to disable the cleanup process
+                        daysToKeep: 60
                     report.external:
                         graphiteServer:
                             serverAddress: [your.graphites.carbon.url, e.g. my.graphite.com]

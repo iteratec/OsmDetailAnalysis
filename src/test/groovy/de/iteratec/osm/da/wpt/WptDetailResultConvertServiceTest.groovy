@@ -1,7 +1,6 @@
 package de.iteratec.osm.da.wpt
 
 import de.iteratec.osm.da.TestDataUtil
-import de.iteratec.osm.da.fetch.FailedFetchJob
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.instances.OsmMapping
@@ -12,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @TestFor(WptDetailResultConvertService)
-@Mock([OsmInstance, FetchJob, OsmMapping, FailedFetchJob])
+@Mock([OsmInstance, FetchJob, OsmMapping])
 class WptDetailResultConvertServiceTest extends Specification {
 
     def setup(){

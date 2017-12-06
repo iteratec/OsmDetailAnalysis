@@ -1,33 +1,26 @@
 package de.iteratec.osm.da.persistence
 
-import de.iteratec.osm.da.asset.AssetRequestGroup
-import grails.gorm.DetachedCriteria
+import com.mongodb.BasicDBObject
+import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
 
 class DbCleanupService {
 
-    public void deleteHarDataBefore(Date toDeleteBefore){
-        log.info "begin with deleteResultsDataBefore"
+    MongoClient mongo
+    def grailsApplication
 
-        // use gorm-batching
-        def dc = new DetachedCriteria(AssetRequestGroup).build {
-            lt 'date', toDeleteBefore.getTime()
-        }
-        int count = dc.count()
+    def deleteOldAssetData(Date maxDate){
+        def databaseName = grailsApplication.config.grails?.mongodb?.databaseName
+        databaseName = databaseName ? databaseName : "OsmDetailAnalysis"
+        MongoDatabase db = mongo.getDatabase(databaseName)
+        def assetRequestGroup = db.getCollection("assetRequestGroup")
+        def aggregatedAssetGroup = db.getCollection("aggregatedAssetGroup")
 
-        //batch size -> hibernate doc recommends 10..50
-        int batchSize = 50
-        0.step(count, batchSize) { int offset ->
-            AssetRequestGroup.withNewTransaction {
-                dc.list(max: batchSize).each { AssetRequestGroup assetGroup ->
-                    try {
-                        assetGroup.delete()
-                    } catch (Exception e) {
-                        println e
-                    }
-                }
-            }
-            //clear hibernate session first-level cache
-            AssetRequestGroup.withSession { session -> session.clear() }
-        }
+        log.debug("Delete all AssetRequestGroups and AggregatedAssetGroups fetched before $maxDate")
+        BasicDBObject updateFields = new BasicDBObject("dateOfPersistence", new BasicDBObject("\$lt",maxDate))
+        def aggregatedAssetGroupRemoveResponse = aggregatedAssetGroup.remove(updateFields)
+        log.debug("Removed ${aggregatedAssetGroupRemoveResponse.deletedCount} AggregatedAssetGroups")
+        def assetRequestGroupRemoveResponse = assetRequestGroup.remove(updateFields)
+        log.debug("Removed ${assetRequestGroupRemoveResponse.deletedCount} AssetRequestGroups")
     }
 }

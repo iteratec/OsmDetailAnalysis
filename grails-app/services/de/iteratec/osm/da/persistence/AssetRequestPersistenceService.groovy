@@ -60,6 +60,7 @@ class AssetRequestPersistenceService {
             subTypes.each{subType, urls ->
                 urls.each{url, List<AssetRequest> assets ->
                     AggregatedAssetGroup aggregatedAssetGroup = new AggregatedAssetGroup()
+                    aggregatedAssetGroup.dateOfPersistence = assetRequestGroup.dateOfPersistence
                     aggregatedAssetGroup.jobGroup = assetRequestGroup.jobGroup
                     aggregatedAssetGroup.mediaType = mediaType
                     aggregatedAssetGroup.browser = assetRequestGroup.browser

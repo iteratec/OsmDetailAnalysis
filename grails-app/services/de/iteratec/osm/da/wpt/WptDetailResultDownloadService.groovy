@@ -42,7 +42,6 @@ class WptDetailResultDownloadService {
 
     AssetRequestPersistenceService assetRequestPersistenceService
     WptDetailDataStrategyService wptDetailDataStrategyService
-    FailedFetchJobService failedFetchJobService
 
     /**
      * Add a Job to the normalPriorityQueue, so the assets will be downloaded eventually
@@ -78,18 +77,18 @@ class WptDetailResultDownloadService {
                 job.withNewSession {
                     job.tryCount++
                     log.debug("Try ${job.tryCount} for Job ${job.id}")
-                    if (job.tryCount >= MAX_TRY_COUNT) {
-                        if (job.fetchBatch) {
+                    if (job.tryCount >= MAX_TRY_COUNT && job.fetchBatch) {
                             synchronized (job.fetchBatch) {
-                                job.fetchBatch.addFailure(job)
+                                job.fetchBatch.addFailure()
                                 job.fetchBatch = null
                             }
-                        }
                     }
-                    job.save(failOnError: true, flush: true)
-                }
-                if (job.tryCount >= MAX_TRY_COUNT) {
-                    failedFetchJobService.markJobAsFailed(job, e)
+                    if (job.tryCount >= MAX_TRY_COUNT) {
+                        log.debug("Maximum trycount for Job ${job.id} reached, it will be deleted")
+                        job.delete(failOnError: true, flush: true)
+                    } else {
+                        job.save(failOnError: true, flush: true)
+                    }
                 }
             } catch (Exception exception) {
                 log.debug("caught exception while marking job as failed: ${exception.getMessage()}")
@@ -123,7 +122,6 @@ class WptDetailResultDownloadService {
         if (started) {
             return
         }
-        started = true
         QUEUE_MAXIMUM_IN_MEMORY = configService.getDownloadQueueMaximum()
         queue = new ArrayBlockingQueue<>(QUEUE_MAXIMUM_IN_MEMORY)
         int numberOfThreads = configService.getDownloadThreadCount()
@@ -141,6 +139,7 @@ class WptDetailResultDownloadService {
                 FILL_QUEUE_INTERVAL_IN_SEC,
                 TimeUnit.SECONDS
         )
+        started = true
         log.debug("Download Threads started")
     }
 }
