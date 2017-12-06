@@ -12,6 +12,7 @@ import de.iteratec.osm.da.wpt.data.WptDetailResult
 class TestDataUtil {
     static AssetRequestGroup createAssetRequestGroup() {
         new AssetRequestGroup(
+                dateOfPersistence: new Date(),
                 osmInstance: 1,
                 eventName:"Homepage_JuicyShop",
                 measuredEvent:1,

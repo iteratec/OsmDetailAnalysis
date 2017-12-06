@@ -23,7 +23,6 @@ class AssetRequestPersistenceServiceTest extends Specification{
     }
     def 'Test that getAssetRequestGroups returns a List of AssetRequestGroups'() {
         given: 'There is one AssetRequestGroup'
-        new AssetRequestGroup()
         AssetRequestGroup assetRequestGroup = TestDataUtil.createAssetRequestGroup()
         def result
         AssetRequestGroup.metaClass.static.findAllByWptBaseUrlAndWptTestIdAndMeasuredEvent = {wptBaseUrl,wptTestId,measuredEvent ->
