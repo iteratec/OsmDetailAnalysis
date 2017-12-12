@@ -19,6 +19,7 @@ grails:
                         # apiKeys for openspeedmonitor-instances.
                         # if key contains special characters it must be quoted with single quotes, e.g. 'key-123'. It must NOT be quoted with ""!
                         # apiKey should only have alphanumerical characters and dashes [a-zA-Z0-9\-]+
+                        # Only one api key per osmUrl is allowed. If you define multiple per osmUrl only the last one will work
                         -   key: abc
                             osmUrl: "http://localhost:8080"
                     mongodb:

@@ -27,46 +27,37 @@ class BootStrap {
     private void initOsmInstances() {
         log.debug("remove old api keys")
         ApiKey.list()*.delete(flush: true)
-        def apiKeyOsmMap = configService.getApiKeys()
-        HashSet<Map> apiSet = [] as HashSet
-        apiKeyOsmMap.each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTup ->
-            if (!apiSet.add(apiKeyOsmTup)) log.debug("Removed duplicate key $apiKeyOsmTup")
-        }
-
         def amount = 0
-        apiSet.each { apiKeyOsmTupel ->
-            String configOsmUrl = UrlUtil.appendTrailingSlash(apiKeyOsmTupel.osmUrl)
-            String path = ""
-            String protocol = ""
-            switch (configOsmUrl) {
-                case ~/http:\/\/.+/:
-                    path = configOsmUrl.replace("http://", "")
-                    protocol = "http"
-                    break
-                case ~/https:\/\/.+/:
-                    path = configOsmUrl.replace("https://", "")
-                    protocol = "https"
-                    break
-            }
-            OsmInstance osmInstance = OsmInstance.findByDomainPath(configOsmUrl)
-            if (!osmInstance) {
-                osmInstance = new OsmInstance([name                : path,
-                                               domainPath          : path,
-                                               protocol            : protocol,
-                                               jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
-                                               locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
-                                               measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),
-                                               browserMapping      : new OsmMapping([domain: OsmDomain.Browser]),
-                                               pageMapping         : new OsmMapping([domain: OsmDomain.Page]),
-                                               jobMapping          : new OsmMapping([domain: OsmDomain.Job])]).save(failOnError: true, flush: true)
-
-            }
-            new ApiKey([secretKey            : apiKeyOsmTupel.key, description: "Key generated from initial properties",
+        HashMap<String, String> apiKeyMap = [:]
+        configService.getApiKeys().each { unnecessaryParameterForcedUpponUsByGrails, apiKeyOsmTup ->
+            apiKeyMap[apiKeyOsmTup.osmUrl] = apiKeyOsmTup.key
+        }
+        apiKeyMap.each { String osmUrl, String key ->
+            OsmInstance osmInstance = ensureOsmInstanceExists(osmUrl)
+            new ApiKey([secretKey            : key, description: "Key generated from initial properties",
                         osmInstance          : osmInstance, valid: true, allowedToTriggerFetchJobs: true, allowedToDisplayResults: true,
                         allowedToUpdateOsmUrl: true, allowedToUpdateMapping: true, allowedToCreateApiKeys: true]).save(failOnError: true, flush: true)
             ++amount
         }
         log.debug("created $amount API keys from config")
+    }
+
+    OsmInstance ensureOsmInstanceExists(String configOsmUrl) {
+        String name = UrlUtil.removeHypertextProtocols(UrlUtil.appendTrailingSlash(configOsmUrl))
+        OsmInstance osmInstance = OsmInstance.findByName(name)
+        if (!osmInstance) {
+            osmInstance = new OsmInstance([
+                                           name                : name,
+                                           jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
+                                           locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
+                                           measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),
+                                           browserMapping      : new OsmMapping([domain: OsmDomain.Browser]),
+                                           pageMapping         : new OsmMapping([domain: OsmDomain.Page]),
+                                           jobMapping          : new OsmMapping([domain: OsmDomain.Job])])
+            osmInstance.setUrl(configOsmUrl)
+            osmInstance.save(failOnError: true, flush: true)
+        }
+        return osmInstance
     }
 
     def initHealthReporting() {
