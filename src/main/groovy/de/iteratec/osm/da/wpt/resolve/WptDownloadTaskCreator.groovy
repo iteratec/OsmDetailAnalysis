@@ -37,7 +37,7 @@ class WptDownloadTaskCreator implements Runnable {
         }
 
         log.debug("Get jobs from database to fill executor queue (remaining capacity:${currentQueue.remainingCapacity()}, " +
-                  "elements in queue: ${currentQueue.size()}")
+                "elements in queue: ${currentQueue.size()}")
         Set<FetchJob> fetchJobsToQueue = loadJobsFromDatabase(currentQueue.remainingCapacity(), idsToIgnore, WptDetailResultDownloadService.MAX_TRY_COUNT)
         log.debug("Got ${fetchJobsToQueue.size()} jobs from the database to queue.")
         fetchJobsToQueue.each {
@@ -60,11 +60,11 @@ class WptDownloadTaskCreator implements Runnable {
      */
     Set<FetchJob> loadJobsFromDatabase(int maximumAmount, List<Integer> idsToIgnore, int maximumTries) {
 
-        Set<FetchJob> fetchJobs = new HashSet<>()
+        Set<FetchJob> fetchJobs = null
 
         log.debug("Trying to get maximum of ${maximumAmount} queued jobs from the database")
         FetchJob.withNewSession {
-            List<FetchJob> jobsToAdd = FetchJob.createCriteria().list(max: maximumAmount) {
+            fetchJobs = FetchJob.createCriteria().list(max: maximumAmount) {
                 and {
                     not {
                         'in'("id", idsToIgnore)
@@ -74,33 +74,7 @@ class WptDownloadTaskCreator implements Runnable {
                     order('created', 'asc')
                 }
             }
-
-            jobsToAdd?.each { FetchJob fetchJob ->
-                int identicalFetchJobs = FetchJob.countByWptBaseURLAndWptTestIdAndOsmInstanceAndTryCountLessThan(
-                        fetchJob.wptBaseURL,
-                        fetchJob.wptTestId,
-                        fetchJob.osmInstance,
-                        maximumTries
-                )
-                int alreadyLoadedAssetGroups = AssetRequestGroup.countByWptBaseUrlAndWptTestIdAndOsmInstance(
-                        fetchJob.wptBaseURL,
-                        fetchJob.wptTestId,
-                        fetchJob.osmInstance
-                )
-
-                if (identicalFetchJobs > 1 || alreadyLoadedAssetGroups > 0) {
-                    log.debug("Job ${fetchJob.toString()} is a duplicated, deleting it.")
-                    try {
-                        fetchJob.delete(failOnError: true, flush: true)
-                    } catch (Exception e) {
-                        log.error("Duplicate FetchJob ${fetchJob} can't be deleted.", e)
-                    }
-                } else {
-                    fetchJobs.add(fetchJob)
-                }
-            }
         }
-
         return fetchJobs
     }
 }

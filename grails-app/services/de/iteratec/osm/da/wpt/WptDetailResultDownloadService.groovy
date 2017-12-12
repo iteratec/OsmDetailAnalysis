@@ -1,5 +1,6 @@
 package de.iteratec.osm.da.wpt
 
+import com.mongodb.MongoBulkWriteException
 import de.iteratec.osm.da.ConfigService
 import de.iteratec.osm.da.fetch.FetchBatch
 import de.iteratec.osm.da.fetch.FetchJob
@@ -58,8 +59,17 @@ class WptDetailResultDownloadService {
         log.debug("Persist ${wptTestIds.size()} wptTestIds as FetchJobs.")
 
         wptTestIds.each { String wptTestId ->
-            new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
-                    wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch: fetchBatch).save(flush: true, failOnError: true)
+            try {
+                new FetchJob(priority: priority, osmInstance: osmInstance, jobId: jobId, jobGroupId: jobGroupId, wptBaseURL: wptBaseUrl,
+                        wptTestId: wptTestId, wptVersion: wptVersion, fetchBatch: fetchBatch).save(flush: true, failOnError: true)
+            } catch (MongoBulkWriteException e) {
+                if (e.writeErrors*.code.contains(11000)) {//11000=duplicate found
+//                that's fine, we don't want duplicates
+                    log.debug("Found fetchJob duplicate, won't save")
+                } else {
+                    e.printStackTrace()
+                }
+            }
             numberOfNewFetchJobs++
             log.debug("Created a FetchJob for WptId=$wptTestId")
         }
@@ -78,10 +88,10 @@ class WptDetailResultDownloadService {
                     job.tryCount++
                     log.debug("Try ${job.tryCount} for Job ${job.id}")
                     if (job.tryCount >= MAX_TRY_COUNT && job.fetchBatch) {
-                            synchronized (job.fetchBatch) {
-                                job.fetchBatch.addFailure()
-                                job.fetchBatch = null
-                            }
+                        synchronized (job.fetchBatch) {
+                            job.fetchBatch.addFailure()
+                            job.fetchBatch = null
+                        }
                     }
                     if (job.tryCount >= MAX_TRY_COUNT) {
                         log.debug("Maximum trycount for Job ${job.id} reached, it will be deleted")

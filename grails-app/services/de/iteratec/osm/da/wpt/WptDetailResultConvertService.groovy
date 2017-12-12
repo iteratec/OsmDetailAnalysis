@@ -1,7 +1,5 @@
 package de.iteratec.osm.da.wpt
 
-import de.iteratec.osm.da.asset.AssetRequest
-import de.iteratec.osm.da.asset.AssetRequestGroup
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.mapping.OsmDomain
@@ -22,18 +20,18 @@ class WptDetailResultConvertService {
     /**
      * Will convert a result to a AssetGroup. Note that there can be null values in this list, if a mapping wasn't available
      */
-    public List<AssetRequestGroup> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
-        List<AssetRequestGroup> assetGroups = []
+    public List<Map> convertWPTDetailResultToAssetGroups(WptDetailResult result, FetchJob fetchJob){
+        List<Map> assetGroups = []
         Date persistenceDataOfAllGroups = new Date()
         result.steps.each {step ->
             Map<String, List<Request>> mediaTypeMap = step.requests.groupBy {
                 getMediaType(it.contentType)
             }
             mediaTypeMap.each {key, value ->
-                AssetRequestGroup assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted, persistenceDataOfAllGroups)
+                Map<String, Object> assetGroup = createAssetGroup(result, fetchJob, key, step.isFirstView, getEventName(step.eventName), getPageName(step.eventName), step.epochTimeStarted, persistenceDataOfAllGroups)
                 //If there was no group created, we just skip this group
                 if(!assetGroup) return
-                List<AssetRequest> assets = []
+                List<Map> assets = []
                 value.each {req ->
                     assets << createAsset(req)
                 }
@@ -44,7 +42,7 @@ class WptDetailResultConvertService {
         return assetGroups
     }
 
-    private AssetRequestGroup createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted, Date dateOfPersistence){
+    private Map<String, Object> createAssetGroup(WptDetailResult result, FetchJob fetchJob, String mediaType, boolean isFirstView, String eventName, String pageName, long epochTimeStarted, Date dateOfPersistence){
         boolean allUpdatesDone = updateMappings(fetchJob.osmInstance,result,eventName, pageName, fetchJob.jobGroupId, fetchJob.jobId)
         if(!allUpdatesDone){
             fetchJob.delete(failOnError: true, flush: true)
@@ -54,11 +52,11 @@ class WptDetailResultConvertService {
         long page  = mappingService.getIdForPageName(fetchJob.osmInstance, pageName)
         long location = mappingService.getIdForLocationName(fetchJob.osmInstance, result.location)
         long browser = mappingService.getIdForBrowserName(fetchJob.osmInstance,result.browser)
-        return new AssetRequestGroup(osmInstance: fetchJob.osmInstance,eventName: eventName, jobId: result.jobId, jobGroup: result.jobGroupID,
+        return [osmInstance: fetchJob.osmInstance, eventName: eventName, jobId: result.jobId, jobGroup: result.jobGroupID,
                 bandwithUp: result.bandwidthUp, bandwidhtDown: result.bandwidthDown, latency: result.latency,
                 packetLoss: result.packagelossrate, page: page, measuredEvent:measuredEvent, location:location,
                 browser: browser, epochTimeStarted: epochTimeStarted, mediaType: mediaType,
-                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView, dateOfPersistence: dateOfPersistence)
+                wptBaseUrl: result.wptBaseUrl, wptTestId: result.wptTestID, isFirstViewInStep: isFirstView, dateOfPersistence: dateOfPersistence]
     }
 
     /**
@@ -90,15 +88,15 @@ class WptDetailResultConvertService {
         return tokenized.size() == 2 ? tokenized[0] : UNDEFINED_PAGE
     }
 
-    private static AssetRequest createAsset(Request req){
+    private static Map createAsset(Request req){
         String[] mimeType = convertMimeTypesInAssetMap(req.contentType)
-        return new AssetRequest(bytesIn: req.bytesIn, bytesOut: req.bytesOut, connectTimeMs: req.connectTimeMs,
+        return [bytesIn: req.bytesIn, bytesOut: req.bytesOut, connectTimeMs: req.connectTimeMs,
                 downloadTimeMs: req.downloadMs,loadTimeMs: req.loadMs, timeToFirstByteMs: req.ttfbMs,
                 sslNegotiationTimeMs: req.sslNegotiationTimeMs, indexWithinHar: req.indexWithinStep,
                 mediaType: mimeType[0], subtype: mimeType[1], host: req.host, url: req.url,
-                urlWithoutParams: req!=null && req.host!= null ?"${req.host}${createURLWithoutParams(req.url)}":req.host,
-                startPhase: req.startPhase,
-                endPhase: req.endPhase, dnsMs: req.dnsTimeMs)
+                urlWithoutParams: req!=null && req.host!= null ?"${req.host}${createURLWithoutParams(req.url)}".toString():req.host,
+                startPhase: req.startPhase.toString(),
+                endPhase: req.endPhase.toString(), dnsMs: req.dnsTimeMs]
     }
 
     static String getMediaType(String mimeType){
