@@ -78,19 +78,22 @@ class DA_V119_2017_12_06 extends ChangeSet {
     def getDuplicateList(MongoCollection<Document> collection, String tmpCollection) {
         log.debug "Create duplicate list for ${collection.name}"
         Instant start = Instant.now()
+        def groupDocument= new Document('$group',
+                new Document('_id',
+                        new Document('wptBaseUrl', '$wptBaseUrl')
+                                .append('wptTestId', '$wptTestId')
+                                .append('measuredEvent', '$measuredEvent')
+                                .append('mediaType', '$mediaType')
+                                .append('osmInstance', '$osmInstance')
+                ).append('dups', new Document('$push', '$_id'))
+                        .append('count', new Document('$sum', 1)))
+        def matchDocument = new Document('$match', new Document('count', new Document('$gt', 1)))
+        def outDocument = new Document('$out', tmpCollection)
         AggregateIterable<Document> duplicates = collection.aggregate(
                 [
-                        new Document('$group',
-                                new Document('_id',
-                                        new Document('wptBaseUrl', '$wptBaseUrl')
-                                                .append('wptTestId', '$wptTestId')
-                                                .append('measuredEvent', '$measuredEvent')
-                                                .append('mediaType', '$mediaType')
-                                                .append('osmInstance', '$osmInstance')
-                                ).append('dups', new Document('$push', '$_id'))
-                                        .append('count', new Document('$sum', 1))),
-                        new Document('$match', new Document('count', new Document('$gt', 1))),
-                        new Document('$out', tmpCollection)
+                        groupDocument,
+                        matchDocument,
+                        outDocument
                 ]
         ).allowDiskUse(true)
         duplicates.size() //to actually execute the previous query
