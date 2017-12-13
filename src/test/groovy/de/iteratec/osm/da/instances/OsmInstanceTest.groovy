@@ -10,13 +10,10 @@ class OsmInstanceTest extends Specification {
     @Unroll("Test that a OsmInstance with url #givenUrl will return the url #expectedUrl")
     def "Test URLs with trailing slash"() {
         given:
-        String instanceName = "testInstance"
+        def instance = new OsmInstance(url: givenUrl).save(failOnError: true)
 
-        when:
-        new OsmInstance(url: givenUrl).save(failOnError: true)
-
-        then: "url has trailing slash after saving"
-        OsmInstance.findByName(instanceName).domainPath == expectedUrl
+        expect: "url has trailing slash after saving"
+        instance.domainPath == expectedUrl
 
         where:
         givenUrl                 | expectedUrl
