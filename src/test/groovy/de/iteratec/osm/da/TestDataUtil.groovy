@@ -50,7 +50,7 @@ class TestDataUtil {
         ).save(failOnError:true, flush:true)
     }
 
-    static OsmInstance createOsmInstance(){return new OsmInstance(name: "TestInstance",url:"http://demo.openspeedmonitor.de").save(failOnError:true, flush:true)}
+    static OsmInstance createOsmInstance(){return new OsmInstance(url:"http://demo.openspeedmonitor.de").save(failOnError:true, flush:true)}
 
     /**
      * Creates a Result, of a test of 2 runs, with 2 steps. In Every step there will be a mimimum of one html and one jpg loaded.

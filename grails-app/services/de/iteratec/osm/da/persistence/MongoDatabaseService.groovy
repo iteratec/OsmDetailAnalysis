@@ -11,6 +11,7 @@ class MongoDatabaseService {
     MongoCollection aggregatedAssetGroupCollection
     MongoCollection fetchJobCollection
     MongoCollection assetRequestGroupCollection
+    MongoCollection osmInstanceCollection
 
     MongoCollection getAggregatedAssetGroupCollection(){
         if(!this.@aggregatedAssetGroupCollection) aggregatedAssetGroupCollection = getCollection("aggregatedAssetGroup")
@@ -27,6 +28,10 @@ class MongoDatabaseService {
         return this.@assetRequestGroupCollection
     }
 
+    MongoCollection getOsmInstanceCollection(){
+        if(!this.@osmInstanceCollection) osmInstanceCollection = getCollection('osmInstance')
+        return this.@osmInstanceCollection
+    }
 
     MongoCollection getCollection(String name){
         return mongo.getDatabase(configService.getMongoDbDatabaseName()).getCollection(name)

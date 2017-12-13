@@ -13,7 +13,7 @@ class OsmInstanceTest extends Specification {
         String instanceName = "testInstance"
 
         when:
-        new OsmInstance(name: instanceName, url: givenUrl).save(failOnError: true)
+        new OsmInstance(url: givenUrl).save(failOnError: true)
 
         then: "url has trailing slash after saving"
         OsmInstance.findByName(instanceName).domainPath == expectedUrl

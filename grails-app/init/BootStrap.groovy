@@ -43,11 +43,10 @@ class BootStrap {
     }
 
     OsmInstance ensureOsmInstanceExists(String configOsmUrl) {
-        String name = UrlUtil.removeHypertextProtocols(UrlUtil.appendTrailingSlash(configOsmUrl))
-        OsmInstance osmInstance = OsmInstance.findByName(name)
+        String path = UrlUtil.removeHypertextProtocols(UrlUtil.appendTrailingSlash(configOsmUrl))
+        OsmInstance osmInstance = OsmInstance.findByDomainPath(path)
         if (!osmInstance) {
             osmInstance = new OsmInstance([
-                                           name                : name,
                                            jobGroupMapping     : new OsmMapping([domain: OsmDomain.JobGroup]),
                                            locationMapping     : new OsmMapping([domain: OsmDomain.Location]),
                                            measuredEventMapping: new OsmMapping([domain: OsmDomain.MeasuredEvent]),

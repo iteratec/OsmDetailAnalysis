@@ -3,6 +3,7 @@ package de.iteratec.osm.da.migration.changelogs
 import de.iteratec.osm.da.migration.changeSets.DA_V112_2017_08_07
 import de.iteratec.osm.da.migration.changeSets.DA_V119_2017_11_16
 import de.iteratec.osm.da.migration.changeSets.DA_V119_2017_12_06
+import de.iteratec.osm.da.migration.changeSets.DA_V119_2017_12_13
 import de.iteratec.osm.da.migration.changeSets.DA_V_1_0_0_MarkoSchnecke_2016_12_23
 import de.iteratec.osm.da.migration.changeSets.DA_V110_2017_06_16
 
@@ -17,6 +18,7 @@ class Changelog {
             new DA_V110_2017_06_16(),
             new DA_V112_2017_08_07(),
             new DA_V119_2017_11_16(),
-            new DA_V119_2017_12_06()
+            new DA_V119_2017_12_06(),
+            new DA_V119_2017_12_13()
     ]
 }

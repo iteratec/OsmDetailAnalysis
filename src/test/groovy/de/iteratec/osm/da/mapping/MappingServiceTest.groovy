@@ -261,7 +261,7 @@ class MappingServiceTest extends Specification {
     }
 
     private createInstance = { ->
-        def instance = new OsmInstance(name: "TestInstance", url: "http://localhost:8080")
+        def instance = new OsmInstance(url: "http://localhost:8080")
         instance.browserMapping.mapping."1" = "FF"
         instance.browserMapping.mapping."2" = "Chrome"
         instance.locationMapping.mapping."1" = "Location"

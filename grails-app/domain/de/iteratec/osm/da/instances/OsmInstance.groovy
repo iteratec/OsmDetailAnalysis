@@ -20,8 +20,6 @@ import de.iteratec.osm.da.util.UrlUtil
  */
 class OsmInstance {
 
-    String name
-
     /**
      * Used as an identifier
      */
