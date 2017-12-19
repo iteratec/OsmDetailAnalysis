@@ -21,7 +21,7 @@ class GraphiteTCPSocket implements GraphiteSocket {
      *            The server adress to connect to, not <code>null</code>.
      * @param port
      *            The port to use for communication; must satisfy
-     *            {@code 0 <= port <= 65535}.
+     * {@code 0 <= port <= 65535}.
      *
      * @throws NullPointerException
      *             if {@code serverAddress} is <code>null</code>.
@@ -33,7 +33,7 @@ class GraphiteTCPSocket implements GraphiteSocket {
             throw new IllegalArgumentException(
                     "The port number must be between 0 and 65535"
                             + " (both inclusive).");
-        }else if(!serverAddress){
+        } else if (!serverAddress) {
             throw new IllegalArgumentException("Argument serverAdress may not be null!")
         }
 
@@ -56,11 +56,14 @@ class GraphiteTCPSocket implements GraphiteSocket {
             // use seconds, UNiX system V
             long metricTimestamp = timestamp.getTime() / 1000;
 
-            String messageToSendToGraphite = path.toString() + " "
-            + String.valueOf(value) + " "
-            + String.valueOf(metricTimestamp);
+            StringBuilder sbGraphiteMessage = new StringBuilder()
+                    .append(path.toString())
+                    .append(" ")
+                    .append(String.valueOf(value))
+                    .append(" ")
+                    .append(String.valueOf(metricTimestamp))
 
-            byte[] messageToSendToGraphiteInUSASCII = messageToSendToGraphite
+            byte[] messageToSendToGraphiteInUSASCII = sbGraphiteMessage.toString()
                     .getBytes(Charset.forName("US-ASCII"));
 
             graphiteFeedStream.write(messageToSendToGraphiteInUSASCII);
