@@ -3,9 +3,11 @@ package de.iteratec.osm.da.api
 import de.iteratec.osm.da.fetch.FetchJob
 import de.iteratec.osm.da.wpt.WptDetailResultDownloadService
 import grails.converters.JSON
+import grails.core.GrailsApplication
 
 class StatusRestApiController {
 
+    GrailsApplication grailsApplication
     WptDetailResultDownloadService wptDetailResultDownloadService
 
     /**
@@ -22,6 +24,7 @@ class StatusRestApiController {
 
     def getFetchJobStatus() {
         StatusDTO statusDTO = new StatusDTO()
+        statusDTO.appVersion = grailsApplication.config.info.app.version
         statusDTO.activeThreads = wptDetailResultDownloadService.getActiveThreadCount()
         statusDTO.jobsInDB = FetchJob.countByTryCountLessThan(wptDetailResultDownloadService.MAX_TRY_COUNT)
 
