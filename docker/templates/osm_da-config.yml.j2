@@ -11,7 +11,7 @@ grails:
             osm:
                 da:
                     cleanup:
-                        daysToKeep: {{default .Env.OSMDA_DAYS_TO_KEEP 60}}
+                        daysToKeep: {{default .Env.OSMDA_DAYS_TO_KEEP "60"}}
                     report.external:
                         enabled: {{ default .Env.GRAPHITE_REPORTING_ENABLED "false" }}
                         graphiteServer:
