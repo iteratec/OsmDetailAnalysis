@@ -60,18 +60,20 @@ class BootStrap {
     }
 
     def initHealthReporting() {
-        String serverAddress = configService.getGraphiteServerAddress()
-        int carbonPort = configService.getGraphiteCarbonPort()
-        if (serverAddress && carbonPort) {
-            GraphiteServer graphiteServer = GraphiteServer.findByServerAddressAndPort(serverAddress, carbonPort) ?: new GraphiteServer(
-                    serverAddress: serverAddress,
-                    port: carbonPort
-            ).save(failOnError: true)
-            if (graphiteServer) {
-                log.info("Starting health metric reporting for osmda to Graphite instance:\n${graphiteServer}")
-                healthReportService.handleGraphiteServer(graphiteServer)
-            } else {
-                log.error("Graphite server couldn't be created: ${graphiteServer}")
+        if (configService.isGraphiteReportingEnabled()){
+            String serverAddress = configService.getGraphiteServerAddress()
+            int carbonPort = configService.getGraphiteCarbonPort()
+            if (serverAddress && carbonPort) {
+                GraphiteServer graphiteServer = GraphiteServer.findByServerAddressAndPort(serverAddress, carbonPort) ?: new GraphiteServer(
+                        serverAddress: serverAddress,
+                        port: carbonPort
+                ).save(failOnError: true)
+                if (graphiteServer) {
+                    log.info("Starting health metric reporting for osmda to Graphite instance:\n${graphiteServer}")
+                    healthReportService.handleGraphiteServer(graphiteServer)
+                } else {
+                    log.error("Graphite server couldn't be created: ${graphiteServer}")
+                }
             }
         }
     }

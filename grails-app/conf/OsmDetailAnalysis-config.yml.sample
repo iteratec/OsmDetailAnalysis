@@ -11,6 +11,8 @@ grails:
                         #set to -1 to disable the cleanup process
                         daysToKeep: 60
                     report.external:
+                        # set this to true if you have a Graphite server running to receive health metrics
+                        enabled: false
                         graphiteServer:
                             serverAddress: [your.graphites.carbon.url, e.g. my.graphite.com]
                             carbonPort: [your graphites carbon port, e.g. 2003]

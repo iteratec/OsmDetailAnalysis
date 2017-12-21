@@ -7,7 +7,7 @@ class ConfigService {
 
     GrailsApplication grailsApplication = Holders.getGrailsApplication()
     def config = grailsApplication.config.grails.de.iteratec.osm
-    def graphiteConfig = config.da.report.external.graphiteServer.serverAddress
+    def graphiteConfig = config.da.report.external.graphiteServer
     def mongodbConfig = config.mongodb
 
     final String DEFAULT_MONGODB_DATABASE_NAME = "OsmDetailAnalysis"
@@ -39,5 +39,9 @@ class ConfigService {
 
     int getDownloadQueueMaximum(){
         return config?.da?.downloadQueueMaximumSize?:DEFAULT_QUEUE_MAXIMUM
+    }
+
+    boolean isGraphiteReportingEnabled(){
+        return config.da.report.external.enabled
     }
 }

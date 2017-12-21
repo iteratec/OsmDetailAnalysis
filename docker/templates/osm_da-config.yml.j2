@@ -13,6 +13,7 @@ grails:
                     cleanup:
                         daysToKeep: {{default .Env.OSMDA_DAYS_TO_KEEP 60}}
                     report.external:
+                        enabled: {{ default .Env.GRAPHITE_REPORTING_ENABLED "false" }}
                         graphiteServer:
                             serverAddress: {{ default .Env.GRAPHITE_CARBON_URL "null" }}
                             carbonPort: {{ default .Env.GRAPHITE_CARBON_PORT "null" }}
