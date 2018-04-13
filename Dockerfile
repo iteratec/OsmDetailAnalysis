@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-slim
+FROM openjdk:8-jre
 MAINTAINER nils.kuhn@iteratec.de, birger.kamp@iteratec.de
 
 ENV OSM_DA_VERSION 1.0.0
