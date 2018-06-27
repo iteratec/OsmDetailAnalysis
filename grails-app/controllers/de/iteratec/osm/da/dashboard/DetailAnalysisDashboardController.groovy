@@ -20,6 +20,7 @@ package de.iteratec.osm.da.dashboard
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoDatabase
+import de.iteratec.osm.da.api.ApiKey
 import de.iteratec.osm.da.instances.OsmInstance
 import de.iteratec.osm.da.mapping.MappingService
 import de.iteratec.osm.da.persistence.AssetRequestPersistenceService
@@ -52,6 +53,7 @@ class DetailAnalysisDashboardController {
         }
         Map<String, Object> modelToRender = [:]
         modelToRender.put("serverBaseUrl", grailsLinkGenerator.serverBaseURL)
+        modelToRender.put("osmInstance", ApiKey.findBySecretKey(cmd.apiKey)?.osmInstanceId)
 
         cmd.copyRequestDataToViewModelMap(modelToRender)
 
@@ -63,19 +65,11 @@ class DetailAnalysisDashboardController {
 
     def getAssetsForDataPoint(){
         log.debug("got a getAssetsForDataPointRequest with the following parameters epochTime=${request.JSON.date} host=${request.JSON.host} browser=${request.JSON.browser} mediaType=${request.JSON.mediaType} subType=${request.JSON.subtype} jobGroup=${request.JSON.jonGroup} page=${request.JSON.page}")
-        List<Integer> browsers = []
-        request.JSON.browser.each{
-            browsers.add(Integer.valueOf(it))
-        }
-        List<Integer> pages = []
-        request.JSON.page.each{
-            pages.add(Integer.valueOf(it))
-        }
-        List<Integer> jobGroups = []
-        request.JSON.jobGroup.each{
-            jobGroups.add(Integer.valueOf(it))
-        }
-        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(request.JSON.date).toDate(), request.JSON.host,browsers ,request.JSON.mediaType,request.JSON.subtype,jobGroups,pages)
+        def data = request.JSON
+        List<Integer> browsers = data.browser.collect{Integer.valueOf(it)}
+        List<Integer> pages = data.page.collect{Integer.valueOf(it)}
+        List<Integer> jobGroups = data.jobGroup.collect{Integer.valueOf(it)}
+        def result = assetRequestPersistenceService.getCompleteAssets(new DateTime(data.date).toDate(), data.host,browsers ,data.mediaType,data.subtype,jobGroups,pages,data.osmInstance)
 
         response.setContentType('JSON')
         response.status = 200

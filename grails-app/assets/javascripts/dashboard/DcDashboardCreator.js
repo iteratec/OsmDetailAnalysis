@@ -580,6 +580,7 @@ function addOnClickListeners() {
         if (charts["page-chart"] != null) {
             data["page"] = (charts["page-chart"].filters());
         }
+        data['osmInstance'] = OsmDetailMicroService.osmInstance;
 
         jQuery.ajax({
             type: "POST",

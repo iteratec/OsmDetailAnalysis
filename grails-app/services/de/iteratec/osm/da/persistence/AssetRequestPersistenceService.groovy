@@ -117,13 +117,15 @@ class AssetRequestPersistenceService {
             List mediaTypes,
             List subtypes,
             List jobGroups,
-            List pages
+            List pages,
+            Long osmInstance
     ) {
         log.debug("${timestamp.time / 1000 as Long}${hosts}${browsers}${mediaTypes}${subtypes}${jobGroups}${pages}")
         List aggregateList = []
         List initialMatchList = []
         List matchListAfterUnwind = []
         initialMatchList << eq("epochTimeStarted", timestamp.time / 1000 as Long)
+        initialMatchList << eq("osmInstance", osmInstance)
         //Note that we use Filters.in because in groovy "in" is already a groovy method. So please don't listen to IntelliJ
         //We add only maps which are not empty, because the check if something is in a empty map would always fail.
         if (jobGroups) initialMatchList << Filters.in("jobGroup", jobGroups)

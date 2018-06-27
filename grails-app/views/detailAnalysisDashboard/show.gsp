@@ -29,6 +29,7 @@
             OsmDetailMicroService.from = "${fromDateInMillis}" ? new Date(${fromDateInMillis}) : "";
             OsmDetailMicroService.to = "${toDateInMillis}" ? new Date(${toDateInMillis}) : "";
             OsmDetailMicroService.i18n = ${i18n};
+            OsmDetailMicroService.osmInstance = ${osmInstance};
         </g:applyCodec>
     </asset:script>
 </content>
