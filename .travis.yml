@@ -4,6 +4,7 @@ before_cache:
 cache:
   directories:
     - node_modules
+    - bower_components
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
