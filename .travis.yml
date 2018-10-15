@@ -22,5 +22,4 @@ jobs:
   - stage: Tests
     name: "unitTests"
     script:
-    - ./gradlew clean
     - ./gradlew test
