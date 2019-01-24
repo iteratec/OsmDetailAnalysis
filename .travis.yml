@@ -32,7 +32,6 @@ jobs:
         on:
           branch: develop
     - stage:
-      if: branch = master
       script: skip
       deploy:
         provider: releases
