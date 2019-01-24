@@ -33,11 +33,9 @@ jobs:
           branch: develop
     - stage: Release to Github
       if: tag IS present
-      script: skip
+      script: ./gradlew assemble
       on:
         tags: true
-      before_deploy:
-        - ./gradlew assemble
       deploy:
         provider: releases
         api_key:
