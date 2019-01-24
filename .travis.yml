@@ -51,8 +51,6 @@ jobs:
       script: skip
       deploy:
         provider: script
-        script: ./gradlew assemble
-          && echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          && docker build -t "iteratec/osm-detail-analysis:${TRAVIS_TAG:1}" . && docker push "iteratec/osm-detail-analysis:${TRAVIS_TAG:1}"
+        script: ./gradlew assemble && ./scripts/ci/building/push_release_to_docker.sh
         on:
           tags: true
