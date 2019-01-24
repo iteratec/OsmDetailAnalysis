@@ -44,6 +44,6 @@ jobs:
           - ./gradlew assemble
         after_deploy:
           - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          - docker build -t "iteratec/osm-detail-analysis:$TRAVIS_TAG" . && docker push "iteratec/osm-detail-analysis:$TRAVIS_TAG"
+          - docker build -t "iteratec/osm-detail-analysis:${TRAVIS_TAG:1}" . && docker push "iteratec/osm-detail-analysis:${TRAVIS_TAG:1}"
         on:
           tags: true
