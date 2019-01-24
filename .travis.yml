@@ -42,6 +42,7 @@ jobs:
           secure: vTHxikPOqbGlrVSCDEDsQvX5S04N3jaU86iqeybJzveThdOl3LlKnyU6QVvGJijMEQxSfF8ZIYl8NPkLnsSPiHVATe67qnjFD0QHJirssVyJ5LhWILkvocRGiIUj8RgIS4i9swFIP4YJWLQhYBdb3DjprA1uvSZn6T19pHfCoGmUG7s0AJKHLEurjHWa59SjclKyejuuhDc9knPtZo1oR4psWJsSEa5dpIzGvu+AudomuxeST8yU/dJAQtu6Uotzc11M43xt1TObsjUGenpuNAJT5Dq8X+nekXz9o+B4o0+J48Ve362QZvPdOdmRWUvepj+xelqtsa6J8aLNWV1lXjwR0lkxsuScMtvilxq6s9Nh+hiKha2iZX5sc6cBMFYVmNkdwH5NgzGIQMy4yCpqcSEIJXWPTstXzekwCjUaLzPyAII0kdYQUuWboV6DeUSJXKDr7xrhscOtvg+4o/JYvhBacd53boFLaqB20xlJDf/O0Cp/1aDPJuWbLLk2l4rRWqDg5ZYuruVA1jF6AWJVJbQsdFxMj8LNByFdKd5mWtiW6wczLKZxPA1YD4Ye9I4x1wGc9L3m6Sfze+rhASKF9WZHUeJOT6ueNSEx/dZE3A4kSz6wozCjAiGZ866DaPyxzqzP+Tkma5IX+FCulwGtkNqxPyVZcoPx2LDj5BB39Jw=
         file_glob: true
         file: "build/libs/OsmDetailAnalysis-*.war"
+        skip_cleanup: true
         on:
           tags: true
     - stage: Build and Push Release Docker Images
