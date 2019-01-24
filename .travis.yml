@@ -32,7 +32,10 @@ jobs:
         on:
           branch: develop
     - stage: Release to Github
+      if: tag IS present
       script: skip
+      on:
+        tags: true
       before_deploy:
         - ./gradlew assemble
       deploy:
@@ -44,6 +47,7 @@ jobs:
         on:
           tags: true
     - stage: Build and Push Release Docker Images
+      if: tag IS present
       script: skip
       deploy:
         provider: script
